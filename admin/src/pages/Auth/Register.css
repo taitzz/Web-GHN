@@ -1,0 +1,285 @@
+/* Reset mặc định */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f7f7f7;
+}
+
+.register-container {
+  display: flex;
+  height: 100vh;
+}
+
+.left {
+  height: 100vh;
+  padding: 0;
+  position: relative;
+  width: 40%;
+}
+
+.background-left {
+  height: 100%;
+  position: relative;
+  width: 100%;
+}
+
+.normal {
+  width: 100%;
+  display: block;
+}
+
+.content-note {
+  position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 20px;
+}
+
+.logo {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+}
+
+.logo-ghn {
+  width: 400px; /* Điều chỉnh kích thước logo */
+  height: auto;
+  margin-top: 350px;
+}
+
+.left-row2, .left-row3 {
+  text-align: center;
+  color: white;
+  font-weight: bold;
+  z-index: 3;
+}
+
+.background-left .backdrop {
+  position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(230, 238, 245, 0), rgba(0, 51, 102, 0.9)); 
+    top: 0;
+    left: 0;
+    z-index: 1; /* Đảm bảo không che nội dung */
+}
+
+.left-row2 {
+  position: absolute;
+  bottom: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Poppins', sans-serif;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  font-size: 18px;
+  width: 80%;
+}
+
+.left-row3 {
+  position: absolute;
+  bottom: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 16px;
+  font-family: 'Poppins', sans-serif;
+  font-style: italic;
+  opacity: 0.8;
+  margin-bottom: 30px;
+}
+
+.left h1 {
+  font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* .register-container .right {
+    background-color: #fff;
+    display: flex;
+    height: 100vh;
+    text-align: center;
+    vertical-align: middle;
+    width: 60%;
+}
+
+ .register-container .form-container {
+    display: inline-block;
+    width: 100%;
+    margin: auto;
+} */
+.register-container .right {
+  width: 60%;
+  height: 100vh;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #f8f9fa;
+  padding: 20px;
+}
+
+.register-container .form-container {
+  width: 100%;
+  padding: 30px;
+}
+
+.title-login {
+  margin-top: 0px;
+}
+
+.title-login h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: black;
+  text-align: center;
+}
+
+.title-login p {
+  font-size: 16px;
+  color: #ff6339;
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.register-container .row {
+  display: flex;
+  width: 100%;
+}
+
+.row-6 {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+}
+
+.register-container .form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 5px;
+}
+
+.register-container .input-field {
+  width: 350px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 16px;
+  font-size: 14px;
+  transition: 0.3s;
+}
+
+.input-field:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+.register-container .error {
+  border-color: #dc3545;
+}
+
+.error-text {
+  color: #dc3545;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.checkbox {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+}
+
+.checkbox input {
+  appearance: none; /* Loại bỏ kiểu mặc định */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  
+  width: 18px;
+  height: 18px;
+  border: 2px solid #ccc; /* Viền xám khi chưa chọn */
+  border-radius: 50%;
+  background-color: white;
+  cursor: pointer;
+  position: relative;
+  transition: 0.3s;
+}
+
+.checkbox input:checked {
+  background-color: #ff6339; /* Màu cam khi chọn */
+  border-color: orange;
+}
+
+.checkbox input:checked::after {
+  content: "";
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+}
+
+
+.register-container .button {
+  width: 40%;
+  padding: 12px;
+  background: #ff6339;
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 18px;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-left: 250px;
+}
+
+.button:hover {
+  background: #ff6339;
+}
+
+.button:disabled {
+  background: #ff997e;
+  cursor: not-allowed;
+}
+
+.login-row3 {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.register-link span {
+  color: red;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.register-link span:hover {
+  text-decoration: underline;
+}
+

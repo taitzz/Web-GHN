@@ -1,0 +1,195 @@
+/* Container chính */
+.shipper-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f3f4f6;
+}
+
+/* Hộp đăng nhập */
+.shipper-login-box {
+    position: relative;
+    display: flex;
+    background: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    width: 750px;
+    height: 55%;
+}
+
+/* Nút quay lại nằm bên trong shipper-login-box */
+.back-home {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+.back-home-button {
+    padding: 6px 10px;
+    font-size: 14px;
+    color: white;
+    background-color: #ff6600;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background 0.3s ease;
+}
+
+.back-home-button:hover {
+    background-color: #e55d00;
+}
+
+/* Hình ảnh shipper */
+.shipper-image {
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.shipper-image img {
+    width: 290px;
+}
+
+/* Form đăng nhập */
+.shipper-form {
+    width: 50%;
+    padding: 0 20px;
+}
+
+/* Logo GHN */
+.ghn-logo {
+    width: 120px;
+    display: block;
+    margin: 0 auto 10px;
+}
+
+/* Tiêu đề */
+.login-title {
+    text-align: center;
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+}
+
+/* Nhóm input */
+.input-group {
+    margin-top: 12px;
+}
+
+.input-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 8px;
+    background-color: #f7f6f6 !important;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.input-group input:focus {
+    outline: 2px solid #ff5c3b;
+}
+
+/* Nhóm mật khẩu */
+.password-group {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 30px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+
+
+/* Quên mật khẩu */
+.forgot-password {
+    text-align: right;
+    margin-top: 5px;
+}
+
+.forgot-password a {
+    color: #ff5c3b;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.forgot-password a:hover {
+    text-decoration: underline;
+}
+
+/* Nút đăng nhập */
+.login-button {
+    width: 100%;
+    background-color: #ff5c3b;
+    color: white;
+    font-weight: bold;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    margin-top: 15px;
+    cursor: pointer;
+}
+
+.login-button:hover {
+    background-color: #ff2e00;
+}
+
+/* Hướng dẫn */
+
+.auth-guide {
+    width: 330px;
+    margin-left: -9px;
+    margin-top: 30px;
+}
+
+.register-link {
+    color: red;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.register-link:hover {
+    text-decoration: underline;
+}
+
+
+
+/* Phần chia */
+.divider {
+    text-align: center;
+    color: #777;
+    margin: 15px 0;
+    font-size: 14px;
+}
+
+/* Đăng nhập Freelancer */
+.freelancer-login {
+    width: 100%;
+    background: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.freelancer-login:hover {
+    background-color: #f8f8f8;
+}
