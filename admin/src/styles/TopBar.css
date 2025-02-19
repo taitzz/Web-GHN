@@ -1,0 +1,110 @@
+/* TopBar.css */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* padding: 10px 20px; */
+    background-color: #f5f5f5;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  /* Ô tìm kiếm */
+  .topbar__search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .topbar__search button {
+    /* border-radius: 10px; */
+    border: 0px solid #F5F5F5;
+    
+  }
+
+  .topbar .search-box {
+    display: flex;
+    width: 300px;
+    align-items: center;
+    background: #F5F5F5;
+    border: 0px solid #ccc;
+    border-radius: 20px;
+    padding: 5px 10px;
+  }
+  
+  .topbar .search-box input {
+    border: none;
+    outline: none;
+    padding: 5px;
+    width: 100%;
+    background: #F5F5F5;
+  }
+  
+  .topbar .icon-search {
+    margin-right: 5px;
+    color: black;
+  }
+  
+  /* Hành động */
+  .topbar__actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .topbar .admin-info {
+   font-weight: bold;
+    margin-right: 40px;
+    color: black;
+  }
+  
+  /* TopBar.css */
+.topbar__actions button {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Khoảng cách giữa icon và chữ */
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 20px; /* Tạo góc bo tròn */
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Hiệu ứng bóng */
+  }
+  
+  .topbar__actions button:hover {
+    transform: scale(1.05); /* Hiệu ứng phóng to khi hover */
+  }
+  
+  /* Nút hàng nhẹ */
+  .topbar__actions .btn-light {
+    background-color: #ff6f61; /* Màu đỏ nhạt */
+    color: black;
+    font-size: 12px;  /* Smaller font size */
+    font-style: italic; /* Italic text */
+    box-shadow: 0 4px 6px rgba(255, 111, 97, 0.3); /* Bóng mờ cho hàng nhẹ */
+  }
+  
+  .topbar__actions .btn-light:hover {
+    background-color: #e05b4f; /* Màu tối hơn khi hover */
+  }
+  
+  /* Nút hàng nặng */
+  .topbar__actions .btn-heavy {
+    background-color: #ffd93b; /* Màu vàng nhạt */
+    color: black;
+    font-size: 12px;  /* Smaller font size */
+    font-style: italic; /* Italic text */
+    box-shadow: 0 4px 6px rgba(255, 217, 59, 0.3); /* Bóng mờ cho hàng nặng */
+  }
+  
+  .topbar__actions .btn-heavy:hover {
+    background-color: #e6c233; /* Màu tối hơn khi hover */
+  }
+  
+  /* Icon */
+  .topbar__actions .icon {
+    font-size: 18px;
+  }
+  
+  

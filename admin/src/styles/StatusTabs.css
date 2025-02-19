@@ -1,0 +1,30 @@
+/* StatusTabs.css */
+.status-tabs {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    gap: 10px; /* Khoảng cách giữa các nút */
+    flex-wrap: wrap; /* Đảm bảo không bị tràn khi không đủ không gian */
+  }
+  
+  .status-tabs button {
+    padding: 10px 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    white-space: nowrap; /* Đảm bảo nội dung không bị xuống dòng */
+  }
+  
+  .status-tabs button:hover {
+    background-color: #e6e6e6;
+  }
+  
+  .status-tabs button.active {
+    background-color: #007bff; /* Màu nền khi được chọn */
+    color: white;             /* Màu chữ khi được chọn */
+    border-color: #007bff;    /* Đổi màu viền */
+  }
+  
