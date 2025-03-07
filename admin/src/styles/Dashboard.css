@@ -16,7 +16,6 @@
   /* Sidebar chiếm 20% màn hình, Main chiếm 80% */
   .sidebar {
     width: 20%;
-    background: #333;
     color: white;
     height: 100%;
   }

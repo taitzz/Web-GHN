@@ -1,0 +1,183 @@
+/* Container chứa toàn bộ bảng */
+.requests-container {
+    padding: 20px;
+    margin: 0 auto;
+    font-family: 'Arial', sans-serif;
+    max-width: 1200px;
+}
+
+/* Tiêu đề */
+.requests-container .title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Bảng chứa thông tin shipper */
+.requests-container .table-container {
+    overflow-x: auto;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Bảng hiển thị */
+.requests-container table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Định dạng cột */
+.requests-container table th, 
+.requests-container table td {
+    padding: 12px 15px;
+    text-align: left;
+    border: 1px solid #ddd;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Header bảng */
+.requests-container table th {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+}
+
+/* Hiệu ứng hover */
+.requests-container table tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* Trạng thái */
+.requests-container .status-pending {
+    color: #ff9900;
+    font-weight: bold;
+}
+
+.requests-container .status-approved {
+    color: #33cc33;
+    font-weight: bold;
+}
+
+/* Nút */
+.requests-container .btn-approve,
+.requests-container .btn-delete,
+.requests-container .btn-details {
+    padding: 8px 12px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    color: white;
+    border: none;
+}
+
+/* Nút Duyệt */
+.requests-container .btn-approve {
+    background-color: #10b981;
+}
+
+.requests-container .btn-approve:hover {
+    background-color: #059669;
+}
+
+/* Nút Xóa */
+.requests-container .btn-delete {
+    background-color: #ef4444;
+}
+
+.requests-container .btn-delete:hover {
+    background-color: #dc2626;
+}
+
+/* Nút Xem Chi Tiết */
+.requests-container .btn-details {
+    background-color: #4CAF50;
+}
+
+.requests-container .btn-details:hover {
+    background-color: #45a049;
+}
+
+/* Nút đóng chi tiết */
+.requests-container .btn-close {
+    background-color: red;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+}
+
+.requests-container .btn-close:hover {
+    background-color: darkred;
+}
+
+/* Container thông tin chi tiết */
+.requests-container .shipper-details {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+/* Tiêu đề thông tin chi tiết */
+.requests-container .shipper-details h3 {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Danh sách thông tin */
+.requests-container .shipper-details ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+/* Các mục trong danh sách */
+.requests-container .shipper-details li {
+    font-size: 16px;
+    padding: 5px 0;
+}
+
+/* In đậm phần nhãn */
+.requests-container .shipper-details strong {
+    font-weight: bold;
+}
+
+/* Cải thiện hiển thị trên mobile */
+@media (max-width: 768px) {
+    .requests-container {
+        padding: 10px;
+    }
+
+    table {
+        font-size: 14px;
+    }
+
+    .btn-approve,
+    .btn-delete,
+    .btn-details {
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+
+    /* Giúp bảng hiển thị tốt trên màn hình nhỏ */
+    .table-container {
+        overflow-x: auto;
+    }
+}

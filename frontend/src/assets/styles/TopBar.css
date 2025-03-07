@@ -1,0 +1,71 @@
+/* TopBar.css */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #00467f;
+    color: white;
+  }
+  
+  .topbar-left {
+    display: flex;
+    align-items: center;
+  }
+  
+  .search-input {
+    padding: 8px;
+    border-radius: 5px;
+    border: none;
+    font-size: 16px;
+  }
+  
+  .search-btn {
+    background-color: #ffffff;
+    border: none;
+    padding: 8px;
+    margin-left: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .search-btn:hover {
+    background-color: #f1f1f1;
+  }
+  
+  .topbar-right {
+    display: flex;
+    align-items: center;
+  }
+  
+  .notifications {
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+    position: relative;
+  }
+  
+  .notification-icon {
+    font-size: 24px;
+    cursor: pointer;
+  }
+  
+  .notification-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    padding: 5px;
+    font-size: 12px;
+  }
+  
+  .user-info {
+    font-size: 16px;
+  }
+  
+  .welcome-message {
+    font-weight: bold;
+  }
+  

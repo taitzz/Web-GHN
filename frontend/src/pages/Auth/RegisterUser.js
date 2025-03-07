@@ -1,60 +1,88 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "./Register.css";
+import "../../assets/styles/RegisterUser.css";
 import ghn from "../../assets/images/ghn.png";
 import bg from "../../assets/images/bg.png";
+import axios from "axios"; 
 
-export default function Register() {
+export default function RegisterUser() {
   const [formData, setFormData] = useState({
-    purpose: "",
-    scale: "",
+    fullName: "",
+    birthDate: "",
     phone: "",
-    password: "",
-    username: "",
-    bank: "",
     email: "",
+    username: "",
+    password: "",
     confirmPassword: "",
-    agreeTerms: false,
+    address: "",
   });
 
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  };
-
-  const handleRegister = () => {
+  const validateForm = () => {
     let newErrors = {};
-    Object.keys(formData).forEach((key) => {
-      if (!formData[key] && key !== "agreeTerms") {
-        newErrors[key] = "Vui lòng nhập thông tin";
-      }
-    });
+    
+    if (!formData.fullName.trim()) newErrors.fullName = "Vui lòng nhập họ và tên";
+    if (!formData.birthDate) newErrors.birthDate = "Vui lòng chọn ngày sinh";
+    
+    if (!formData.phone) {
+      newErrors.phone = "Vui lòng nhập số điện thoại";
+    } else if (!/^\d{10,11}$/.test(formData.phone)) {
+      newErrors.phone = "Số điện thoại không hợp lệ";
+    }
+
+    if (!formData.email) {
+      newErrors.email = "Vui lòng nhập email";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Email không hợp lệ";
+    }
+
+    if (!formData.username.trim()) newErrors.username = "Vui lòng nhập tên tài khoản";
+    if (!formData.address.trim()) newErrors.address = "Vui lòng nhập địa chỉ";
+
+    if (!formData.password) {
+      newErrors.password = "Vui lòng nhập mật khẩu";
+    } else if (!/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/.test(formData.password)) {
+      newErrors.password = "Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường và số";
+    }
 
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = "Mật khẩu nhập lại không khớp";
     }
 
-    if (!formData.agreeTerms) {
-      newErrors.agreeTerms = "Bạn phải đồng ý với điều khoản";
-    }
-
     setErrors(newErrors);
-
-    if (Object.keys(newErrors).length === 0) {
-      console.log("Đăng ký thành công!");
-      navigate("/dashboard");
-    }
+    return Object.keys(newErrors).length === 0;
   };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleRegister = async () => {
+    if (!validateForm()) return;
+
+    try {
+        const response = await axios.post("http://localhost:5000/api/users/register", formData);
+        console.log("Đăng ký thành công:", response.data);
+
+        // Hiển thị thông báo thành công
+        alert("Đăng ký thành công! Bạn có thể đăng nhập ngay.");
+
+        // Điều hướng đến trang đăng nhập
+        navigate("/");
+    } catch (error) {
+        console.error("Đăng ký thất bại:", error.response?.data || error.message);
+        alert(error.response?.data?.message || "Đăng ký thất bại, vui lòng thử lại");
+    }
+};
 
   return (
     <div className="register-container">
-      {/* Bên trái: Logo và slogan */}
       <div className="left">
         <div className="background-left">
           <img src={bg} className="normal" alt="background" />
@@ -73,7 +101,6 @@ export default function Register() {
         </div>
       </div>
 
-      {/* Bên phải: Form đăng ký */}
       <div className="right">
         <div className="form-container">
           <div className="title-login">
@@ -81,34 +108,32 @@ export default function Register() {
             <p>GHN luôn đồng hành cùng bạn.</p>
           </div>
           <div className="register-form">
-            <div className="row">              
+            <div className="row">
               <div className="row-6">
-                {/* Cột 1 */}
                 <div className="row-6-left">
                   <div className="form-group">
-                    <label>Mục đích sử dụng</label>
+                    <label>Họ và tên</label>
                     <input
                       type="text"
-                      name="purpose"
-                      value={formData.purpose}
+                      name="fullName"
+                      value={formData.fullName}
                       onChange={handleChange}
-                      className={`input-field ${errors.purpose ? "error" : ""}`}
-                      placeholder="Vui lòng chọn mục đích sử dụng"
+                      className={`input-field ${errors.fullName ? "error" : ""}`}
+                      placeholder="Nhập họ và tên"
                     />
-                    {errors.purpose && <p className="error-text">{errors.purpose}</p>}
+                    {errors.fullName && <p className="error-text">{errors.fullName}</p>}
                   </div>
 
                   <div className="form-group">
-                    <label>Quy mô vận chuyển</label>
+                    <label>Ngày sinh</label>
                     <input
-                      type="text"
-                      name="scale"
-                      value={formData.scale}
+                      type="date"
+                      name="birthDate"
+                      value={formData.birthDate}
                       onChange={handleChange}
-                      className={`input-field ${errors.scale ? "error" : ""}`}
-                      placeholder="Chọn qui mô vận chuyển"
+                      className={`input-field ${errors.birthDate ? "error" : ""}`}
                     />
-                    {errors.scale && <p className="error-text">{errors.scale}</p>}
+                    {errors.birthDate && <p className="error-text">{errors.birthDate}</p>}
                   </div>
 
                   <div className="form-group">
@@ -132,11 +157,12 @@ export default function Register() {
                       value={formData.password}
                       onChange={handleChange}
                       className={`input-field ${errors.password ? "error" : ""}`}
-                      placeholder="Mật khẩu phải tối thiểu 8 ký tự( Bao gồm chữ hoa , chữ thường , số , ký tự đặc biệt. Không chứa tên , số điện thoại hoặc 'GHN')"
+                      placeholder="Mật khẩu phải tối thiểu 8 ký tự (Bao gồm chữ hoa , thường và số)"
                     />
                     {errors.password && <p className="error-text">{errors.password}</p>}
                   </div>
                 </div>
+
                 <div className="row-6-right">
                   <div className="form-group">
                     <label>Tên tài khoản</label>
@@ -149,19 +175,6 @@ export default function Register() {
                       placeholder="Tên tài khoản"
                     />
                     {errors.username && <p className="error-text">{errors.username}</p>}
-                  </div>
-
-                  <div className="form-group">
-                    <label>Ngân hàng</label>
-                    <input
-                      type="text"
-                      name="bank"
-                      value={formData.bank}
-                      onChange={handleChange}
-                      className={`input-field ${errors.bank ? "error" : ""}`}
-                      placeholder="Tên ngân hàng"
-                    />
-                    {errors.bank && <p className="error-text">{errors.bank}</p>}
                   </div>
 
                   <div className="form-group">
@@ -178,6 +191,19 @@ export default function Register() {
                   </div>
 
                   <div className="form-group">
+                    <label>Địa chỉ</label>
+                    <input
+                      type="text"
+                      name="address"
+                      value={formData.address}
+                      onChange={handleChange}
+                      className={`input-field ${errors.address ? "error" : ""}`}
+                      placeholder="Nhập địa chỉ"
+                    />
+                    {errors.address && <p className="error-text">{errors.address}</p>}
+                  </div>
+
+                  <div className="form-group">
                     <label>Nhập lại mật khẩu</label>
                     <input
                       type="password"
@@ -185,34 +211,21 @@ export default function Register() {
                       value={formData.confirmPassword}
                       onChange={handleChange}
                       className={`input-field ${errors.confirmPassword ? "error" : ""}`}
-                      placeholder="Mật khẩu phải tối thiểu 8 ký tự( Bao gồm chữ hoa , chữ thường , số , ký tự đặc biệt. Không chứa tên , số điện thoại hoặc 'GHN')"
+                      placeholder="Mật khẩu phải tối thiểu 8 ký tự (Bao gồm chữ hoa , thường và số)"
                     />
                     {errors.confirmPassword && <p className="error-text">{errors.confirmPassword}</p>}
                   </div>
                 </div>
-              </div>             
-            </div>
-            <div className="checkbox">
-              <input
-                type="checkbox"
-                name="agreeTerms"
-                checked={formData.agreeTerms}
-                onChange={handleChange}
-              />
-              <label>
-                Tôi đã đọc và đồng ý với Điều khoản dịch vụ và Chính sách bảo mật, bảo vệ dữ liệu
-                cá nhân của Giao Hàng Nhanh.
-              </label>
-              {errors.agreeTerms && <p className="error-text">{errors.agreeTerms}</p>}
+              </div>
             </div>
 
-            <button className="button" onClick={handleRegister} disabled={!formData.agreeTerms}>
+            <button className="button" onClick={handleRegister}>
               Đăng ký
             </button>
             <div className="login-row3">
               <label>Đã có tài khoản?</label>
               <Link to="/" className="register-link">
-                <span>Đăng nhập</span>
+                <span>Đăng nhập ngay</span>
               </Link>
             </div>
           </div>

@@ -1,0 +1,172 @@
+/* DetailsShipper.css */
+
+/* Container bao quanh tất cả */
+.details-shipper-container {
+    padding: 20px;
+    margin: 20px auto;
+    font-family: Arial, sans-serif;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    width: 100%;
+    max-width: 1200px;
+}
+
+/* Tiêu đề */
+.title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #333;
+}
+
+/* Ô tìm kiếm */
+.search-container {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 20px;
+}
+
+.search-container input {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: border 0.3s ease-in-out;
+}
+
+.search-container input:focus {
+    border-color: #4CAF50;
+    outline: none;
+}
+
+/* Mẫu hiển thị thông tin shipper theo hàng dọc */
+.info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Cập nhật phong cách cho từng mục */
+.info-list li {
+    font-size: 16px;
+    display: flex;
+    justify-content: flex-start;
+    padding: 12px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background 0.3s ease-in-out;
+}
+
+.info-list li:hover {
+    background-color: #f1f1f1;
+}
+
+/* Phần nhãn của thông tin */
+.info-list li strong {
+    font-weight: bold;
+    width: 180px;
+    margin-right: 10px;
+    color: #333;
+}
+
+/* Phần giá trị thông tin */
+.info-list li span {
+    font-weight: normal;
+    color: #555;
+    flex: 1;
+}
+
+/* Cải thiện phần bảng hiển thị các thông tin */
+.table-container {
+    margin-top: 20px;
+    overflow-x: auto;
+}
+
+/* Bảng hiển thị */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+/* Header bảng */
+table th {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+    padding: 12px;
+    text-align: left;
+}
+
+/* Ô trong bảng */
+table th, table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+}
+
+/* Hiệu ứng hover cho từng dòng */
+table tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* Căn giữa văn bản */
+.text-center {
+    text-align: center;
+    font-size: 16px;
+    color: #888;
+}
+
+/* Màu chữ xám */
+.text-gray-500 {
+    color: #6b7280;
+    font-size: 16px;
+}
+
+/*Nút xoá*/
+.delete-button {
+    background-color: #ff4d4d; /* Màu đỏ */
+    color: white; /* Chữ màu trắng */
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.delete-button:hover {
+    background-color: #cc0000; /* Màu đỏ đậm hơn khi hover */
+    transform: scale(1.05);
+}
+
+.delete-button:active {
+    background-color: #990000; /* Màu tối hơn khi click */
+    transform: scale(0.95);
+}
+
+/* Căn chỉnh bảng không bị tràn màn hình nhỏ */
+@media screen and (max-width: 768px) {
+    .details-shipper-container {
+        width: 95%;
+    }
+
+    .search-container {
+        justify-content: center;
+    }
+
+    .info-list li {
+        flex-direction: column;
+        padding: 10px;
+    }
+
+    .info-list li strong {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+}

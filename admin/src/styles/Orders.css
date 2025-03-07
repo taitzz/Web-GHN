@@ -1,0 +1,15 @@
+.order-status-container {
+    padding: 20px;
+}
+
+.order-list {
+    list-style: none;
+    padding: 0;
+}
+
+.order-item {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
