@@ -1,64 +1,102 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../../assets/styles/ForgotPassword.css";
 import ghn from "../../assets/images/ghn.png";
 import bg from "../../assets/images/shipper_icon.jpg";
-import { FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa'; 
+import { FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa';
 
 export default function ForgotPassword() {
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
-    const [otp, setOtp] = useState("");
+    const [otp, setOtp] = useState("");  // OTP sẽ được lưu trữ dưới dạng chuỗi
     const [newPassword, setNewPassword] = useState("");
     const [isOtpSent, setIsOtpSent] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
     const [error, setError] = useState("");
-    const [showPassword, setShowPassword] = useState(false); 
+    const [showPassword, setShowPassword] = useState(false);
+    const [timer, setTimer] = useState(0);
     const navigate = useNavigate();
 
+    // Hàm xử lý gửi OTP
     const handleSubmitEmail = async () => {
         if (!username || !email) {
             setError("Vui lòng nhập tên tài khoản và email!");
             return;
         }
+    
+        // Kiểm tra định dạng email hợp lệ
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            setError("Email không hợp lệ!");
+            return;
+        }
+    
         try {
             const response = await axios.post("http://localhost:5000/api/users/forgot-password", { username, email });
-
+    
             if (response.status === 200) {
                 setIsOtpSent(true);
                 setError("");
+                setTimer(60); // Đặt thời gian chờ 1 phút (60 giây)
             }
         } catch (error) {
             setError(error.response?.data?.message || "Có lỗi xảy ra!");
         }
-    };
+    };    
 
+    // Hàm xử lý gửi mã OTP và mật khẩu mới
     const handleSubmitOtp = async () => {
         if (!otp || !newPassword) {
             setError("Vui lòng nhập mã OTP và mật khẩu mới.");
             return;
         }
+    
+        // Kiểm tra mật khẩu mới có hợp lệ không (tối thiểu 8 ký tự, chứa chữ hoa, chữ thường, số)
+        if (!/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/.test(newPassword)) {
+            setError("Mật khẩu mới không hợp lệ. Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số.");
+            return;
+        }
+    
         try {
             const response = await axios.post("http://localhost:5000/api/users/reset-password", { username, otp, newPassword });
-
+    
             if (response.status === 200) {
                 setSuccessMessage("Mật khẩu đã được thay đổi thành công!");
                 setError("");
-
+    
                 // Chuyển về trang đăng nhập sau 3 giây
                 setTimeout(() => {
-                    navigate("/");
+                    navigate("/"); // Điều hướng về trang đăng nhập
                 }, 3000);
             }
         } catch (error) {
             setError(error.response?.data?.message || "Mã OTP không hợp lệ.");
         }
+    };    
+
+    // Giảm thời gian chờ mỗi giây
+    useEffect(() => {
+        if (timer > 0) {
+            const interval = setInterval(() => {
+                setTimer(prev => prev - 1);
+            }, 1000);
+    
+            // Hủy interval khi component unmount hoặc timer == 0
+            return () => clearInterval(interval);
+        }
+    }, [timer]);    
+
+    // Hàm xử lý thay đổi giá trị OTP
+    const handleOtpChange = (e) => {
+        const value = e.target.value;
+
+        if (/[^0-9]/.test(value)) return;  // Kiểm tra xem có phải là chữ số không
+
+        setOtp(value);  // Cập nhật toàn bộ giá trị OTP khi người dùng nhập
     };
 
     return (
         <div className="forgot-password-container">
-            {/* Left Section giữ nguyên từ trang đăng nhập */}
             <div className="left">
                 <div className="background-left">
                     <img src={bg} className="normal" alt="background" />
@@ -76,10 +114,8 @@ export default function ForgotPassword() {
                 </div>
             </div>
 
-            {/* Right Section - Form */}
             <div className="right">
                 <div className="form-container">
-                    {/* Tiêu đề Forgot Password */}
                     <div className="title-forgotpassword">
                         <h2>BẠN ĐÃ QUÊN MẬT KHẨU?</h2>
                         <p>GHN rất tiếc vì sự cố này và sẵn sàng hỗ trợ!</p>
@@ -97,8 +133,11 @@ export default function ForgotPassword() {
                                 type="text"
                                 placeholder="Nhập mã OTP"
                                 value={otp}
-                                onChange={(e) => setOtp(e.target.value)}
+                                onChange={handleOtpChange}
+                                maxLength="6"  // Giới hạn chiều dài OTP
+                                className="otp-input"
                             />
+
                             <p>Nhập mật khẩu mới:</p>
                             <div className="password-input">
                                 <input
@@ -128,12 +167,13 @@ export default function ForgotPassword() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                             />
-                            <button onClick={handleSubmitEmail}>Gửi OTP</button>
+                            <button onClick={handleSubmitEmail} disabled={timer > 0}>
+                                {timer > 0 ? `Gửi lại OTP sau ${timer}s` : "Gửi OTP"}
+                            </button>
                         </div>
                     )}
                     {error && <p className="error-text">{error}</p>}
 
-                    {/* Nút quay lại trang đăng nhập */}
                     <div className="back-to-login" onClick={() => navigate("/")}>
                         <FaArrowLeft className="back-icon" />
                         <span>Quay lại trang </span>

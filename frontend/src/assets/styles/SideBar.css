@@ -1,82 +1,126 @@
-/* Sidebar tổng thể */
+/* 📌 Sidebar tổng thể */
 .sidebar {
-    width: 250px;
-    background-color: #00467f;
-    color: white;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    font-family: 'Roboto', sans-serif;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
-    border-radius: 8px 0 0 8px;
-    overflow: hidden;
-  }
-  
-  /* Header Sidebar */
-  .sidebar__header {
-    padding: 20px;
-    text-align: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-    background: #00467f;
-    color: #ecf0f1;
-  }
-  
-  .sidebar__logo {
-    max-width: 100%;
-    height: auto;
-  }
-  
-  /* Thông tin người dùng */
-  .sidebar__profile {
-    display: flex;
-    align-items: center;
-    padding: 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    background-color: #00467f;
-  }
-  
-  .sidebar__name {
-    font-size: 18px;
-    font-weight: 700;
-    color: #ecf0f1;
-  }
-  
-  /* Navigation */
-  .sidebar__nav {
-    flex-grow: 1;
-    padding-top: 20px;
-  }
-  
-  .sidebar__nav-item {
-    padding: 12px 25px;
-    font-size: 16px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    border-radius: 5px;
-    color: white;
-  }
-  
-  .sidebar__nav-item:hover {
-    background-color: #ff967a;
-  }
-  
-  .sidebar__nav-item.active {
-    background-color: #f26522;
-    color: white;
-  }
+  width: 260px;
+  background: linear-gradient(135deg, #00467f, #0a73b8); /* Gradient xanh đẹp hơn */
+  color: white;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Roboto', sans-serif;
+  box-shadow: 3px 0 10px rgba(0, 0, 0, 0.3);
+  border-radius: 8px 0 0 8px;
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
+}
 
-  .sidebar__icon {
-    margin-right: 15px;
-  }
-  
-  /* Đăng xuất */
-  .sidebar__nav-item.logout {
-    font-weight: bold;
-    transition: all 0.3s ease-in-out;
-  }
-  
+/* 📌 Header Sidebar */
+.sidebar__header {
+  padding: 20px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, #003366, #005baa);
+  color: #ecf0f1;
+}
 
-  
+.sidebar__logo {
+  max-width: 100%;
+  height: auto;
+}
+
+/* 📌 Thông tin người dùng */
+.sidebar__profile {
+  text-align: center;
+  padding: 15px;
+  background: linear-gradient(45deg, #FF8C42, #FF6B81); /* Gradient cam - hồng */
+  border-radius: 10px;
+  margin: 15px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease-in-out;
+}
+
+.sidebar__profile:hover {
+  transform: scale(1.05); /* Hiệu ứng hover nhẹ */
+}
+
+/* 📌 Lời chào */
+.greeting {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  margin-bottom: 8px;
+  animation: fadeIn 1.5s ease-in-out;
+}
+
+/* 📌 Tên người dùng */
+.username {
+  font-size: 1.7rem;
+  font-weight: bold;
+  color: #ffeb3b;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  animation: fadeIn 1.5s ease-in-out;
+}
+
+/* 📌 Hiệu ứng fade-in */
+@keyframes fadeIn {
+  from {
+      opacity: 0;
+      transform: translateY(-10px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
+}
+
+/* 📌 Navigation */
+.sidebar__nav {
+  flex-grow: 1;
+  padding-top: 20px;
+}
+
+/* 📌 Mục menu */
+.sidebar__nav-item {
+  padding: 12px 25px;
+  font-size: 16px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+  border-radius: 5px;
+  color: white;
+}
+
+.sidebar__nav-item:hover {
+  background-color: #ff967a;
+  transform: translateX(5px); /* Dịch nhẹ khi hover */
+}
+
+/* 📌 Mục đang active */
+.sidebar__nav-item.active {
+  background: linear-gradient(135deg, #f26522, #ff7345);
+  color: white;
+  font-weight: bold;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
+  transform: scale(1.05);
+}
+
+/* 📌 Icon menu */
+.sidebar__icon {
+  margin-right: 15px;
+}
+
+/* 📌 Đăng xuất */
+.sidebar__nav-item.logout {
+  font-weight: bold;
+  transition: all 0.3s ease-in-out;
+  background: rgba(255, 0, 0, 0.3);
+  border-radius: 8px;
+  padding: 12px 20px;
+}
+
+.sidebar__nav-item.logout:hover {
+  background: rgba(255, 0, 0, 0.5);
+  transform: translateX(5px);
+}

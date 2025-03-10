@@ -1,6 +1,8 @@
 const express = require('express');
 const sql = require('mssql');
 const bcrypt = require('bcryptjs');
+const nodemailer = require('nodemailer');
+const authMiddleware = require("../middleware/auth");
 const { poolPromise } = require('../config/db'); // Đảm bảo đã kết nối DB
 
 const router = express.Router();
@@ -26,22 +28,40 @@ router.post('/register', async (req, res) => {
     try {
         const pool = await poolPromise;
 
-        // Kiểm tra tài khoản hoặc email đã tồn tại chưa
-        const result = await pool.request()
-            .input('username', sql.NVarChar, username)
-            .query('SELECT * FROM Users WHERE Username = @username OR Email = @username');
-        
-        if (result.recordset.length > 0) {
-            return res.status(400).json({ message: 'Tài khoản hoặc email đã tồn tại' });
+        // ✅ Kiểm tra Email đã tồn tại chưa
+        const checkEmail = await pool.request()
+            .input('email', sql.NVarChar, email)
+            .query('SELECT Email FROM Users WHERE Email = @email');
+
+        if (checkEmail.recordset.length > 0) {
+            return res.status(400).json({ message: 'Email đã tồn tại! Vui lòng sử dụng email khác.' });
         }
 
-        // Mã hóa mật khẩu
+        // ✅ Kiểm tra Username đã tồn tại chưa
+        const checkUsername = await pool.request()
+            .input('username', sql.NVarChar, username)
+            .query('SELECT Username FROM Users WHERE Username = @username');
+
+        if (checkUsername.recordset.length > 0) {
+            return res.status(400).json({ message: 'Tên tài khoản đã tồn tại! Vui lòng chọn tên khác.' });
+        }
+
+        // ✅ Kiểm tra số điện thoại đã tồn tại chưa
+        const checkPhone = await pool.request()
+            .input('phone', sql.NVarChar, phone)
+            .query('SELECT Phone FROM Users WHERE Phone = @phone');
+
+        if (checkPhone.recordset.length > 0) {
+            return res.status(400).json({ message: 'Số điện thoại đã tồn tại! Vui lòng nhập số khác.' });
+        }
+
+        // **Mã hóa mật khẩu**
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Chuyển đổi ngày sinh sang định dạng YYYY-MM-DD
+        // **Chuyển đổi ngày sinh sang định dạng YYYY-MM-DD**
         const formattedBirthDate = new Date(birthDate).toISOString().split("T")[0];
 
-        // Lưu thông tin người dùng vào CSDL
+        // ✅ Thêm người dùng mới vào CSDL
         await pool.request()
             .input('fullName', sql.NVarChar, fullName)
             .input('email', sql.NVarChar, email)
@@ -55,15 +75,17 @@ router.post('/register', async (req, res) => {
                 VALUES (@fullName, @email, @phone, @address, @username, @password, @birthDate)
             `);
 
-        res.status(201).json({ message: 'Đăng ký thành công' });
+        res.status(201).json({ message: '🎉 Đăng ký thành công!' });
+
     } catch (err) {
-        console.error('Lỗi khi đăng ký người dùng: ', err);
-        res.status(500).json({ message: 'Lỗi server' });
+        console.error('❌ Lỗi khi đăng ký người dùng:', err);
+        res.status(500).json({ message: 'Lỗi server! Vui lòng thử lại sau.' });
     }
 });
 
-
 // API: Đăng nhập người dùng
+const jwt = require("jsonwebtoken");
+
 router.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
@@ -75,7 +97,7 @@ router.post('/login', async (req, res) => {
         const pool = await poolPromise;
         const result = await pool.request()
             .input('username', sql.NVarChar, username)
-            .query('SELECT * FROM Users WHERE Username = @username OR Email = @username');
+            .query('SELECT UserID, FullName, Password, Email FROM Users WHERE Username = @username OR Email = @username');
 
         const user = result.recordset[0];
 
@@ -83,38 +105,68 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ message: 'Tài khoản không tồn tại' });
         }
 
-        // Kiểm tra mật khẩu
         const isMatch = await bcrypt.compare(password, user.Password);
         if (!isMatch) {
             return res.status(400).json({ message: 'Mật khẩu không đúng' });
         }
 
-        // Nếu đăng nhập thành công
+        // ✅ **Tạo Token JWT KHÔNG CÓ THỜI HẠN**
+        const token = jwt.sign(
+            { id: user.UserID, fullName: user.FullName },
+            process.env.JWT_SECRET // ❌ Không có expiresIn
+        );  
+
         res.status(200).json({
             message: 'Đăng nhập thành công',
+            token,  // ✅ Trả về token không có thời hạn
             user: {
                 id: user.UserID,
                 fullName: user.FullName,
-                username: user.Username,
-                email: user.Email,
-                birthDate: user.BirthDate
+                email: user.Email
             }
         });
+
     } catch (err) {
-        console.error('Lỗi khi đăng nhập người dùng: ', err);
+        console.error('❌ Lỗi khi đăng nhập người dùng:', err);
+        res.status(500).json({ message: 'Lỗi server!' });
+    }
+});
+
+// API: Lấy danh sách người dùng (Chỉ Admin hoặc Người có quyền)
+router.get('/list', async (req, res) => {
+    try {
+        const pool = await poolPromise;
+        const result = await pool.request().query(`
+            SELECT UserID, FullName, Email, Phone, Address, Username FROM Users
+        `);
+        res.status(200).json(result.recordset);
+    } catch (err) {
+        console.error('❌ Lỗi lấy danh sách người dùng:', err);
         res.status(500).json({ message: 'Lỗi server' });
     }
 });
 
 //API : Lấy thông tin người dùng
-router.get('/list', async (req, res) => {
+router.get('/profile', authMiddleware, async (req, res) => {
     try {
         const pool = await poolPromise;
-        const result = await pool.request().query('SELECT * FROM Users');
-        res.status(200).json(result.recordset);
+        const userId = req.user.id; // Lấy userId từ token
+        console.log("🔍 UserID từ token:", userId);
+
+        const result = await pool.request()
+            .input('userId', sql.Int, userId)
+            .query('SELECT FullName FROM Users WHERE UserID = @userId');
+
+        console.log("📢 Kết quả truy vấn:", result.recordset);
+
+        if (result.recordset.length > 0) {
+            res.status(200).json({ fullName: result.recordset[0].FullName });
+        } else {
+            res.status(404).json({ message: "Không tìm thấy người dùng." });
+        }
     } catch (err) {
-        console.error('Lỗi lấy danh sách người dùng:', err);
-        res.status(500).json({ message: 'Lỗi server' });
+        console.error("❌ Lỗi lấy thông tin người dùng:", err);
+        res.status(500).json({ message: "Lỗi server" });
     }
 });
 
@@ -122,7 +174,7 @@ router.get('/list', async (req, res) => {
 router.delete("/:id", async (req, res) => {
     const { id } = req.params;
     try {
-        let pool = await sql.connect(dbConfig);
+        let pool = await poolPromise; // ✅ Sử dụng poolPromise thay vì dbConfig
         let result = await pool
             .request()
             .input("UserID", sql.Int, id)
@@ -139,34 +191,13 @@ router.delete("/:id", async (req, res) => {
     }
 });
 
-// API: Lấy thông tin người dùng (chỉ lấy FullName)
-router.get('/profile', async (req, res) => {
-    try {
-        const pool = await poolPromise;
-        // Giả sử bạn đã xác thực người dùng thông qua token JWT, và có thông tin userID từ middleware
-        const userId = req.user.id;
-
-        const result = await pool.request()
-            .input('userId', sql.Int, userId) // Lấy userId từ thông tin đã xác thực
-            .query('SELECT FullName FROM Users WHERE UserID = @userId');
-        
-        if (result.recordset.length > 0) {
-            res.status(200).json({ fullName: result.recordset[0].FullName });
-        } else {
-            res.status(404).json({ message: 'Không tìm thấy người dùng.' });
-        }
-    } catch (err) {
-        console.error('Lỗi lấy thông tin người dùng:', err);
-        res.status(500).json({ message: 'Lỗi server' });
-    }
-});
-
 // API gửi OTP nếu Username & Email hợp lệ
 router.post("/forgot-password", async (req, res) => {
     const { username, email } = req.body;
 
     try {
-        const pool = await sql.connect();
+        const pool = await poolPromise; // Đảm bảo kết nối đúng
+
         const result = await pool
             .request()
             .input("username", sql.NVarChar, username)
@@ -177,71 +208,83 @@ router.post("/forgot-password", async (req, res) => {
         }
 
         // Tạo OTP 6 số ngẫu nhiên
-        const otp = crypto.randomInt(100000, 999999).toString();
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-        // Lưu OTP vào SQL Server
+        // Lưu OTP và thời gian hết hạn vào CSDL (thời gian hết hạn là 10 phút)
+        const otpExpires = new Date(Date.now() + 10 * 60 * 1000);  // Thời gian hết hạn 10 phút
+
         await pool
             .request()
             .input("username", sql.NVarChar, username)
             .input("otp", sql.NVarChar, otp)
-            .query("UPDATE Users SET OTP = @otp WHERE Username = @username");
+            .input("otpExpires", sql.DateTime, otpExpires)
+            .query("UPDATE Users SET OTP = @otp, OtpExpires = @otpExpires WHERE Username = @username");
 
         // Cấu hình gửi email
         const transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
-                user: "taivu1602@gmail.com",
-                pass: "vhfx zwol vgsw usqr",
+                user: "taivu1602@gmail.com", // Sửa bằng email của bạn
+                pass: "vhfx zwol vgsw usqr", // Sửa bằng mật khẩu ứng dụng email của bạn
             },
         });
 
         const mailOptions = {
-            from: "taivu1602@gmail.com",
-            to: email.Email,
+            from: "taivu1602@gmail.com", // Sửa bằng email của bạn
+            to: email,
             subject: "Mã OTP để đặt lại mật khẩu",
-            text: `Mã OTP của bạn là: ${otp}`,
+            text: `Mã OTP để lấy mật khẩu của bạn là: ${otp}`,
         };
 
+        // Gửi email chứa mã OTP
         await transporter.sendMail(mailOptions);
 
         res.status(200).json({ message: "Mã OTP đã được gửi đến email của bạn." });
 
     } catch (error) {
-        console.error("Lỗi gửi OTP:", error);
+        console.error("❌ Lỗi gửi OTP:", error);
         res.status(500).json({ message: "Lỗi server, thử lại sau!" });
     }
 });
 
-// API Đổi mật khẩu bằng OTP
+//API : Đổi mật khẩu
 router.post("/reset-password", async (req, res) => {
     const { username, otp, newPassword } = req.body;
 
     try {
-        const pool = await sql.connect();
+        const pool = await poolPromise;
+
         const result = await pool
             .request()
             .input("username", sql.NVarChar, username)
-            .query("SELECT OTP FROM Users WHERE Username = @username");
+            .query("SELECT OTP, OtpExpires FROM Users WHERE Username = @username");
 
-        if (!result.recordset.length || result.recordset[0].OTP !== otp) {
-            return res.status(400).json({ message: "Mã OTP không hợp lệ!" });
+        if (!result.recordset.length) {
+            return res.status(400).json({ message: "Tài khoản không tồn tại" });
+        }
+
+        const user = result.recordset[0];
+
+        // Kiểm tra OTP và thời gian hết hạn
+        if (user.OTP !== otp || new Date() > new Date(user.OtpExpires)) {
+            return res.status(400).json({ message: "Mã OTP không hợp lệ hoặc đã hết hạn!" });
         }
 
         // Mã hóa mật khẩu mới
         const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-        // Cập nhật mật khẩu và xóa OTP
+        // Cập nhật mật khẩu trong database và xóa OTP cùng với thời gian hết hạn
         await pool
             .request()
             .input("username", sql.NVarChar, username)
             .input("hashedPassword", sql.NVarChar, hashedPassword)
-            .query("UPDATE Users SET Password = @hashedPassword, OTP = NULL WHERE Username = @username");
+            .query("UPDATE Users SET Password = @hashedPassword, OTP = NULL, OtpExpires = NULL WHERE Username = @username");
 
         res.status(200).json({ message: "Mật khẩu đã được thay đổi thành công!" });
 
     } catch (error) {
-        console.error("Lỗi đổi mật khẩu:", error);
-        res.status(500).json({ message: "Lỗi server, thử lại sau!" });
+        console.error("❌ Lỗi đổi mật khẩu:", error);
+        res.status(500).json({ message: "Lỗi server, vui lòng thử lại sau!" });
     }
 });
 

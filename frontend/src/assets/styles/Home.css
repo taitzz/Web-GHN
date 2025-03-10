@@ -17,8 +17,21 @@
 .dashboard__main {
     flex: 1;
     padding: 20px;
-    background-color: #f0f2f5;
+    background-color: #ffffff;
     overflow-y: auto;
+}
+.home-slider {
+    width: 100%;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.home-video {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
 }
 
 /* ====== Responsive: Khi màn hình nhỏ (Mobile, Tablet) ====== */

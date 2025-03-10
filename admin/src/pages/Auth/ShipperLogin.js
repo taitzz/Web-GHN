@@ -29,7 +29,7 @@ export default function ShipperLogin() {
             }
         } catch (err) {
             console.error("Lỗi khi đăng nhập:", err);
-            setErrorMessage("Đã xảy ra lỗi, vui lòng thử lại.");
+            setErrorMessage("Sai tài khoản hoặc mật khẩu.");
         }
     };
 

@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import "../../assets/styles/LoginUser.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-import ghn from '../../assets/images/ghn.png';
 import bg from '../../assets/images/shipper_icon.jpg';
 import axios from 'axios';
 
@@ -14,6 +13,7 @@ export default function LoginUser() {
     const [errors, setErrors] = useState({});
     const [loginError, setLoginError] = useState("");
     const [greeting, setGreeting] = useState("");
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -32,7 +32,8 @@ export default function LoginUser() {
 
     const handleLogin = async () => {
         let newErrors = {};
-        setLoginError(""); 
+        setLoginError("");
+        setLoading(true);  // **Bật trạng thái loading**
     
         if (!username.trim()) newErrors.username = "Vui lòng nhập tài khoản";
         if (!password.trim()) newErrors.password = "Vui lòng nhập mật khẩu";
@@ -47,16 +48,29 @@ export default function LoginUser() {
                 });
     
                 if (response.status === 200) {
-                    console.log("Đăng nhập thành công!");
-                    alert("Đăng nhập thành công!");
-                    localStorage.setItem("authToken", response.data.token); 
+                    console.log("✅ Đăng nhập thành công!");
+                    alert("🎉 Đăng nhập thành công!");
     
-                    navigate("/dashboard");
+                    // **Lưu Token vào localStorage**
+                    localStorage.setItem("authToken", response.data.token);
+    
+                    // **Chuyển hướng đến trang Home**
+                    navigate("/home");
                 }
             } catch (error) {
-                console.error("Đăng nhập thất bại:", error.response);
-                setLoginError(error.response.data.message); 
+                console.error("❌ Lỗi đăng nhập:", error.response);
+    
+                // **Xử lý lỗi từ server**
+                if (error.response?.status === 400) {
+                    setLoginError("⚠️ " + error.response.data.message);
+                } else {
+                    setLoginError("❌ Đăng nhập thất bại, vui lòng thử lại!");
+                }
+            } finally {
+                setLoading(false);  // **Tắt loading**
             }
+        } else {
+            setLoading(false);  // **Tắt loading nếu có lỗi nhập liệu**
         }
     };    
 

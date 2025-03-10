@@ -1,0 +1,20 @@
+.video-container {
+    text-align: center;
+    padding: 20px;
+    width: 100vw;
+}
+
+.video-container h2 {
+    font-size: 24px;
+    color: #00467f;
+    margin-bottom: 15px;
+}
+
+.video-container p {
+    margin: 0 0 70px;
+}
+
+video {
+    width: 80%;
+    border-radius: 10px;
+}

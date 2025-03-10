@@ -2,9 +2,9 @@ import { Routes, Route } from "react-router-dom";
 import LoginUser from "../pages/Auth/LoginUser";
 import RegisterUser from "../pages/Auth/RegisterUser";
 import ForgotPassword from "../pages/Auth/ForgotPassword";
-import Dashboard from "../pages/Users/Dashboard";
 import NotificationPage from "../pages/Users/NotificationPage";  
-import PrivateRoute from "./PrivateRoute"; 
+import PrivateRoute from "./PrivateRoute"; // Nhớ đảm bảo bạn có file PrivateRoute.js
+import Home from "../pages/Users/Home";
 
 export default function AppRoutes() {
   return (
@@ -15,8 +15,8 @@ export default function AppRoutes() {
       <Route path="/forgot-password" element={<ForgotPassword />} />
 
       {/* Các trang yêu cầu đăng nhập */}
-      <Route path="/dashboard/*" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-      <Route path="/notifications" element={<PrivateRoute><NotificationPage /></PrivateRoute>} />  {/* Thêm route thông báo */}
+      <Route path="/notifications" element={<PrivateRoute><NotificationPage /></PrivateRoute>} />
+      <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
 
       {/* Trang lỗi 404 */}
       <Route path="*" element={<h1>404 - Page Not Found</h1>} />

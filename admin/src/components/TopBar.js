@@ -16,7 +16,7 @@ const TopBar = () => (
 
         {/* Các hành động */}
         <div className="topbar__actions">
-            <div className="admin-info">200513 - Nhất Nguyễn</div>
+           
             {/* Nút hàng nhẹ */}
             <button className="btn-light">
                 <FaBalanceScale className="icon" /> Hàng Nhẹ {"<"} 20kg

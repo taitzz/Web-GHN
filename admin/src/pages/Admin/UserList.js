@@ -9,15 +9,29 @@ const API_URL = "http://localhost:5000/api/users";
 const UserList = () => {
     const [users, setUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
+    const [error, setError] = useState("");
 
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const res = await axios.get(`${API_URL}/list`);
+                const token = localStorage.getItem("authToken"); // Lấy token từ localStorage
+                
+                if (!token) {
+                    setError("Bạn chưa đăng nhập!");
+                    return;
+                }
+
+                const res = await axios.get(`${API_URL}/list`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Gửi token lên API
+                    },
+                });
+
                 console.log("🚀 API Response:", res.data);
                 setUsers(res.data);
             } catch (err) {
                 console.error("❌ Lỗi khi tải dữ liệu:", err);
+                setError(err.response?.data?.message || "Lỗi server!");
             }
         };
         fetchUsers();
@@ -42,7 +56,7 @@ const UserList = () => {
     const deleteUser = async (userID) => {
         if (window.confirm("Bạn có chắc chắn muốn xóa người dùng này không?")) {
             try {
-                await axios.delete(`${API_URL}/users/${userID}`);
+                await axios.delete(`${API_URL}/${userID}`);
                 setUsers(users.filter((user) => user.UserID !== userID));
                 console.log("✅ Đã xóa người dùng!");
             } catch (err) {
@@ -84,8 +98,7 @@ const UserList = () => {
                                         <li><strong>Email:</strong> <span>{user.Email}</span></li>
                                         <li><strong>Số Điện Thoại:</strong> <span>{user.Phone}</span></li>
                                         <li><strong>Địa Chỉ:</strong> <span>{user.Address}</span></li>
-                                        <li><strong>Tài khoản:</strong><span>{user.Username}</span></li>
-                                        <li><strong>Mật khẩu:</strong><span>{user.Password}</span></li>
+                                        <li><strong>Tài khoản:</strong><span>{user.Username}</span></li>                                        
                                         {/* Nút Xóa tài khoản */}
                                         <li>
                                             <button className="delete-btn" onClick={() => deleteUser(user.UserID)}>

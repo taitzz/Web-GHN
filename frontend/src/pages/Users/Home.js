@@ -1,8 +1,37 @@
+import Header from "../../components/Header";
+import ImageSlider from "../../components/ImageSlider"; 
+import VideoAd from "../../components/VideoAD";
+import Footer from "../../components/Footer";
+import FeatureSection from "../../components/FeatureSection";
+import "../../assets/styles/Home.css";
+
 export default function Home() {
     return (
-        <div>
-            <h2>📊 Trang tổng quan</h2>
-            <p>Chào mừng bạn đến với hệ thống quản lý giao hàng!</p>
+        <div className="dashboard">
+            <div className="dashboard__content">
+                <Header />
+                <div className="dashboard__main">
+                    <div>
+                        {/* Phần Slider 4 ảnh */}
+                        <section className="home-slider">
+                            <ImageSlider />
+                        </section>
+
+                        {/* Phần Video quảng cáo */}
+                        <section className="home-video">
+                            <VideoAd />
+                        </section>
+
+                        {/* Phần Tính năng nổi bật */}
+                        <section className="home-features">
+                            <FeatureSection />
+                        </section>
+
+                        {/* Footer */}
+                        <Footer />
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }
