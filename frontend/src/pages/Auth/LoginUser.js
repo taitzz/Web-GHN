@@ -119,7 +119,7 @@ export default function LoginUser() {
                                     <div className="form-group-pw">
                                         <label className="form-group-text">Mật khẩu</label>
                                         <div className="link-container">
-                                            <a href="/forgot-password">Quên mật khẩu?</a>
+                                             <Link to="/forgot-password">Quên mật khẩu?</Link>
                                         </div>
                                     </div>
 

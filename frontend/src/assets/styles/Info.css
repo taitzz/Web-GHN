@@ -1,0 +1,100 @@
+/* Phần chung */
+.info-container {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+}
+
+.info-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.info-title {
+    font-family: 'Montserrat', Helvetica, sans-serif;
+    text-align: center;
+    font-size: 30px;
+    font-weight: bold;
+    line-height: initial;
+    text-transform: uppercase;
+    color: #00467f;
+    margin-bottom: 40px;
+    margin-top: 50px;
+}
+
+.info-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    border: 2px solid #ddd;
+    margin-bottom: 20px;
+}
+
+/* Phần văn bản giới thiệu */
+.info-text p {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.6;
+    text-align: justify;
+    margin-bottom: 20px;
+}
+
+.info-text .highlight-orange {
+    font-weight: bold;
+    color: #ff6600; /* Màu cam cho chữ nổi bật */
+}
+
+/* Phần Bảng giá */
+.price-table {
+    margin-top: 40px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.price-table h2 {
+    font-size: 28px;
+    color: #ff6600;
+    margin-bottom: 20px;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.price-table table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.price-table th, .price-table td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #ddd;
+    font-size: 16px;
+}
+
+.price-table th {
+    background-color: #ff6600;
+    color: #fff;
+}
+
+.price-table td {
+    background-color: #f9f9f9;
+}
+
+.price-table tr:nth-child(even) td {
+    background-color: #f1f1f1;
+}
+
+.price-table tr:hover td {
+    background-color: #f0f0f0;
+}
+
+.note {
+    font-size: 14px;
+    color: #888;
+    text-align: center;
+    margin-top: 10px;
+}

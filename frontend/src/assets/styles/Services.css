@@ -1,0 +1,259 @@
+/* Phần chung cho trang */
+.services-container {
+    font-family: 'Arial', sans-serif;
+    color: #333;
+}
+
+/* Header */
+.service-banner {
+    text-align: center;
+}
+
+.service-banner-image {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+/* Phần 3 đoạn văn bản xếp hàng ngang */
+.service-texts {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin: 40px 0;
+    flex-wrap: wrap;
+    padding: 0 20px;
+}
+
+.services-container .service-item {
+    background-color: #fff;
+    width: 30%;
+    height: 400px;
+    text-align: center;
+    padding: 20px;
+    border-radius: 40px 0 40px 40px;
+    /* Bo góc cho các mục */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    /* Thêm hiệu ứng chuyển tiếp */
+}
+
+.services-container .service-item:hover {
+    background: linear-gradient(135deg, #00467f 0%, rgba(7, 79, 128, 0.8) 100%);
+}
+
+.services-container .service-item h2,
+.services-container .service-item p {
+    transition: color 0.3s ease;
+    /* Hiệu ứng chuyển màu */
+}
+
+.services-container .service-item:hover h2,
+.services-container .service-item:hover p {
+    color: white;
+    /* Màu chữ trắng khi hover */
+}
+
+.service-item h2 {
+    font-size: 18px;
+    /* Kích thước chữ */
+    color: #00467f;
+    /* Màu sắc chữ */
+    margin-bottom: 15px;
+    /* Khoảng cách dưới chữ */
+    font-weight: 400;
+    /* Độ dày của chữ (có thể điều chỉnh nếu muốn chữ mảnh hơn) */
+    font-family: 'Roboto', sans-serif;
+    /* Font chữ mảnh nếu bạn muốn */
+    padding: 0 50px;
+}
+
+.services-container .service-item p {
+    font-size: 16px;
+    /* Kích thước chữ */
+    color: black;
+    /* Màu sắc chữ */
+    line-height: 1.6;
+    /* Khoảng cách dòng */
+    font-weight: 300;
+    /* Độ dày chữ nhẹ, mảnh */
+    font-family: 'Roboto', sans-serif;
+    /* Font chữ mảnh nếu bạn muốn */
+    padding: 0 47px;
+}
+
+/* Bo tròn viền cho icon */
+.service-icon img {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    margin-bottom: 15px;
+    border-radius: 50%;
+    /* Bo tròn icon */
+}
+
+/* Phần thông tin dịch vụ */
+.service-info {
+    padding: 20px;
+    text-align: center;
+    margin-top: 40px;
+}
+
+.service-info h2 {
+    font-size: 28px;
+    color: #00467f;
+    font-weight: bold;
+}
+
+.service-info p {
+    font-size: 18px;
+    color: #555;
+    line-height: 1.6;
+    margin: 20px 0;
+}
+
+/* Các mục hiển thị */
+.service-options {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 0 20px;
+}
+
+.service-option {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 45%;
+    padding: 20px;
+    background-color: #ecf0f1;
+    text-align: left;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.service-option h3 {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    flex: 1;
+    /* Để chữ chiếm hết không gian */
+    padding-right: 10px;
+    /* Khoảng cách chữ */
+}
+
+.service-option:hover {
+    transform: translateY(-5px);
+    background-color: #3498db;
+    color: white;
+}
+
+/* Phần quy trình giao nhận */
+.process {
+    text-align: center;
+    margin-top: 50px;
+}
+
+.process h2 {
+    font-size: 28px;
+    color: #00467f;
+    font-weight: bold;
+    margin-bottom: 40px;
+}
+
+/* Bố cục quy trình giao nhận */
+.process-bar {
+    display: flex;
+    /* Dùng flexbox để sắp xếp các bước theo hàng ngang */
+    justify-content: space-between;
+    /* Căn đều các bước trong hàng ngang */
+    align-items: center;
+    /* Căn chỉnh các icon và text theo chiều dọc */
+    gap: 20px;
+    /* Khoảng cách giữa các div */
+    padding: 30px 20px;
+    position: relative;
+}
+
+/* Phần bước quy trình */
+.process-step {
+    text-align: center;
+    position: relative;
+    width: 16.66%;
+}
+
+.process-step img {
+    width: 70px;
+    /* Kích thước của biểu tượng */
+    height: 70px;
+    /* Kích thước của biểu tượng */
+    border-radius: 50%;
+    /* Tạo vòng tròn quanh icon */
+    background-color: #fff;
+    border: 2px solid #00467f;
+    /* Viền vòng tròn xung quanh icon */
+    padding: 15px;
+    box-sizing: border-box;
+    transition: transform 0.3s ease;
+}
+
+/* Tiêu đề và mô tả */
+.process-step h3 {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    margin-top: 10px;
+}
+
+.process-step p {
+    font-size: 16px;
+    /* Kích thước chữ */
+    color: black;
+    /* Màu sắc chữ */
+    line-height: 1.6;
+    /* Khoảng cách dòng */
+    font-weight: 300;
+    /* Độ dày chữ nhẹ, mảnh */
+    font-family: 'Roboto', sans-serif;
+    margin-top: 18px;
+    height: 100px;
+}
+
+/* Đường nối giữa các icon */
+.process-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 15%;
+    right: -120px;
+    /* Điều chỉnh vị trí của đường nối */
+    width: 220px;
+    /* Độ dài của đường nối */
+    height: 6px;
+    background-color: #00467f;
+    /* Màu đường nối */
+    z-index: -1;
+    /* Đặt đường nối dưới các icon */
+}
+
+/* Hiệu ứng hover với xoay và phóng to icon */
+.process-step:hover img {
+    transform: scale(1.1) rotate(360deg);
+    /* Phóng to icon và xoay 360 độ khi hover */
+    transition: transform 0.5s ease;
+    /* Thêm thời gian chuyển động để hiệu ứng mượt mà hơn */
+}
+
+.process-step:hover h3,
+.process-step:hover p {
+    color: #3498db;
+    /* Thay đổi màu chữ khi hover */
+}
+
+.process-step:hover {
+    transform: translateY(-5px);
+}

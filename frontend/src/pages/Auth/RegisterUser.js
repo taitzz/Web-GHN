@@ -22,13 +22,21 @@ export default function RegisterUser() {
 
   const validateForm = () => {
     let newErrors = {};
-    
-    if (!formData.fullName.trim()) newErrors.fullName = "Vui lòng nhập họ và tên";
+
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = "Vui lòng nhập họ và tên";  // Kiểm tra nếu không nhập tên
+  } else if (/[^a-zA-Zàáạảãăắằẳẵâấầẩẫđèéẹẻẽêếềểễêịỉĩịòóọỏõôốồổỗơớờởỡơùúụủũưứừửữưỳýỵỷỹ\s]/i.test(formData.fullName)) {
+      // Kiểm tra tên có ký tự không hợp lệ (chỉ cho phép chữ cái có dấu và khoảng trắng)
+      newErrors.fullName = "Họ và tên không hợp lệ, chỉ chứa chữ cái có dấu và khoảng trắng";
+  } else if (formData.fullName.split(' ').length < 2) {
+      // Kiểm tra nếu họ và tên không đầy đủ (ít nhất 2 từ)
+      newErrors.fullName = "Vui lòng nhập đầy đủ họ và tên";
+  }   
     if (!formData.birthDate) newErrors.birthDate = "Vui lòng chọn ngày sinh";
-    
+
     if (!formData.phone) {
       newErrors.phone = "Vui lòng nhập số điện thoại";
-    } else if (!/^\d{10,11}$/.test(formData.phone)) {
+    } else if (!/^\d{10}$/.test(formData.phone)) {
       newErrors.phone = "Số điện thoại không hợp lệ";
     }
 

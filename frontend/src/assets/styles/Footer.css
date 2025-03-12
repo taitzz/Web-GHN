@@ -1,3 +1,4 @@
+/* Phần Footer */
 .footer {
     background-color: #f9f9f9;
     padding: 40px 80px;
@@ -37,16 +38,20 @@
     font-weight: 400;
 }
 
+/* Hover effect for the footer links */
 .footer-column ul li:hover {
     color: #ff6600;
     font-weight: 600;
 }
 
+/* Phần liên hệ */
 .footer-contact {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
     margin-top: 30px;
     border-top: 1px solid #ddd;
     padding-top: 20px;
-    text-align: center;
     font-size: 14px;
     color: #555;
 }
@@ -56,6 +61,7 @@
     font-weight: 400;
 }
 
+/* Phần biểu tượng liên hệ */
 .footer-icon {
     color: #ff6600;
     margin-right: 5px;

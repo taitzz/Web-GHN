@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../../assets/styles/ForgotPassword.css";
-import ghn from "../../assets/images/ghn.png";
 import bg from "../../assets/images/shipper_icon.jpg";
 import { FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa';
 
@@ -11,6 +10,7 @@ export default function ForgotPassword() {
     const [email, setEmail] = useState("");
     const [otp, setOtp] = useState("");  // OTP sẽ được lưu trữ dưới dạng chuỗi
     const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");  // Thêm ô nhập lại mật khẩu
     const [isOtpSent, setIsOtpSent] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
     const [error, setError] = useState("");
@@ -24,16 +24,16 @@ export default function ForgotPassword() {
             setError("Vui lòng nhập tên tài khoản và email!");
             return;
         }
-    
+
         // Kiểm tra định dạng email hợp lệ
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
             setError("Email không hợp lệ!");
             return;
         }
-    
+
         try {
             const response = await axios.post("http://localhost:5000/api/users/forgot-password", { username, email });
-    
+
             if (response.status === 200) {
                 setIsOtpSent(true);
                 setError("");
@@ -42,28 +42,34 @@ export default function ForgotPassword() {
         } catch (error) {
             setError(error.response?.data?.message || "Có lỗi xảy ra!");
         }
-    };    
+    };
 
     // Hàm xử lý gửi mã OTP và mật khẩu mới
     const handleSubmitOtp = async () => {
-        if (!otp || !newPassword) {
-            setError("Vui lòng nhập mã OTP và mật khẩu mới.");
+        if (!otp || !newPassword || !confirmPassword) {
+            setError("Vui lòng nhập mã OTP, mật khẩu mới và xác nhận mật khẩu.");
             return;
         }
-    
+
         // Kiểm tra mật khẩu mới có hợp lệ không (tối thiểu 8 ký tự, chứa chữ hoa, chữ thường, số)
         if (!/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/.test(newPassword)) {
             setError("Mật khẩu mới không hợp lệ. Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số.");
             return;
         }
-    
+
+        // Kiểm tra mật khẩu và mật khẩu nhập lại có khớp không
+        if (newPassword !== confirmPassword) {
+            setError("Mật khẩu và xác nhận mật khẩu không khớp.");
+            return;
+        }
+
         try {
             const response = await axios.post("http://localhost:5000/api/users/reset-password", { username, otp, newPassword });
-    
+
             if (response.status === 200) {
                 setSuccessMessage("Mật khẩu đã được thay đổi thành công!");
                 setError("");
-    
+
                 // Chuyển về trang đăng nhập sau 3 giây
                 setTimeout(() => {
                     navigate("/"); // Điều hướng về trang đăng nhập
@@ -72,7 +78,7 @@ export default function ForgotPassword() {
         } catch (error) {
             setError(error.response?.data?.message || "Mã OTP không hợp lệ.");
         }
-    };    
+    };
 
     // Giảm thời gian chờ mỗi giây
     useEffect(() => {
@@ -80,11 +86,11 @@ export default function ForgotPassword() {
             const interval = setInterval(() => {
                 setTimer(prev => prev - 1);
             }, 1000);
-    
+
             // Hủy interval khi component unmount hoặc timer == 0
             return () => clearInterval(interval);
         }
-    }, [timer]);    
+    }, [timer]);
 
     // Hàm xử lý thay đổi giá trị OTP
     const handleOtpChange = (e) => {
@@ -100,7 +106,7 @@ export default function ForgotPassword() {
             <div className="left">
                 <div className="background-left">
                     <img src={bg} className="normal" alt="background" />
-                    <div className="content-note">                      
+                    <div className="content-note">
                         <div className="left-row2">
                             THIẾT KẾ CHO GIẢI PHÁP GIAO NHẬN HÀNG
                             <br />
@@ -150,6 +156,20 @@ export default function ForgotPassword() {
                                     {showPassword ? <FaEyeSlash /> : <FaEye />}
                                 </span>
                             </div>
+
+                            <p>Nhập lại mật khẩu:</p>
+                            <div className="password-input">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="Nhập lại mật khẩu"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                />
+                                <span onClick={() => setShowPassword(!showPassword)}>
+                                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                                </span>
+                            </div>
+
                             <button onClick={handleSubmitOtp}>Đổi mật khẩu</button>
                         </div>
                     ) : (

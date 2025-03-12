@@ -107,7 +107,10 @@ const DetailsShipper = () => {
                                         </li>
                                         <li>
                                             <strong>Tên tài Khoản:</strong> <span>{employee.EmployeeID}</span>
-                                        </li>                                  
+                                        </li> 
+                                        <li>
+                                            <strong>Mật khẩu:</strong> <span>{employee.Password}</span>
+                                        </li>                                
                                         <li>
                                             <button className="delete-button" onClick={() => handleDelete(employee.ShipperID)}>Xóa Nhân Viên</button>
                                         </li>

@@ -77,7 +77,7 @@ router.post("/login", async (req, res) => {
             .input("employeeId", sql.NVarChar, employeeId)
             .query("SELECT * FROM Shipper WHERE EmployeeID = @employeeId");
 
-        const shipper = result.recordset[0]; // Lấy shipper đầu tiên
+        const shipper = result.recordset[0]; 
 
         if (!shipper) {
             return res.status(400).json({ success: false, message: "Tài khoản không tồn tại" });
@@ -130,10 +130,10 @@ router.put("/approve/:id", async (req, res) => {
         }
 
         const employeeID = `SP${String(shipper.ShipperID).padStart(4, '0')}`;
-        const generatedPassword = Math.random().toString(36).slice(-8);
-        const hashedPassword = await bcrypt.hash(generatedPassword, 10);
+        const generatedPassword = Math.random().toString(36).slice(-8);  // Tạo mật khẩu ngẫu nhiên
 
-        await approveShipper(id, employeeID, hashedPassword);
+        // Không mã hóa mật khẩu, lưu mật khẩu trực tiếp
+        await approveShipper(id, employeeID, generatedPassword);
 
         const transporter = nodemailer.createTransport({
             service: "gmail",
@@ -142,7 +142,7 @@ router.put("/approve/:id", async (req, res) => {
                 pass: "vhfx zwol vgsw usqr",
             },
         });
-
+        //Gửi email thông báo shipper được duyệt
         const mailOptions = {
             from: "taivu1602@gmail.com",
             to: shipper.Email,

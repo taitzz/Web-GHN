@@ -3,7 +3,7 @@ const sql = require('mssql');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const authMiddleware = require("../middleware/auth");
-const { poolPromise } = require('../config/db'); // Đảm bảo đã kết nối DB
+const { poolPromise } = require('../config/db'); 
 
 const router = express.Router();
 
@@ -113,12 +113,12 @@ router.post('/login', async (req, res) => {
         // ✅ **Tạo Token JWT KHÔNG CÓ THỜI HẠN**
         const token = jwt.sign(
             { id: user.UserID, fullName: user.FullName },
-            process.env.JWT_SECRET // ❌ Không có expiresIn
+            process.env.JWT_SECRET 
         );  
 
         res.status(200).json({
             message: 'Đăng nhập thành công',
-            token,  // ✅ Trả về token không có thời hạn
+            token,  
             user: {
                 id: user.UserID,
                 fullName: user.FullName,
@@ -150,7 +150,7 @@ router.get('/list', async (req, res) => {
 router.get('/profile', authMiddleware, async (req, res) => {
     try {
         const pool = await poolPromise;
-        const userId = req.user.id; // Lấy userId từ token
+        const userId = req.user.id; 
         console.log("🔍 UserID từ token:", userId);
 
         const result = await pool.request()
@@ -174,7 +174,7 @@ router.get('/profile', authMiddleware, async (req, res) => {
 router.delete("/:id", async (req, res) => {
     const { id } = req.params;
     try {
-        let pool = await poolPromise; // ✅ Sử dụng poolPromise thay vì dbConfig
+        let pool = await poolPromise; 
         let result = await pool
             .request()
             .input("UserID", sql.Int, id)
@@ -196,7 +196,7 @@ router.post("/forgot-password", async (req, res) => {
     const { username, email } = req.body;
 
     try {
-        const pool = await poolPromise; // Đảm bảo kết nối đúng
+        const pool = await poolPromise; 
 
         const result = await pool
             .request()
@@ -224,13 +224,13 @@ router.post("/forgot-password", async (req, res) => {
         const transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
-                user: "taivu1602@gmail.com", // Sửa bằng email của bạn
-                pass: "vhfx zwol vgsw usqr", // Sửa bằng mật khẩu ứng dụng email của bạn
+                user: "taivu1602@gmail.com", 
+                pass: "vhfx zwol vgsw usqr", 
             },
         });
 
         const mailOptions = {
-            from: "taivu1602@gmail.com", // Sửa bằng email của bạn
+            from: "taivu1602@gmail.com", 
             to: email,
             subject: "Mã OTP để đặt lại mật khẩu",
             text: `Mã OTP để lấy mật khẩu của bạn là: ${otp}`,

@@ -1,18 +1,29 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";  // Thêm Link từ react-router-dom
+import React, { useState, useEffect } from "react";
+import { Link, useLocation , useNavigate } from "react-router-dom";  // Thêm useLocation từ react-router-dom
 import "../assets/styles/Header.css";
 import { FaSearch, FaSignOutAlt, FaPlus } from "react-icons/fa";
 import logo from "../assets/images/ghn.png"; 
 
 const Header = () => {
-    const [activeTab, setActiveTab] = useState("home");
+    const location = useLocation();  // Lấy location hiện tại từ react-router-dom
+    const navigate = useNavigate(); // Khởi tạo useNavigate hook
 
     const handleLogout = () => {
         if (window.confirm("Bạn có chắc chắn muốn đăng xuất không?")) {
             localStorage.removeItem("authToken");
             localStorage.removeItem("fullName");
+            navigate("/");
         }
     };
+
+    // Cập nhật activeTab khi thay đổi đường dẫn
+    useEffect(() => {
+        // Lấy tên của đường dẫn hiện tại để cập nhật activeTab
+        const currentPath = location.pathname.split("/")[1];
+        setActiveTab(currentPath || "home");  // Set mặc định là 'home' nếu không có đường dẫn
+    }, [location]);  // Cập nhật lại mỗi khi location thay đổi
+
+    const [activeTab, setActiveTab] = useState("home");
 
     return (
         <div className="header">
@@ -23,19 +34,19 @@ const Header = () => {
 
             {/* Ở giữa: Menu điều hướng */}
             <nav className="header-middle">
-                <Link to="/home" className={`nav-item ${activeTab === "home" ? "active" : ""}`} onClick={() => setActiveTab("home")}>
+                <Link to="/home" className={`nav-item ${activeTab === "home" ? "active" : ""}`}>
                     Trang Chủ
                 </Link>
-                <Link to="/services" className={`nav-item ${activeTab === "services" ? "active" : ""}`} onClick={() => setActiveTab("services")}>
+                <Link to="/services" className={`nav-item ${activeTab === "services" ? "active" : ""}`}>
                     Dịch Vụ
                 </Link>
-                <Link to="/about" className={`nav-item ${activeTab === "about" ? "active" : ""}`} onClick={() => setActiveTab("about")}>
+                <Link to="/about" className={`nav-item ${activeTab === "about" ? "active" : ""}`}>
                     Giới Thiệu
                 </Link>
-                <Link to="/support" className={`nav-item ${activeTab === "support" ? "active" : ""}`} onClick={() => setActiveTab("support")}>
+                <Link to="/support" className={`nav-item ${activeTab === "support" ? "active" : ""}`}>
                     Hỗ Trợ
                 </Link>
-                <Link to="/info" className={`nav-item ${activeTab === "info" ? "active" : ""}`} onClick={() => setActiveTab("info")}>
+                <Link to="/info" className={`nav-item ${activeTab === "info" ? "active" : ""}`}>
                     Thông Tin
                 </Link>
             </nav>
@@ -43,9 +54,9 @@ const Header = () => {
             {/* Bên phải: Tạo đơn hàng - Tìm kiếm - Đăng xuất */}
             <div className="header-right">
                 {/* Nút tạo đơn hàng */}
-                <button className="header__button" onClick={() => setActiveTab("createOrder")}>
+                <Link to="/create-order" className="header__button">
                     <FaPlus className="icon" /> Tạo đơn hàng
-                </button>
+                </Link>
 
                 {/* Thanh tìm kiếm */}
                 <div className="header__search-container">

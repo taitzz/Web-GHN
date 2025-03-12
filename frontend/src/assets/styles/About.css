@@ -1,0 +1,180 @@
+/* Phần chung */
+.about-container {
+    font-family: Monstserrat, sans-serif;
+
+}
+
+/* Phần quảng cáo */
+.advertisement {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.advertisement .ad-image {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+/* Các phần */
+.section {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    padding: 0 170px;
+}
+
+.section-title {
+    font-size: 20px;
+    font-weight: 500;
+    text-transform: uppercase;
+    position: relative;
+    display: inline-block;
+    line-height: 25px;
+    padding-left: 25px;
+}
+
+.section-title::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 50%;
+    width: 5px;
+    height: 30px;
+    background-color: #FF8C00;
+    /* Màu cam */
+    transform: translateY(-50%);
+}
+
+.section-subtitle {
+    font-size: 50px;
+    font-weight: bold;
+    /* Đảm bảo chữ in đậm */
+    color: black;
+    margin-top: 10px;
+}
+
+.section-text {
+    font-size: 20px;
+    /* Kích thước chữ giống trong ảnh */
+    color: #0c1325;
+    margin-top: 10px;
+    line-height: 1.6;
+    /* Khoảng cách dòng giúp văn bản dễ đọc */
+    letter-spacing: 0.5px;
+    /* Tạo khoảng cách giữa các chữ */
+    text-align: justify;
+    /* Căn chỉnh đều cả hai bên */
+    width: 100%;
+}
+
+.section-text2 {
+    font-size: 40px;
+    /* Kích thước chữ giống trong ảnh */
+    color: black;
+    font-weight: bold;
+    margin-top: 10px;
+    line-height: 1.6;
+    /* Khoảng cách dòng giúp văn bản dễ đọc */
+    letter-spacing: 0.5px;
+    /* Tạo khoảng cách giữa các chữ */
+    text-align: justify;
+    /* Căn chỉnh đều cả hai bên */
+    width: 100%;
+}
+
+.section-image {
+    width: 100%;
+}
+
+.section-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+/* Danh sách thành tích */
+.achievement-list {
+    list-style-type: disc;
+    padding-left: 20px;
+    text-align: left;
+    margin-top: 20px;
+}
+
+.achievement-list li {
+    font-size: 18px;
+    color: #0c1325;
+    margin: 10px 0;
+}
+
+/* Đối tác */
+.partner-logos {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.partner-row {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.partner-logo {
+    width: 150px;
+    height: auto;
+    object-fit: contain;
+    border: 2px solid #ddd;
+    /* Viền mỏng, màu xám */
+    border-radius: 10px;
+    /* Bo góc viền */
+    padding: 5px;
+    /* Khoảng cách giữa ảnh và viền */
+}
+
+/* Phần dịch vụ */
+.service-differences {
+    display: flex;
+    justify-content: space-between;
+    /* Căn chỉnh các mục dịch vụ đều */
+    gap: 20px;
+    margin-top: 40px;
+}
+
+.about-container .service-item {
+    text-align: center;
+    width: 50%;
+    /* Chiều rộng mỗi item */
+}
+
+.about-container .service-image {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    /* Bo góc cho ảnh */
+    border: 2px solid #ddd;
+    /* Viền cho ảnh */
+    object-fit: cover;
+    /* Đảm bảo ảnh không bị méo */
+}
+
+.about-container .service-caption {
+    margin-top: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+.about-container .service-caption-note {
+    margin-top: 8px;
+    font-size: 14px;
+    color: #0c1325;
+    line-height: 1.4;
+    text-align: center;
+    padding: 0 10px;
+    margin-bottom: 50px;
+}
