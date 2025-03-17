@@ -6,7 +6,7 @@
   background-color: white;
   padding: 15px 20px;
   border-bottom: 2px solid #f1f1f1;
-  font-family: 'Arial', sans-serif;
+  font-family: "Arial", sans-serif;
   position: sticky;
   top: 0; /* Dính header ở trên cùng khi cuộn */
   z-index: 1000; /* Đảm bảo header luôn ở trên */
@@ -68,7 +68,8 @@
   gap: 15px;
 }
 
-.header__button, .header__logout {
+.header .header__button,
+.header .header__logout {
   background-color: #ff6600;
   color: white;
   padding: 10px 18px;
@@ -84,8 +85,39 @@
   transition: background 0.3s ease;
 }
 
-.header__button:hover, .header__logout:hover {
+.header .header__button:hover,
+.header .header__logout:hover {
   background-color: #e65500;
+}
+
+/* --- Icon thông báo --- */
+.header__notification {
+  position: relative;
+  color: #333;
+  text-decoration: none;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  transition: color 0.3s ease;
+}
+
+.header__notification:hover {
+  color: #ff6600; /* Đổi màu khi hover */
+}
+
+.notification-badge {
+  position: absolute;
+  top: 2px; /* Điều chỉnh vị trí badge */
+  right: 2px;
+  background-color: #ff0000; /* Màu đỏ cho badge */
+  color: white;
+  font-size: 12px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* --- Thanh tìm kiếm --- */

@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../../assets/styles/ForgotPassword.css";
 import bg from "../../assets/images/shipper_icon.jpg";
-import { FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa';
+import { FaArrowLeft } from 'react-icons/fa';
 
 export default function ForgotPassword() {
     const [username, setUsername] = useState("");
@@ -14,7 +14,6 @@ export default function ForgotPassword() {
     const [isOtpSent, setIsOtpSent] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
     const [error, setError] = useState("");
-    const [showPassword, setShowPassword] = useState(false);
     const [timer, setTimer] = useState(0);
     const navigate = useNavigate();
 
@@ -147,27 +146,21 @@ export default function ForgotPassword() {
                             <p>Nhập mật khẩu mới:</p>
                             <div className="password-input">
                                 <input
-                                    type={showPassword ? "text" : "password"}
+                                    type={"password"}
                                     placeholder="Nhập mật khẩu mới"
                                     value={newPassword}
                                     onChange={(e) => setNewPassword(e.target.value)}
                                 />
-                                <span onClick={() => setShowPassword(!showPassword)}>
-                                    {showPassword ? <FaEyeSlash /> : <FaEye />}
-                                </span>
                             </div>
 
                             <p>Nhập lại mật khẩu:</p>
                             <div className="password-input">
                                 <input
-                                    type={showPassword ? "text" : "password"}
+                                    type={"password"}
                                     placeholder="Nhập lại mật khẩu"
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
                                 />
-                                <span onClick={() => setShowPassword(!showPassword)}>
-                                    {showPassword ? <FaEyeSlash /> : <FaEye />}
-                                </span>
                             </div>
 
                             <button onClick={handleSubmitOtp}>Đổi mật khẩu</button>

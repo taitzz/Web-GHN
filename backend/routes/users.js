@@ -102,7 +102,7 @@ router.post('/login', async (req, res) => {
         const user = result.recordset[0];
 
         if (!user) {
-            return res.status(400).json({ message: 'Tài khoản không tồn tại' });
+            return res.status(400).json({ message: 'Đăng nhập thất bại, tài khoản hoặc mật khẩu không đúng!' });
         }
 
         const isMatch = await bcrypt.compare(password, user.Password);
@@ -110,10 +110,10 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ message: 'Mật khẩu không đúng' });
         }
 
-        // ✅ **Tạo Token JWT KHÔNG CÓ THỜI HẠN**
+        // ✅ Tạo Token JWT với UserID thay vì id
         const token = jwt.sign(
-            { id: user.UserID, fullName: user.FullName },
-            process.env.JWT_SECRET 
+            { UserID: user.UserID, fullName: user.FullName },
+            process.env.JWT_SECRET
         );  
 
         res.status(200).json({
@@ -132,12 +132,33 @@ router.post('/login', async (req, res) => {
     }
 });
 
+// API kiểm tra tên tài khoản đã tồn tại chưa
+router.post('/check-username', async (req, res) => {
+    const { username } = req.body;
+
+    try {
+        const pool = await poolPromise;
+        const result = await pool.request()
+            .input('username', sql.NVarChar, username)
+            .query('SELECT UserID FROM Users WHERE Username = @username');
+
+        if (result.recordset.length > 0) {
+            return res.status(200).json({ exists: true });
+        } else {
+            return res.status(200).json({ exists: false });
+        }
+    } catch (err) {
+        console.error('❌ Lỗi kiểm tra tên tài khoản:', err);
+        res.status(500).json({ message: 'Lỗi server!' });
+    }
+});
+
 // API: Lấy danh sách người dùng (Chỉ Admin hoặc Người có quyền)
 router.get('/list', async (req, res) => {
     try {
         const pool = await poolPromise;
         const result = await pool.request().query(`
-            SELECT UserID, FullName, Email, Phone, Address, Username FROM Users
+            SELECT UserID, FullName, Email, Phone, Address, Username, BirthDate FROM Users
         `);
         res.status(200).json(result.recordset);
     } catch (err) {

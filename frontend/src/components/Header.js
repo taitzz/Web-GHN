@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation , useNavigate } from "react-router-dom";  // Thêm useLocation từ react-router-dom
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import "../assets/styles/Header.css";
-import { FaSearch, FaSignOutAlt, FaPlus } from "react-icons/fa";
-import logo from "../assets/images/ghn.png"; 
+import { FaSearch, FaSignOutAlt, FaShoppingCart, FaBell } from "react-icons/fa"; // Thêm FaBell cho icon thông báo
+import logo from "../assets/images/ghn.png";
 
 const Header = () => {
-    const location = useLocation();  // Lấy location hiện tại từ react-router-dom
-    const navigate = useNavigate(); // Khởi tạo useNavigate hook
+    const location = useLocation();
+    const navigate = useNavigate();
 
     const handleLogout = () => {
         if (window.confirm("Bạn có chắc chắn muốn đăng xuất không?")) {
@@ -16,14 +16,15 @@ const Header = () => {
         }
     };
 
-    // Cập nhật activeTab khi thay đổi đường dẫn
     useEffect(() => {
-        // Lấy tên của đường dẫn hiện tại để cập nhật activeTab
         const currentPath = location.pathname.split("/")[1];
-        setActiveTab(currentPath || "home");  // Set mặc định là 'home' nếu không có đường dẫn
-    }, [location]);  // Cập nhật lại mỗi khi location thay đổi
+        setActiveTab(currentPath || "home");
+    }, [location]);
 
     const [activeTab, setActiveTab] = useState("home");
+
+    // Giả lập số lượng thông báo (có thể thay bằng dữ liệu thực từ API sau)
+    const [notificationCount, setNotificationCount] = useState(3); // Ví dụ: 3 thông báo
 
     return (
         <div className="header">
@@ -51,16 +52,28 @@ const Header = () => {
                 </Link>
             </nav>
 
-            {/* Bên phải: Tạo đơn hàng - Tìm kiếm - Đăng xuất */}
+            {/* Bên phải: Tạo đơn hàng - Thông báo - Tìm kiếm - Đăng xuất */}
             <div className="header-right">
                 {/* Nút tạo đơn hàng */}
                 <Link to="/create-order" className="header__button">
-                    <FaPlus className="icon" /> Tạo đơn hàng
+                    <FaShoppingCart className="icon" /> Tạo đơn hàng
+                </Link>
+
+                {/* Icon thông báo */}
+                <Link to="/notifications" className="header__notification">
+                    <FaBell className="icon" />
+                    {notificationCount > 0 && (
+                        <span className="notification-badge">{notificationCount}</span>
+                    )}
                 </Link>
 
                 {/* Thanh tìm kiếm */}
                 <div className="header__search-container">
-                    <input type="text" className="header__search" placeholder="Nhập mã đơn hàng bạn cần tra cứu..." />
+                    <input
+                        type="text"
+                        className="header__search"
+                        placeholder="Nhập mã đơn hàng bạn cần tra cứu..."
+                    />
                     <FaSearch className="search-icon" />
                 </div>
 

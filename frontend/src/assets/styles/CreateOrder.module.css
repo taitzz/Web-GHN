@@ -1,0 +1,417 @@
+/* CreateOrder.module.css */
+
+.pageContainer {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  .createOrderContainer {
+    display: flex;
+    width: 100%;
+    flex: 1;
+  }
+  
+  .formSection {
+    width: 70%;
+    padding: 20px;
+  }
+  
+  .paymentSection {
+    width: 30%;
+    position: fixed;
+    right: 0;
+    top: 76px;
+    height: 100vh;
+    background-color: #f5f5f5;
+    padding: 20px;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .fieldset {
+    border: 1px solid green;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .legend {
+    padding: 0 10px;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .infoContainer {
+    display: flex;
+    width: 100%;
+  }
+  
+  .leftColumn,
+  .rightColumn {
+    width: 50%;
+    padding: 10px;
+  }
+  
+  .itemContainer {
+    width: 100%;
+  }
+  
+  .itemEntry {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+  }
+  
+  .itemTitle {
+    font-size: 16px;
+    font-weight: bold;
+    background-color: #87cefa;
+    color: #333;
+    margin-bottom: 10px;
+    width: 50px;
+    padding: 5px;
+    border-radius: 5px;
+  }
+  
+  .itemRow,
+  .sizeRow {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .inputGroup {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    position: relative;
+  }
+  
+  .label {
+    font-size: 14px;
+    font-weight: bold;
+    color: black;
+    margin-bottom: 5px;
+  }
+  
+  .input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  
+  .input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+    outline: none;
+  }
+  
+  .textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    resize: vertical;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  
+  .textarea:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+    outline: none;
+  }
+  
+  .select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    background-color: white;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  
+  .select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+    outline: none;
+  }
+  
+  .addItemButton {
+    padding: 8px 16px;
+    background-color: #dcdcdc;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-bottom: 10px;
+  }
+  
+  .removeItemButton {
+    padding: 8px 16px;
+    background-color: #f4a460;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: background-color 0.3s;
+  }
+  
+  .removeItemButton:hover {
+    background-color: #d2691e;
+  }
+  
+  .paymentRow {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .paymentRow .inputGroup {
+    flex: 1;
+  }
+  
+  .costBreakdown {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
+  }
+  
+  .costLeft,
+  .costRight {
+    width: 50%;
+  }
+  
+  .costLeft p,
+  .costRight p {
+    margin: 5px 0;
+    font-size: 14px;
+  }
+  
+  .totalLabel,
+  .totalAmount {
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .buttonRow {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .paymentButton,
+  .createOrderButton {
+    padding: 12px 24px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .paymentButton {
+    background-color: #28a745;
+  }
+  
+  .paymentButton:hover:enabled {
+    background-color: #218838;
+  }
+  
+  .createOrderButton {
+    background-color: #007bff;
+  }
+  
+  .createOrderButton:hover:enabled {
+    background-color: #0056b3;
+  }
+  
+  .paymentButton:disabled,
+  .createOrderButton:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
+  
+  .modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .paymentModal {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 400px;
+    text-align: center;
+  }
+  
+  .paymentModal h3 {
+    margin-bottom: 20px;
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .qrCode {
+    margin-bottom: 20px;
+  }
+  
+  .qrPlaceholder {
+    width: 150px;
+    height: 150px;
+    background-color: #ddd;
+    margin: 10px auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    color: #666;
+  }
+  
+  .bankInfo p {
+    margin: 5px 0;
+    font-size: 14px;
+  }
+  
+  .successButton,
+  .closeButton {
+    padding: 10px 20px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .successButton {
+    background-color: #28a745;
+    margin-top: 20px;
+  }
+  
+  .successButton:hover {
+    background-color: #218838;
+  }
+  
+  .closeButton {
+    background-color: #dc3545;
+    margin-top: 10px;
+  }
+  
+  .closeButton:hover {
+    background-color: #c82333;
+  }
+  
+  /* Custom Select Styles */
+  .customSelect {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    background-color: white;
+    cursor: pointer;
+    position: relative;
+    transition: border-color 0.3s;
+  }
+  
+  .customSelect:hover {
+    border-color: #007bff;
+  }
+  
+  .selectValue {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .dropdownContainer {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 0 0 5px 5px;
+    z-index: 1000;
+    margin-top: -1px;
+  }
+  
+  .searchInput {
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-bottom: 1px solid #ddd;
+    font-size: 14px;
+    outline: none;
+  }
+  
+  .dropdown {
+    max-height: 200px;
+    overflow-y: auto;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .dropdownItem {
+    padding: 8px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+  }
+  
+  .dropdownItem:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .noResults,
+  .loading {
+    padding: 8px 10px;
+    font-size: 14px;
+    text-align: center;
+  }
+  
+  .noResults {
+    color: #888;
+  }
+  
+  .loading {
+    color: #666;
+  }
+
+  .suggestionDropdown {
+    position: absolute;
+    background: white;
+    border: 1px solid #ccc;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    width: 100%;
+  }
+
+  .error {
+    color: red;
+    font-size: 12px;
+    margin-top: 4px;
+  }

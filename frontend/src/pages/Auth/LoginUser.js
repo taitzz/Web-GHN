@@ -62,7 +62,12 @@ export default function LoginUser() {
     
                 // **Xử lý lỗi từ server**
                 if (error.response?.status === 400) {
-                    setLoginError("⚠️ " + error.response.data.message);
+                    // Kiểm tra nếu tài khoản đã bị xóa hoặc bị vô hiệu hóa
+                    if (error.response?.data?.message === "Tài khoản của bạn đã bị xóa.") {
+                        setLoginError("⚠️ Tài khoản của bạn đã bị xóa.");
+                    } else {
+                        setLoginError("⚠️ " + error.response.data.message);
+                    }
                 } else {
                     setLoginError("❌ Đăng nhập thất bại, vui lòng thử lại!");
                 }
@@ -72,7 +77,7 @@ export default function LoginUser() {
         } else {
             setLoading(false);  // **Tắt loading nếu có lỗi nhập liệu**
         }
-    };    
+    };       
 
     return (
         <div className="login-container">
