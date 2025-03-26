@@ -1,30 +1,28 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "../../assets/styles/ForgotPassword.css";
+import styles from "../../assets/styles/ForgotPassword.module.css"; // Cập nhật import
 import bg from "../../assets/images/shipper_icon.jpg";
 import { FaArrowLeft } from 'react-icons/fa';
 
 export default function ForgotPassword() {
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
-    const [otp, setOtp] = useState("");  // OTP sẽ được lưu trữ dưới dạng chuỗi
+    const [otp, setOtp] = useState("");
     const [newPassword, setNewPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");  // Thêm ô nhập lại mật khẩu
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [isOtpSent, setIsOtpSent] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
     const [error, setError] = useState("");
     const [timer, setTimer] = useState(0);
     const navigate = useNavigate();
 
-    // Hàm xử lý gửi OTP
     const handleSubmitEmail = async () => {
         if (!username || !email) {
             setError("Vui lòng nhập tên tài khoản và email!");
             return;
         }
 
-        // Kiểm tra định dạng email hợp lệ
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
             setError("Email không hợp lệ!");
             return;
@@ -32,31 +30,27 @@ export default function ForgotPassword() {
 
         try {
             const response = await axios.post("http://localhost:5000/api/users/forgot-password", { username, email });
-
             if (response.status === 200) {
                 setIsOtpSent(true);
                 setError("");
-                setTimer(60); // Đặt thời gian chờ 1 phút (60 giây)
+                setTimer(60);
             }
         } catch (error) {
             setError(error.response?.data?.message || "Có lỗi xảy ra!");
         }
     };
 
-    // Hàm xử lý gửi mã OTP và mật khẩu mới
     const handleSubmitOtp = async () => {
         if (!otp || !newPassword || !confirmPassword) {
             setError("Vui lòng nhập mã OTP, mật khẩu mới và xác nhận mật khẩu.");
             return;
         }
 
-        // Kiểm tra mật khẩu mới có hợp lệ không (tối thiểu 8 ký tự, chứa chữ hoa, chữ thường, số)
         if (!/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/.test(newPassword)) {
             setError("Mật khẩu mới không hợp lệ. Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số.");
             return;
         }
 
-        // Kiểm tra mật khẩu và mật khẩu nhập lại có khớp không
         if (newPassword !== confirmPassword) {
             setError("Mật khẩu và xác nhận mật khẩu không khớp.");
             return;
@@ -64,14 +58,11 @@ export default function ForgotPassword() {
 
         try {
             const response = await axios.post("http://localhost:5000/api/users/reset-password", { username, otp, newPassword });
-
             if (response.status === 200) {
                 setSuccessMessage("Mật khẩu đã được thay đổi thành công!");
                 setError("");
-
-                // Chuyển về trang đăng nhập sau 3 giây
                 setTimeout(() => {
-                    navigate("/"); // Điều hướng về trang đăng nhập
+                    navigate("/");
                 }, 3000);
             }
         } catch (error) {
@@ -79,55 +70,49 @@ export default function ForgotPassword() {
         }
     };
 
-    // Giảm thời gian chờ mỗi giây
     useEffect(() => {
         if (timer > 0) {
             const interval = setInterval(() => {
                 setTimer(prev => prev - 1);
             }, 1000);
-
-            // Hủy interval khi component unmount hoặc timer == 0
             return () => clearInterval(interval);
         }
     }, [timer]);
 
-    // Hàm xử lý thay đổi giá trị OTP
     const handleOtpChange = (e) => {
         const value = e.target.value;
-
-        if (/[^0-9]/.test(value)) return;  // Kiểm tra xem có phải là chữ số không
-
-        setOtp(value);  // Cập nhật toàn bộ giá trị OTP khi người dùng nhập
+        if (/[^0-9]/.test(value)) return;
+        setOtp(value);
     };
 
     return (
-        <div className="forgot-password-container">
-            <div className="left">
-                <div className="background-left">
-                    <img src={bg} className="normal" alt="background" />
-                    <div className="content-note">
-                        <div className="left-row2">
+        <div className={styles.forgotPasswordContainer}>
+            <div className={styles.left}>
+                <div className={styles.backgroundLeft}>
+                    <img src={bg} className={styles.normal} alt="background" />
+                    <div className={styles.contentNote}>
+                        <div className={styles.leftRow2}>
                             THIẾT KẾ CHO GIẢI PHÁP GIAO NHẬN HÀNG
                             <br />
                             TỐT NHẤT TỪ TRƯỚC ĐẾN NAY
                         </div>
-                        <div className="left-row3">
+                        <div className={styles.leftRow3}>
                             Nhanh hơn, rẻ hơn và thông minh hơn
                         </div>
                     </div>
-                    <div className="backdrop"></div>
+                    <div className={styles.backdrop}></div>
                 </div>
             </div>
 
-            <div className="right">
-                <div className="form-container">
-                    <div className="title-forgotpassword">
+            <div className={styles.right}>
+                <div className={styles.formContainer}>
+                    <div className={styles.titleForgotpassword}>
                         <h2>BẠN ĐÃ QUÊN MẬT KHẨU?</h2>
                         <p>GHN rất tiếc vì sự cố này và sẵn sàng hỗ trợ!</p>
                     </div>
 
                     {successMessage ? (
-                        <div className="success-message">
+                        <div className={styles.successMessage}>
                             <p>{successMessage}</p>
                             <p>Đang chuyển hướng đến trang đăng nhập...</p>
                         </div>
@@ -139,31 +124,33 @@ export default function ForgotPassword() {
                                 placeholder="Nhập mã OTP"
                                 value={otp}
                                 onChange={handleOtpChange}
-                                maxLength="6"  // Giới hạn chiều dài OTP
-                                className="otp-input"
+                                maxLength="6"
+                                className={styles.otpInput}
                             />
 
                             <p>Nhập mật khẩu mới:</p>
-                            <div className="password-input">
+                            <div className={styles.passwordInput}>
                                 <input
-                                    type={"password"}
+                                    type="password"
                                     placeholder="Nhập mật khẩu mới"
                                     value={newPassword}
                                     onChange={(e) => setNewPassword(e.target.value)}
+                                    className={styles.input}
                                 />
                             </div>
 
                             <p>Nhập lại mật khẩu:</p>
-                            <div className="password-input">
+                            <div className={styles.passwordInput}>
                                 <input
-                                    type={"password"}
+                                    type="password"
                                     placeholder="Nhập lại mật khẩu"
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
+                                    className={styles.input}
                                 />
                             </div>
 
-                            <button onClick={handleSubmitOtp}>Đổi mật khẩu</button>
+                            <button onClick={handleSubmitOtp} className={styles.button}>Đổi mật khẩu</button>
                         </div>
                     ) : (
                         <div>
@@ -173,24 +160,30 @@ export default function ForgotPassword() {
                                 placeholder="Tên tài khoản"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
+                                className={styles.input}
                             />
                             <input
                                 type="email"
                                 placeholder="Email đã đăng kí trước đó"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
+                                className={styles.input}
                             />
-                            <button onClick={handleSubmitEmail} disabled={timer > 0}>
+                            <button
+                                onClick={handleSubmitEmail}
+                                disabled={timer > 0}
+                                className={styles.button}
+                            >
                                 {timer > 0 ? `Gửi lại OTP sau ${timer}s` : "Gửi OTP"}
                             </button>
                         </div>
                     )}
-                    {error && <p className="error-text">{error}</p>}
+                    {error && <p className={styles.errorText}>{error}</p>}
 
-                    <div className="back-to-login" onClick={() => navigate("/")}>
-                        <FaArrowLeft className="back-icon" />
+                    <div className={styles.backToLogin} onClick={() => navigate("/")}>
+                        <FaArrowLeft className={styles.backIcon} />
                         <span>Quay lại trang </span>
-                        <span className="login-text">Đăng nhập</span>
+                        <span className={styles.loginText}>Đăng nhập</span>
                     </div>
                 </div>
             </div>

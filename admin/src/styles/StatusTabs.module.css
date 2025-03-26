@@ -1,0 +1,352 @@
+/* Container chính */
+.container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Tabs */
+.tabs {
+    display: flex;
+    justify-content: space-around;
+    border-bottom: 2px solid #e0e0e0;
+    margin-bottom: 20px;
+}
+
+.tabButton {
+    flex: 1;
+    padding: 12px 20px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 500;
+    color: #555;
+    background-color: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tabButton:hover {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.activeTab {
+    color: #007bff;
+    border-bottom: 3px solid #007bff;
+    font-weight: 600;
+    background-color: #e7f1ff;
+}
+
+/* Thông báo lỗi */
+.error {
+    color: #dc3545;
+    font-size: 14px;
+    text-align: center;
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #f8d7da;
+    border-radius: 5px;
+}
+
+/* Thông báo đang tải */
+.loading {
+    text-align: center;
+    font-size: 16px;
+    color: #666;
+    margin: 20px 0;
+}
+
+/* Thông báo không có dữ liệu */
+.noData {
+    text-align: center;
+    font-size: 16px;
+    color: #888;
+    margin: 20px 0;
+}
+
+/* Bảng đơn hàng và yêu cầu hủy */
+.orderTable {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.orderTable th,
+.orderTable td {
+    padding: 12px 15px;
+    text-align: left;
+    font-size: 14px;
+    color: #333;
+}
+
+.orderTable th {
+    background-color: #007bff;
+    color: #fff;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.orderTable tbody tr {
+    border-bottom: 1px solid #e0e0e0;
+    transition: background-color 0.2s ease;
+}
+
+.orderTable tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+.orderTable tbody tr:last-child {
+    border-bottom: none;
+}
+
+/* Nút hành động */
+.detailButton {
+    padding: 8px 12px;
+    margin-right: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #fff;
+    background-color: #17a2b8;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.detailButton:hover {
+    background-color: #138496;
+}
+
+.actionButton {
+    padding: 8px 12px;
+    margin-right: 5px;
+    margin-left: 5px;
+    font-size: 13px;
+    font-weight: 500;
+    background-color: red;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Nút phê duyệt (màu xanh) */
+.actionButton.approve {
+    background-color: #28a745;
+}
+
+.actionButton.approve:hover {
+    background-color: #218838;
+}
+
+/* Nút từ chối (màu đỏ) */
+.actionButton.reject {
+    background-color: #dc3545;
+}
+
+.actionButton.reject:hover {
+    background-color: #c82333;
+}
+
+/* Dropdown chọn shipper */
+.shipperSelect {
+    padding: 8px;
+    font-size: 13px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
+
+.shipperSelect:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+/* Modal */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    width: 500px;
+    max-width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.modal h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.orderDetails p {
+    margin: 8px 0;
+    font-size: 14px;
+    color: #555;
+}
+
+.orderDetails p strong {
+    color: #333;
+    display: inline-block;
+    width: 150px;
+}
+
+.formGroup {
+    margin-bottom: 15px;
+}
+
+.formGroup label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.textarea {
+    width: 100%;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: vertical;
+    min-height: 80px;
+}
+
+.textarea:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+.modalActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.closeButton,
+.confirmButton,
+.cancelButton {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.closeButton {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+.closeButton:hover {
+    background-color: #5a6268;
+}
+
+.confirmButton {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.confirmButton:hover {
+    background-color: #218838;
+}
+
+.confirmButton:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.cancelButton {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.cancelButton:hover {
+    background-color: #c82333;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .tabs {
+        flex-direction: column;
+    }
+
+    .tabButton {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .orderTable th,
+    .orderTable td {
+        padding: 10px;
+        font-size: 12px;
+    }
+
+    .detailButton,
+    .actionButton {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    .shipperSelect {
+        padding: 6px;
+        font-size: 12px;
+    }
+
+    .modal {
+        width: 90%;
+        padding: 15px;
+    }
+
+    .modal h2 {
+        font-size: 18px;
+    }
+
+    .orderDetails p {
+        font-size: 12px;
+    }
+
+    .orderDetails p strong {
+        width: 120px;
+    }
+
+    .closeButton,
+    .confirmButton,
+    .cancelButton {
+        padding: 8px 15px;
+        font-size: 12px;
+    }
+}

@@ -1,6 +1,6 @@
 
 import React from "react";
-import { FaSearch, FaWeightHanging, FaBalanceScale } from "react-icons/fa"; // Import các icon
+import { FaSearch } from "react-icons/fa"; 
 import "../styles/TopBar.css";
 
 const TopBar = () => (
@@ -12,20 +12,6 @@ const TopBar = () => (
                 <input type="text" placeholder="Nhập SDT - MDH - Tên người nhận" />
             </div>
             <button>Nâng Cao</button>
-        </div>
-
-        {/* Các hành động */}
-        <div className="topbar__actions">
-           
-            {/* Nút hàng nhẹ */}
-            <button className="btn-light">
-                <FaBalanceScale className="icon" /> Hàng Nhẹ {"<"} 20kg
-            </button>
-
-            {/* Nút hàng nặng */}
-            <button className="btn-heavy">
-                <FaWeightHanging className="icon" /> Hàng Nặng {">"} 20kg
-            </button>
         </div>
     </div>
 );

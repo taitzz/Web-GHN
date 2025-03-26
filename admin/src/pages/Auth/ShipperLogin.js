@@ -1,9 +1,10 @@
+// ShipperLogin.js
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ghnLogo from "../../assets/images/ghn.png";
 import shipperImage from "../../assets/images/shipper.jpg";
 import axios from "axios";
-import "./ShipperLogin.css"; // Import file CSS
+import styles from "./ShipperLogin.module.css";
 
 export default function ShipperLogin() {
     const [employeeId, setEmployeeId] = useState("");
@@ -14,45 +15,51 @@ export default function ShipperLogin() {
 
     const handleLogin = async () => {
         try {
+            setErrorMessage(""); // Xóa thông báo lỗi trước khi thử đăng nhập
+
             const response = await axios.post("http://localhost:5000/api/shipper/login", {
                 employeeId,
-                password
+                password,
             });
-            
-            // Nếu login thành công, chuyển đến trang dashboard hoặc trang chính của shipper
-            if (response.data.success) {
-                // Lưu thông tin shipper vào localStorage hoặc trạng thái của ứng dụng
-                localStorage.setItem("shipperId", employeeId);
-                navigate("/shipper-dashboard"); // Chuyển hướng tới dashboard hoặc trang cần thiết
-            } else {
-                setErrorMessage("Sai tài khoản hoặc mật khẩu.");
-            }
+
+            // API trả về token và thông tin shipper nếu đăng nhập thành công
+            const { token, shipper } = response.data;
+
+            // Lưu token và thông tin shipper vào localStorage
+            localStorage.setItem("shipperToken", token);
+            localStorage.setItem("shipperId", shipper.id);
+            localStorage.setItem("shipperName", shipper.fullName);
+
+            // Chuyển hướng tới dashboard
+            navigate("/shipper-dashboard");
         } catch (err) {
-            console.error("Lỗi khi đăng nhập:", err);
-            setErrorMessage("Sai tài khoản hoặc mật khẩu.");
+            console.error("[ShipperLogin] Lỗi:", err);
+            setErrorMessage(
+                err.response?.data?.message || "Đã xảy ra lỗi, vui lòng thử lại."
+            );
         }
     };
 
     return (
-        <div className="shipper-container">
-            <div className="shipper-login-box">
-                <div className="back-home">
-                    <Link to="/" className="back-home-button">
+        <div className={styles.container}>
+            <div className={styles.loginBox}>
+                <div className={styles.backHome}>
+                    <Link to="/" className={styles.backHomeButton}>
                         ⬅ Quay lại Trang Chủ
                     </Link>
                 </div>
 
-                <div className="shipper-image">
+                <div className={styles.image}>
                     <img src={shipperImage} alt="Shipper" />
                 </div>
 
-                <div className="shipper-form">
-                    <img src={ghnLogo} alt="GHN Logo" className="ghn-logo" />
-                    <h2 className="login-title">Đăng nhập Shipper</h2>
+                <div className={styles.form}>
+                    <img src={ghnLogo} alt="GHN Logo" className={styles.ghnLogo} />
+                    <h2 className={styles.loginTitle}>Đăng nhập Shipper</h2>
 
-                    {errorMessage && <p className="error-message">{errorMessage}</p>} {/* Hiển thị lỗi */}
+                    {errorMessage && <p className={styles.errorMessage}>{errorMessage}</p>}
 
-                    <div className="input-group">
+                    <div className={styles.inputGroup}>
                         <label>Mã nhân viên</label>
                         <input
                             type="text"
@@ -62,7 +69,7 @@ export default function ShipperLogin() {
                         />
                     </div>
 
-                    <div className="input-group password-group">
+                    <div className={`${styles.inputGroup} ${styles.passwordGroup}`}>
                         <label>Mật khẩu</label>
                         <input
                             type={showPassword ? "text" : "password"}
@@ -71,24 +78,25 @@ export default function ShipperLogin() {
                             onChange={(e) => setPassword(e.target.value)}
                         />
                         <button
-                            className="toggle-password"
+                            type="button"
+                            className={styles.togglePassword}
                             onClick={() => setShowPassword(!showPassword)}
                         >
                             👁
                         </button>
                     </div>
 
-                    <div className="forgot-password">
+                    <div className={styles.forgotPassword}>
                         <Link to="/forgot-password">Quên mật khẩu?</Link>
                     </div>
 
-                    <button className="login-button" onClick={handleLogin}>
+                    <button className={styles.loginButton} onClick={handleLogin}>
                         Đăng nhập
                     </button>
 
-                    <div className="auth-guide">
+                    <div className={styles.authGuide}>
                         Bạn muốn trở thành nhân viên?{" "}
-                        <Link to="/shipper-register" className="register-link">
+                        <Link to="/shipper-register" className={styles.registerLink}>
                             Đăng kí ngay
                         </Link>
                     </div>

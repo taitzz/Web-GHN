@@ -1,0 +1,378 @@
+/* RegisterUser.module.css */
+
+/* Reset mặc định */
+:global(*) {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:global(body) {
+  font-family: 'Arial', sans-serif;
+  background-color: #f7f7f7;
+}
+
+/* Container chính */
+.registerContainer {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+}
+
+/* Left section */
+.left {
+  height: 100vh;
+  padding: 0;
+  position: relative;
+  width: 40%;
+}
+
+.backgroundLeft {
+  height: 100%;
+  position: relative;
+  width: 100%;
+}
+
+.normal {
+  width: 100%;
+  display: block;
+}
+
+.contentNote {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 20px;
+}
+
+.logo {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+}
+
+.logoGhn {
+  width: 400px;
+  height: auto;
+  margin-top: 350px;
+}
+
+.leftRow2, 
+.leftRow3 {
+  text-align: center;
+  color: white;
+  font-weight: bold;
+  z-index: 3;
+}
+
+.backgroundLeft .backdrop {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, rgba(230, 238, 245, 0), rgba(0, 51, 102, 0.9));
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+.leftRow2 {
+  position: absolute;
+  bottom: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Poppins', sans-serif;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  font-size: 18px;
+  width: 80%;
+}
+
+.leftRow3 {
+  position: absolute;
+  bottom: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 16px;
+  font-family: 'Poppins', sans-serif;
+  font-style: italic;
+  opacity: 0.8;
+  margin-bottom: 30px;
+}
+
+/* Right section */
+.right {
+  width: 60%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f8f9fa;
+  padding: 20px;
+}
+
+.formContainer {
+  width: 100%;
+  padding: 30px;
+}
+
+.titleLogin {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.titleLogin h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: black;
+}
+
+.titleLogin p {
+  font-size: 16px;
+  color: #ff6339;
+}
+
+/* Form styles */
+.registerForm {
+  width: 100%;
+}
+
+.row6 {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.formGroup label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 5px;
+}
+
+.inputField {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 16px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.inputField:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+.error {
+  border-color: #dc3545;
+}
+
+.errorText {
+  color: #dc3545;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.button {
+  width: 100%;
+  padding: 12px;
+  background: #ff6339;
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 18px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.button:hover {
+  background: #e55a00;
+}
+
+.button:disabled {
+  background: #ff997e;
+  cursor: not-allowed;
+}
+
+.loginRow3 {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.registerLink  {
+  color: #ff6339;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.registerLink:hover {
+  text-decoration: none;
+}
+
+/* Responsive Design */
+@media (min-width: 1025px) {
+  .formContainer {
+      max-width: 900px;
+  }
+  
+  .row6 {
+      justify-content: space-between;
+  }
+  
+  .formGroup {
+      width: calc(50% - 10px);
+  }
+  
+  .button {
+      width: 100%;
+      margin: 0 auto;
+  }
+}
+
+@media (max-width: 1024px) {
+  .registerContainer {
+      flex-direction: column;
+  }
+  
+  .left {
+      width: 100%;
+      height: 40vh;
+      min-height: 300px;
+  }
+  
+  .right {
+      width: 100%;
+  }
+  
+  .formContainer {
+      max-width: 700px;
+  }
+  
+  .logoGhn {
+      width: 300px;
+      margin-top: 150px;
+  }
+  
+  .leftRow2 {
+      font-size: 16px;
+  }
+  
+  .leftRow3 {
+      font-size: 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .left {
+      height: 30vh;
+      min-height: 250px;
+  }
+  
+  .formContainer {
+      padding: 20px;
+  }
+  
+  .titleLogin h2 {
+      font-size: 24px;
+  }
+  
+  .titleLogin p {
+      font-size: 14px;
+      margin-bottom: 30px;
+  }
+  
+  .inputField {
+      padding: 8px;
+      font-size: 13px;
+  }
+  
+  .button {
+      padding: 10px;
+      font-size: 14px;
+  }
+  
+  .logoGhn {
+      width: 250px;
+      margin-top: 100px;
+  }
+  
+  .leftRow2 {
+      font-size: 14px;
+  }
+  
+  .leftRow3 {
+      font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .left {
+      height: 25vh;
+      min-height: 500px;
+  }
+  
+  .formContainer {
+      padding: 15px;
+  }
+  
+  .titleLogin h2 {
+      font-size: 20px;
+  }
+  
+  .titleLogin p {
+      font-size: 12px;
+      margin-bottom: 20px;
+  }
+  
+  .formGroup {
+      margin-bottom: 12px;
+  }
+  
+  .inputField {
+      padding: 8px;
+      font-size: 12px;
+  }
+  
+  .button {
+      padding: 8px;
+      font-size: 13px;
+  }
+  
+  .loginRow3 {
+      margin-top: 15px;
+  }
+  
+  .registerLink span {
+      font-size: 14px;
+  }
+  
+  .logoGhn {
+      width: 200px;
+      margin-top: 50px;
+  }
+  
+  .leftRow2 {
+      font-size: 12px;
+  }
+  
+  .leftRow3 {
+      font-size: 11px;
+  }
+}

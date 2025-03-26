@@ -1,12 +1,49 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "../assets/styles/Header.css";
-import { FaSearch, FaSignOutAlt, FaShoppingCart, FaBell } from "react-icons/fa"; // Thêm FaBell cho icon thông báo
+import { FaSearch, FaSignOutAlt, FaShoppingCart, FaBell } from "react-icons/fa";
 import logo from "../assets/images/ghn.png";
+import axios from "axios"; // Thêm axios để gọi API
 
 const Header = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const [activeTab, setActiveTab] = useState("home");
+    const [notificationCount, setNotificationCount] = useState(0); // Khởi tạo notificationCount
+
+    // Lấy số lượng đơn hàng chưa xử lý từ API
+    useEffect(() => {
+        const fetchNotificationCount = async () => {
+            try {
+                const token = localStorage.getItem("authToken");
+                if (!token) {
+                    console.error("Không có token!");
+                    setNotificationCount(0);
+                    return;
+                }
+
+                const response = await axios.get("http://localhost:5000/api/orders", {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+
+                const data = Array.isArray(response.data) ? response.data : [];
+                // Đếm số đơn hàng có trạng thái Pending (chưa xử lý)
+                const count = data.filter((order) => order.Status === "Pending").length;
+                setNotificationCount(count);
+            } catch (err) {
+                console.error("Lỗi lấy số lượng thông báo:", err);
+                setNotificationCount(0);
+            }
+        };
+
+        fetchNotificationCount();
+    }, []);
+
+    // Cập nhật activeTab dựa trên URL
+    useEffect(() => {
+        const currentPath = location.pathname.split("/")[1];
+        setActiveTab(currentPath || "home");
+    }, [location]);
 
     const handleLogout = () => {
         if (window.confirm("Bạn có chắc chắn muốn đăng xuất không?")) {
@@ -15,16 +52,6 @@ const Header = () => {
             navigate("/");
         }
     };
-
-    useEffect(() => {
-        const currentPath = location.pathname.split("/")[1];
-        setActiveTab(currentPath || "home");
-    }, [location]);
-
-    const [activeTab, setActiveTab] = useState("home");
-
-    // Giả lập số lượng thông báo (có thể thay bằng dữ liệu thực từ API sau)
-    const [notificationCount, setNotificationCount] = useState(3); // Ví dụ: 3 thông báo
 
     return (
         <div className="header">
@@ -56,7 +83,7 @@ const Header = () => {
             <div className="header-right">
                 {/* Nút tạo đơn hàng */}
                 <Link to="/create-order" className="header__button">
-                    <FaShoppingCart className="icon" /> Tạo đơn hàng
+                    <FaShoppingCart className="icon" /> Đặt đơn ngay
                 </Link>
 
                 {/* Icon thông báo */}
@@ -86,4 +113,4 @@ const Header = () => {
     );
 };
 
-export default Header;
+export default Header;  

@@ -1,0 +1,261 @@
+/* Container chính */
+.registerContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f5f5f5;
+    padding: 20px;
+}
+
+/* Hộp đăng ký */
+.registerBox {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 900px; /* Tăng chiều rộng để chứa 2 cột */
+}
+
+/* Logo GHN */
+.ghnLogo {
+    display: block;
+    margin: 0 auto 20px;
+    width: 100px;
+}
+
+/* Tiêu đề đăng ký */
+.registerTitle {
+    text-align: center;
+    color: #ff6200;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+/* Form Grid: 2 cột */
+.formGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 cột */
+    gap: 20px; /* Khoảng cách giữa các ô */
+}
+
+/* Nhóm input */
+.inputGroup {
+    margin-bottom: 15px;
+}
+
+.inputGroup label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #333;
+}
+
+.inputGroup input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.inputGroup input:focus {
+    outline: none;
+    border-color: #ff6200;
+    box-shadow: 0 0 5px rgba(255, 98, 0, 0.3);
+}
+
+/* Thông báo lỗi */
+.errorText {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+/* Nhóm checkbox */
+.checkboxGroup {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.checkboxGroup input {
+    margin-right: 10px;
+}
+
+.checkboxGroup label {
+    font-size: 14px;
+    color: #333;
+}
+
+.termsLink {
+    color: #ff6200;
+    text-decoration: none;
+}
+
+.termsLink:hover {
+    text-decoration: underline;
+}
+
+/* Nút đăng ký */
+.registerButton {
+    width: 100%;
+    padding: 12px;
+    background-color: #ff6200;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.registerButton:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.registerButton:hover:not(:disabled) {
+    background-color: #e55a00;
+}
+
+/* Link quay lại trang đăng nhập */
+.backToLogin {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.backToLogin a {
+    color: #ff6200;
+    text-decoration: none;
+}
+
+.backToLogin a:hover {
+    text-decoration: underline;
+}
+
+.workAreaContainer {
+    position: relative;
+    width: 100%;
+}
+
+/* Select box chính */
+.selectBox {
+    width: 49%;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.3s ease;
+}
+
+.selectBox.active {
+    border-color: #ff6200;
+    box-shadow: 0 0 5px rgba(255, 98, 0, 0.3);
+}
+
+.selectedValue {
+    color: #333;
+    font-size: 14px;
+}
+
+/* Mũi tên dropdown */
+.arrow {
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #666;
+    transition: transform 0.3s ease;
+}
+
+.arrowUp {
+    transform: rotate(180deg);
+}
+
+/* Menu dropdown */
+.dropdownMenu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-height: 300px;
+    overflow: hidden;
+    z-index: 1000;
+    margin-top: 5px;
+}
+
+/* Input tìm kiếm */
+.searchInput {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-bottom: 1px solid #ddd;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.searchInput:focus {
+    border-bottom-color: #ff6200;
+}
+
+/* Container cho các option */
+.optionsContainer {
+    max-height: 250px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #ff6200 #f5f5f5;
+}
+
+/* Mỗi option trong dropdown */
+.option {
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.option:hover {
+    background-color: #f5f5f5;
+}
+
+.option.selected {
+    background-color: #ff6200;
+    color: white;
+}
+
+/* Trạng thái loading */
+.loading {
+    padding: 10px;
+    text-align: center;
+    color: #666;
+}
+
+/* Không có kết quả */
+.noResults {
+    padding: 10px;
+    text-align: center;
+    color: #999;
+    font-style: italic;
+}
+/* Responsive cho thiết bị di động */
+@media (max-width: 768px) {
+    .formGrid {
+        grid-template-columns: 1fr; /* Chuyển về 1 cột trên thiết bị di động */
+    }
+
+    .registerBox {
+        padding: 20px;
+        max-width: 100%;
+    }
+}

@@ -6,7 +6,7 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("authToken");
+    const token = localStorage.getItem("adminToken"); // Sửa "authToken" thành "adminToken"
     setIsAuthenticated(!!token);
   }, []);
 

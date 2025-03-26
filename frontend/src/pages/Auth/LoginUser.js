@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "../../assets/styles/LoginUser.css";
+import styles from "../../assets/styles/LoginUser.module.css"; // Cập nhật import
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-import bg from '../../assets/images/shipper_icon.jpg';
-import axios from 'axios';
+import bg from "../../assets/images/shipper_icon.jpg";
+import axios from "axios";
 
 export default function LoginUser() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [showPassword, setShowPassword] = useState(false); // Trạng thái hiển thị mật khẩu
+    const [showPassword, setShowPassword] = useState(false);
     const [errors, setErrors] = useState({});
     const [loginError, setLoginError] = useState("");
     const [greeting, setGreeting] = useState("");
@@ -33,36 +33,29 @@ export default function LoginUser() {
     const handleLogin = async () => {
         let newErrors = {};
         setLoginError("");
-        setLoading(true);  // **Bật trạng thái loading**
-    
+        setLoading(true);
+
         if (!username.trim()) newErrors.username = "Vui lòng nhập tài khoản";
         if (!password.trim()) newErrors.password = "Vui lòng nhập mật khẩu";
-    
+
         setErrors(newErrors);
-    
+
         if (Object.keys(newErrors).length === 0) {
             try {
                 const response = await axios.post("http://localhost:5000/api/users/login", {
                     username,
                     password,
                 });
-    
+
                 if (response.status === 200) {
-                    console.log("✅ Đăng nhập thành công!");
+                    const { token } = response.data;
+                    localStorage.setItem("authToken", token);
                     alert("🎉 Đăng nhập thành công!");
-    
-                    // **Lưu Token vào localStorage**
-                    localStorage.setItem("authToken", response.data.token);
-    
-                    // **Chuyển hướng đến trang Home**
                     navigate("/home");
                 }
             } catch (error) {
-                console.error("❌ Lỗi đăng nhập:", error.response);
-    
-                // **Xử lý lỗi từ server**
+                console.error("❌ Lỗi đăng nhập:", error.response ? error.response.data : error.message);
                 if (error.response?.status === 400) {
-                    // Kiểm tra nếu tài khoản đã bị xóa hoặc bị vô hiệu hóa
                     if (error.response?.data?.message === "Tài khoản của bạn đã bị xóa.") {
                         setLoginError("⚠️ Tài khoản của bạn đã bị xóa.");
                     } else {
@@ -72,91 +65,91 @@ export default function LoginUser() {
                     setLoginError("❌ Đăng nhập thất bại, vui lòng thử lại!");
                 }
             } finally {
-                setLoading(false);  // **Tắt loading**
+                setLoading(false);
             }
         } else {
-            setLoading(false);  // **Tắt loading nếu có lỗi nhập liệu**
+            setLoading(false);
         }
-    };       
+    };
 
     return (
-        <div className="login-container">
-            <div className="left">
-                <div className="background-left">
-                    <img src={bg} className="normal" alt="background" />
-                    <div className="content-note">                     
-                        <div className="left-row2">
+        <div className={styles.loginContainer}>
+            <div className={styles.left}>
+                <div className={styles.backgroundLeft}>
+                    <img src={bg} className={styles.normal} alt="background" />
+                    <div className={styles.contentNote}>
+                        <div className={styles.leftRow2}>
                             THIẾT KẾ CHO GIẢI PHÁP GIAO NHẬN HÀNG
                             <br />
                             TỐT NHẤT TỪ TRƯỚC ĐẾN NAY
                         </div>
-                        <div className="left-row3">
+                        <div className={styles.leftRow3}>
                             Nhanh hơn, rẻ hơn và thông minh hơn
                         </div>
                     </div>
-                    <div className="backdrop"></div>
+                    <div className={styles.backdrop}></div>
                 </div>
             </div>
 
-            <div className="right">
-                <div className="form-container">
-                    <div className="title-login">
+            <div className={styles.right}>
+                <div className={styles.formContainer}>
+                    <div className={styles.titleLogin}>
                         <h2>Đăng nhập</h2>
                         <p>{greeting}</p>
                     </div>
-                    <div className="login-form">
-                        <div className="row">
-                            <div className="row-3"></div>
-                            <div className="row-6">
-                                <div className="form-group">
-                                    <label className="form-group-text">Tài khoản</label>
-                                    <input
-                                        type="text"
-                                        className={`input-field ${errors.username ? "error" : ""}`}
-                                        placeholder="Nhập số điện thoại/email"
-                                        value={username}
-                                        onChange={(e) => setUsername(e.target.value)}
-                                    />
-                                    {errors.username && <p className="error-text">{errors.username}</p>}
-                                </div>
-
-                                <div className="form-group">
-                                    <div className="form-group-pw">
-                                        <label className="form-group-text">Mật khẩu</label>
-                                        <div className="link-container">
-                                             <Link to="/forgot-password">Quên mật khẩu?</Link>
-                                        </div>
-                                    </div>
-
-                                    <div className="password-container">
-                                        <input
-                                            type={showPassword ? "text" : "password"}
-                                            className={`input-field ${errors.password ? "error" : ""}`}
-                                            placeholder="Nhập mật khẩu"
-                                            value={password}
-                                            onChange={(e) => setPassword(e.target.value)}
-                                        />
-                                        <FontAwesomeIcon 
-                                            icon={showPassword ? faEyeSlash : faEye} 
-                                            className="toggle-password-icon"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                        />
-                                    </div>
-                                    {errors.password && <p className="error-text">{errors.password}</p>}
-                                </div>
-
-                                <button className="button" onClick={handleLogin}>
-                                    Đăng nhập
-                                </button>
-                                {loginError && <p className="error-text login-error">{loginError}</p>}
-                                <div className="login-row3">
-                                    <span className="text-normal">Chưa có tài khoản? </span>
-                                    <Link to="/register" className="text-highlight">
-                                        Đăng ký ngay
-                                    </Link>
-                                </div>
+                    <div className={styles.loginForm}>
+                        <div className={styles.row6}>
+                            <div className={styles.formGroup}>
+                                <label className={styles.formGroupText}>Tài khoản</label>
+                                <input
+                                    type="text"
+                                    className={`${styles.inputField} ${errors.username ? styles.error : ""}`}
+                                    placeholder="Nhập số điện thoại/email"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                />
+                                {errors.username && <p className={styles.errorText}>{errors.username}</p>}
                             </div>
-                            <div className="row-3"></div>
+
+                            <div className={styles.formGroup}>
+                                <div className={styles.formGroupPw}>
+                                    <label className={styles.formGroupText}>Mật khẩu</label>
+                                    <div className={styles.linkContainer}>
+                                        <Link to="/forgot-password">Quên mật khẩu?</Link>
+                                    </div>
+                                </div>
+
+                                <div className={styles.passwordContainer}>
+                                    <input
+                                        type={showPassword ? "text" : "password"}
+                                        className={`${styles.inputField} ${errors.password ? styles.error : ""}`}
+                                        placeholder="Nhập mật khẩu"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                    />
+                                    <FontAwesomeIcon
+                                        icon={showPassword ? faEyeSlash : faEye}
+                                        className={styles.togglePasswordIcon}
+                                        onClick={() => setShowPassword(!showPassword)}
+                                    />
+                                </div>
+                                {errors.password && <p className={styles.errorText}>{errors.password}</p>}
+                            </div>
+
+                            <button
+                                className={styles.button}
+                                onClick={handleLogin}
+                                disabled={loading}
+                            >
+                                {loading ? "Đang đăng nhập..." : "Đăng nhập"}
+                            </button>
+                            {loginError && <p className={`${styles.errorText} ${styles.loginError}`}>{loginError}</p>}
+                            <div className={styles.loginRow3}>
+                                <span className={styles.textNormal}>Chưa có tài khoản? </span>
+                                <Link to="/register" className={styles.textHighlight}>
+                                    Đăng ký ngay
+                                </Link>
+                            </div>
                         </div>
                     </div>
                 </div>

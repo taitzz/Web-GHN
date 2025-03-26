@@ -1,44 +1,24 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import axios from "axios";
-import "../../styles/Orders.css";
+import React from "react";
+import Sidebar from "../../components/Sidebar";
+import TopBar from "../../components/TopBar";
+import StatusTabs from "../../components/StatusTabs";
+import styles from "../../styles/Orders.module.css";
 
 const Orders = () => {
-  const { status } = useParams(); // Lấy trạng thái từ URL
-  const [orders, setOrders] = useState([]);
+    const [isAuthenticated, setIsAuthenticated] = React.useState(true);
 
-  useEffect(() => {
-    fetchOrdersByStatus();
-  }, [status]);
-
-  const fetchOrdersByStatus = async () => {
-    try {
-      const response = await axios.get(`http://localhost:5000/api/orders?status=${status}`);
-      setOrders(response.data);
-    } catch (error) {
-      console.error("Lỗi khi lấy danh sách đơn hàng:", error);
-    }
-  };
-
-  return (
-    <div className="orders-container">
-      <h3>Danh sách đơn hàng - {status.replace("-", " ").toUpperCase()}</h3>
-
-      {orders.length === 0 ? (
-        <p>Không có đơn hàng nào trong trạng thái này.</p>
-      ) : (
-        <ul className="order-list">
-          {orders.map((order) => (
-            <li key={order.id} className="order-item">
-              <p><strong>Mã đơn:</strong> {order.id}</p>
-              <p><strong>Khách hàng:</strong> {order.customerName}</p>
-              <p><strong>Ngày đặt hàng:</strong> {order.orderDate}</p>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
+    return (
+        <div className={styles.container}>
+            <Sidebar setIsAuthenticated={setIsAuthenticated} />
+            <div className={styles.main}>
+                <TopBar />
+                <div className={styles.content}>
+                    <h2>Quản Lý Đơn Hàng</h2>
+                    <StatusTabs />
+                </div>
+            </div>
+        </div>
+    );
 };
 
 export default Orders;

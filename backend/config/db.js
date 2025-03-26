@@ -4,7 +4,7 @@ const sql = require('mssql');
 const config = {
     user: process.env.DB_USER || 'sa',  // Tên user đăng nhập SQL Server
     password: process.env.DB_PASSWORD || 'chamhoclen',  // Mật khẩu SQL Server
-    server: process.env.DB_SERVER || 'DESKTOP-SOILIC8\\TAIVU', // Tên server SQL
+    server: process.env.DB_SERVER || 'DESKTOP-SOILIC8\TAIVU', // Tên server SQL
     database: process.env.DB_NAME || 'DOAN', // Tên database
 
     options: {

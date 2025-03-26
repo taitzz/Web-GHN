@@ -1,0 +1,223 @@
+/* Container chính */
+.container {
+    padding: 20px;
+    background-color: #f5f5f5;
+    height: auto;
+}
+
+/* Tiêu đề */
+.title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Ô tìm kiếm */
+.searchContainer {
+    margin-bottom: 20px;
+}
+
+.searchContainer input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+}
+
+.searchContainer input:focus {
+    outline: none;
+    border-color: #ff6200;
+    box-shadow: 0 0 5px rgba(255, 98, 0, 0.3);
+}
+
+/* Container cho bảng */
+.tableContainer {
+    max-height: 600px;
+    overflow-y: auto;
+    overflow-x: auto;
+    position: relative;
+}
+
+/* Bảng nhân viên */
+.shipperTable {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    table-layout: fixed;
+}
+
+.shipperTable th,
+.shipperTable td {
+    padding: 12px 15px;
+    font-size: 14px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+/* Cố định chiều rộng cột */
+.shipperTable th:nth-child(1),
+.shipperTable td:nth-child(1) {
+    width: 50px; /* STT */
+}
+
+.shipperTable th:nth-child(2),
+.shipperTable td:nth-child(2) {
+    width: 200px; /* Họ và Tên */
+}
+
+.shipperTable th:nth-child(3),
+.shipperTable td:nth-child(3) {
+    width: 150px; /* Số Điện Thoại */
+}
+
+.shipperTable th:nth-child(4),
+.shipperTable td:nth-child(4) {
+    width: 250px; /* Email */
+}
+
+.shipperTable th:nth-child(5),
+.shipperTable td:nth-child(5) {
+    width: 200px; /* Hành Động */
+}
+
+/* Tiêu đề cố định */
+.shipperTable th {
+    background-color: #ff6200;
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+/* Hiệu ứng hover cho hàng */
+.shipperTable tr {
+    transition: background-color 0.2s ease;
+}
+
+.shipperTable tr:hover {
+    background-color: #f9f9f9;
+}
+
+.shipperTable td {
+    color: #333;
+}
+
+/* Nút xem chi tiết */
+.viewButton {
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-right: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.viewButton:hover {
+    background-color: #357abd;
+}
+
+/* Nút xóa */
+.deleteButton {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.deleteButton:hover {
+    background-color: #cc0000;
+}
+
+/* Thông báo không tìm thấy */
+.textCenter {
+    text-align: center;
+    color: #6b7280;
+    font-size: 16px;
+    margin-top: 20px;
+}
+
+/* Phân trang */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.pagination button {
+    background-color: #ff6200;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.pagination button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.pagination button:hover:not(:disabled) {
+    background-color: #e55a00;
+}
+
+.pagination span {
+    font-size: 14px;
+    color: #333;
+}
+
+
+
+
+/* Responsive cho thiết bị di động */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+
+    .shipperTable th,
+    .shipperTable td {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+
+    .custom-modal {
+        width: 90% !important;
+        padding: 15px;
+    }
+
+    .custom-modal-title {
+        font-size: 18px;
+    }
+
+    .detail-item {
+        flex-direction: column;
+        gap: 5px;
+        padding: 8px;
+    }
+
+    .detail-label {
+        min-width: auto;
+    }
+}

@@ -5,14 +5,17 @@ import styles from '../../assets/styles/CreateOrder.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
+import { QRCodeCanvas } from "qrcode.react";
 
 const CreateOrder = () => {
   const [formData, setFormData] = useState({
+    senderProvince: '',
     senderName: '',
     senderPhone: '',
     senderAddress: '',
     senderDistrict: '',
     senderWard: '',
+    receiverProvince: '',
     receiverName: '',
     receiverPhone: '',
     receiverAddress: '',
@@ -33,14 +36,17 @@ const CreateOrder = () => {
     paymentMethod: 'sender',
     totalCost: 0,
     distance: 0,
+    paymentStatus: 'Pending'
   });
 
   const [errors, setErrors] = useState({
+    senderProvince: '',
     senderName: '',
     senderPhone: '',
     senderAddress: '',
     senderDistrict: '',
     senderWard: '',
+    receiverProvince: '',
     receiverName: '',
     receiverPhone: '',
     receiverAddress: '',
@@ -50,37 +56,57 @@ const CreateOrder = () => {
   });
 
   const navigate = useNavigate();
-  const [districts, setDistricts] = useState([]);
-  const [wards, setWards] = useState({ sender: [], receiver: [] });
+  const [provinces, setProvinces] = useState([]); // Danh sách tỉnh/thành phố
+  const [districts, setDistricts] = useState({ sender: [], receiver: [] }); // Danh sách quận/huyện
+  const [wards, setWards] = useState({ sender: [], receiver: [] }); // Danh sách phường/xã
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [isPaymentSuccessful, setIsPaymentSuccessful] = useState(false);
   const [weightWarning, setWeightWarning] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState({
+    senderProvince: false,
     senderDistrict: false,
     senderWard: false,
+    receiverProvince: false,
     receiverDistrict: false,
     receiverWard: false,
   });
   const [searchTerms, setSearchTerms] = useState({
+    senderProvince: '',
     senderDistrict: '',
     senderWard: '',
+    receiverProvince: '',
     receiverDistrict: '',
     receiverWard: '',
   });
 
+  // Lấy danh sách tỉnh/thành phố
   useEffect(() => {
-    const fetchDistricts = async () => {
+    const fetchProvinces = async () => {
       try {
-        const response = await axios.get('https://provinces.open-api.vn/api/p/1?depth=2');
-        setDistricts(response.data.districts);
+        const response = await axios.get('https://provinces.open-api.vn/api/p/?depth=1');
+        setProvinces(response.data);
       } catch (error) {
-        console.error('Lỗi khi lấy danh sách quận/huyện:', error);
+        console.error('Lỗi khi lấy danh sách tỉnh/thành phố:', error);
       }
     };
-    fetchDistricts();
+    fetchProvinces();
   }, []);
 
+  // Lấy danh sách quận/huyện dựa trên tỉnh/thành phố
+  const fetchDistricts = async (provinceCode, type) => {
+    try {
+      const response = await axios.get(`https://provinces.open-api.vn/api/p/${provinceCode}?depth=2`);
+      setDistricts((prev) => ({
+        ...prev,
+        [type]: response.data.districts,
+      }));
+    } catch (error) {
+      console.error('Lỗi khi lấy danh sách quận/huyện:', error);
+    }
+  };
+
+  // Lấy danh sách phường/xã dựa trên quận/huyện
   const fetchWards = async (districtCode, type) => {
     try {
       const response = await axios.get(`https://provinces.open-api.vn/api/d/${districtCode}?depth=2`);
@@ -93,30 +119,92 @@ const CreateOrder = () => {
     }
   };
 
-  const fetchCoordinates = async (wardCode, districtCode, type) => {
-    try {
-      const ward = wards[type].find((w) => w.code === wardCode)?.name || '';
-      const district = districts.find((d) => d.code === districtCode)?.name || '';
-      const fullAddress = `${ward}, ${district}, Hà Nội`;
-      const response = await axios.get(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(fullAddress)}&format=json&limit=1`
-      );
-      if (response.data.length > 0) {
-        return {
-          lat: parseFloat(response.data[0].lat),
-          lon: parseFloat(response.data[0].lon),
-        };
+  // Lấy tọa độ dựa trên tỉnh/thành phố, quận/huyện, phường/xã
+  // Hàm chuẩn hóa tên tỉnh/thành phố
+const normalizeProvinceName = (provinceName) => {
+  const provinceMap = {
+    'TP. Hồ Chí Minh': 'Ho Chi Minh City',
+    'Hà Nội': 'Hanoi',
+    'Đà Nẵng': 'Da Nang',
+    'Hải Phòng': 'Hai Phong',
+    'Cần Thơ': 'Can Tho',
+    // Thêm các tỉnh/thành phố khác nếu cần
+  };
+  return provinceMap[provinceName] || provinceName.replace('TP. ', '').replace('Tỉnh ', '');
+};
+
+// Hàm lấy tọa độ của phường/xã
+const fetchCoordinates = async (provinceCode, districtCode, wardCode, type) => {
+  try {
+    const province = provinces.find((p) => p.code === provinceCode)?.name || '';
+    const district = districts[type].find((d) => d.code === districtCode)?.name || '';
+    const ward = wards[type].find((w) => w.code === wardCode)?.name || '';
+    
+    // Chuẩn hóa tên tỉnh/thành phố
+    const normalizedProvince = normalizeProvinceName(province);
+    
+    // Ưu tiên lấy tọa độ chỉ với phường/xã và tỉnh/thành phố
+    let fullAddress = `${ward}, ${normalizedProvince}, Vietnam`;
+    console.log(`Đang lấy tọa độ cho địa chỉ: ${fullAddress}`);
+    
+    let response = await axios.get(
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(fullAddress)}&format=json&limit=1`,
+      {
+        headers: {
+          'User-Agent': 'YourAppName/1.0 (your-email@example.com)',
+        },
       }
-      return null;
-    } catch (error) {
-      console.error('Lỗi khi lấy tọa độ:', error);
+    );
+
+    // Nếu không tìm thấy, thử định dạng đầy đủ (bao gồm quận/huyện)
+    if (response.data.length === 0) {
+      fullAddress = `${ward}, ${district}, ${normalizedProvince}, Vietnam`;
+      console.log(`Thử lại với địa chỉ: ${fullAddress}`);
+      response = await axios.get(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(fullAddress)}&format=json&limit=1`,
+        {
+          headers: {
+            'User-Agent': 'YourAppName/1.0 (your-email@example.com)',
+          },
+        }
+      );
+    }
+
+    // Nếu vẫn không tìm thấy, thử chỉ với tỉnh/thành phố
+    if (response.data.length === 0) {
+      fullAddress = `${normalizedProvince}, Vietnam`;
+      console.log(`Thử lại với địa chỉ: ${fullAddress}`);
+      response = await axios.get(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(fullAddress)}&format=json&limit=1`,
+        {
+          headers: {
+            'User-Agent': 'YourAppName/1.0 (your-email@example.com)',
+          },
+        }
+      );
+    }
+
+    if (response.data.length > 0) {
+      const coords = {
+        lat: parseFloat(response.data[0].lat),
+        lon: parseFloat(response.data[0].lon),
+      };
+      console.log(`Tọa độ cho ${fullAddress}:`, coords);
+      return coords;
+    } else {
+      console.warn(`Không tìm thấy tọa độ cho địa chỉ: ${fullAddress}`);
       return null;
     }
-  };
+  } catch (error) {
+    console.error('Lỗi khi lấy tọa độ:', error.message);
+    return null;
+  }
+};
 
+  // Tính khoảng cách giữa hai điểm
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
     if (!lat1 || !lon1 || !lat2 || !lon2) return 0;
-    const R = 6371;
+    const R = 6371; // Bán kính Trái Đất (km)
     const dLat = (lat2 - lat1) * (Math.PI / 180);
     const dLon = (lon2 - lon1) * (Math.PI / 180);
     const a =
@@ -126,24 +214,49 @@ const CreateOrder = () => {
     return R * c;
   };
 
+  // Cập nhật khoảng cách khi thay đổi phường/xã
   useEffect(() => {
     const updateDistance = async () => {
-      if (!formData.senderWard || !formData.receiverWard) return;
-      const senderCoords = await fetchCoordinates(formData.senderWard, formData.senderDistrict, 'sender');
-      const receiverCoords = await fetchCoordinates(formData.receiverWard, formData.receiverDistrict, 'receiver');
-      if (senderCoords && receiverCoords) {
-        const distance = calculateDistance(
-          senderCoords.lat,
-          senderCoords.lon,
-          receiverCoords.lat,
-          receiverCoords.lon
-        );
-        setFormData((prev) => ({ ...prev, distance: isNaN(distance) ? 0 : distance }));
+      if (!formData.senderWard || !formData.receiverWard || !formData.senderProvince || !formData.receiverProvince) {
+        console.log('Thiếu thông tin địa chỉ, không thể tính khoảng cách.');
+        setFormData((prev) => ({ ...prev, distance: 0 }));
+        return;
       }
-    };
-    updateDistance();
-  }, [formData.senderWard, formData.receiverWard]);
 
+      const senderCoords = await fetchCoordinates(
+        formData.senderProvince,
+        formData.senderDistrict,
+        formData.senderWard,
+        'sender'
+      );
+      const receiverCoords = await fetchCoordinates(
+        formData.receiverProvince,
+        formData.receiverDistrict,
+        formData.receiverWard,
+        'receiver'
+      );
+
+      if (!senderCoords || !receiverCoords) {
+        console.warn('Không thể lấy tọa độ, đặt khoảng cách về 0.');
+        setFormData((prev) => ({ ...prev, distance: 0 }));
+        alert('Không thể tính khoảng cách do không tìm thấy tọa độ. Vui lòng kiểm tra lại địa chỉ.');
+        return;
+      }
+
+      const distance = calculateDistance(
+        senderCoords.lat,
+        senderCoords.lon,
+        receiverCoords.lat,
+        receiverCoords.lon
+      );
+      console.log(`Khoảng cách tính được: ${distance} km`); // Debug
+      setFormData((prev) => ({ ...prev, distance: isNaN(distance) ? 0 : distance }));
+    };
+
+    updateDistance();
+  }, [formData.senderWard, formData.receiverWard, formData.senderProvince, formData.receiverProvince]);
+
+  // Xử lý thay đổi giá trị trong form
   const handleChange = async (e, index) => {
     const { name, value } = e.target;
     if (index !== undefined) {
@@ -154,7 +267,19 @@ const CreateOrder = () => {
     } else {
       if (name === 'paymentMethod') {
         setIsPaymentSuccessful(false);
-        setFormData({ ...formData, [name]: value });
+        setFormData({
+          ...formData,
+          paymentMethod: value,
+          paymentStatus: value === 'sender' ? 'Pending' : 'Pending'
+        });
+      } else if (name === 'senderProvince') {
+        setFormData({ ...formData, [name]: value, senderDistrict: '', senderWard: '' });
+        fetchDistricts(value, 'sender');
+        setShowDropdown((prev) => ({ ...prev, senderProvince: false }));
+      } else if (name === 'receiverProvince') {
+        setFormData({ ...formData, [name]: value, receiverDistrict: '', receiverWard: '' });
+        fetchDistricts(value, 'receiver');
+        setShowDropdown((prev) => ({ ...prev, receiverProvince: false }));
       } else if (name === 'senderDistrict') {
         setFormData({ ...formData, [name]: value, senderWard: '' });
         fetchWards(value, 'sender');
@@ -171,9 +296,9 @@ const CreateOrder = () => {
       }
       validateField(name, value);
     }
-    console.log('Updated formData after change:', formData);
   };
 
+  // Kiểm tra từng trường
   const validateField = (name, value, index) => {
     const newErrors = { ...errors };
 
@@ -189,13 +314,15 @@ const CreateOrder = () => {
       if (name === 'height') itemErrors[index].height = !value || isNaN(value) || parseFloat(value) <= 0 ? 'Chiều cao phải là số dương.' : '';
       newErrors.items = itemErrors;
     } else {
+      if (name === 'senderProvince') newErrors.senderProvince = value ? '' : 'Vui lòng chọn Tỉnh/Thành phố.';
       if (name === 'senderName') newErrors.senderName = value ? '' : 'Tên người gửi không được để trống.';
-      if (name === 'senderPhone') newErrors.senderPhone = /^\d{10,11}$/.test(value) ? '' : 'Số điện thoại phải là số và có 10-11 chữ số.';
+      if (name === 'senderPhone') newErrors.senderPhone = /^\d{10}$/.test(value) ? '' : 'Số điện thoại phải là số và có 10 chữ số.';
       if (name === 'senderAddress') newErrors.senderAddress = value ? '' : 'Địa chỉ không được để trống.';
       if (name === 'senderDistrict') newErrors.senderDistrict = value ? '' : 'Vui lòng chọn Quận/Huyện.';
       if (name === 'senderWard') newErrors.senderWard = value ? '' : 'Vui lòng chọn Phường/Xã.';
+      if (name === 'receiverProvince') newErrors.receiverProvince = value ? '' : 'Vui lòng chọn Tỉnh/Thành phố.';
       if (name === 'receiverName') newErrors.receiverName = value ? '' : 'Tên người nhận không được để trống.';
-      if (name === 'receiverPhone') newErrors.receiverPhone = /^\d{10,11}$/.test(value) ? '' : 'Số điện thoại phải là số và có 10-11 chữ số.';
+      if (name === 'receiverPhone') newErrors.receiverPhone = /^\d{10}$/.test(value) ? '' : 'Số điện thoại phải là số và có 10 chữ số.';
       if (name === 'receiverAddress') newErrors.receiverAddress = value ? '' : 'Địa chỉ không được để trống.';
       if (name === 'receiverDistrict') newErrors.receiverDistrict = value ? '' : 'Vui lòng chọn Quận/Huyện.';
       if (name === 'receiverWard') newErrors.receiverWard = value ? '' : 'Vui lòng chọn Phường/Xã.';
@@ -203,16 +330,19 @@ const CreateOrder = () => {
     setErrors(newErrors);
   };
 
+  // Kiểm tra toàn bộ form
   const validateForm = () => {
     const newErrors = { ...errors };
 
+    newErrors.senderProvince = formData.senderProvince ? '' : 'Vui lòng chọn Tỉnh/Thành phố.';
     newErrors.senderName = formData.senderName ? '' : 'Tên người gửi không được để trống.';
-    newErrors.senderPhone = /^\d{10,11}$/.test(formData.senderPhone) ? '' : 'Số điện thoại phải là số và có 10-11 chữ số.';
+    newErrors.senderPhone = /^\d{10}$/.test(formData.senderPhone) ? '' : 'Số điện thoại phải là số và có 10 chữ số.';
     newErrors.senderAddress = formData.senderAddress ? '' : 'Địa chỉ không được để trống.';
     newErrors.senderDistrict = formData.senderDistrict ? '' : 'Vui lòng chọn Quận/Huyện.';
     newErrors.senderWard = formData.senderWard ? '' : 'Vui lòng chọn Phường/Xã.';
+    newErrors.receiverProvince = formData.receiverProvince ? '' : 'Vui lòng chọn Tỉnh/Thành phố.';
     newErrors.receiverName = formData.receiverName ? '' : 'Tên người nhận không được để trống.';
-    newErrors.receiverPhone = /^\d{10,11}$/.test(formData.receiverPhone) ? '' : 'Số điện thoại phải là số và có 10-11 chữ số.';
+    newErrors.receiverPhone = /^\d{10}$/.test(formData.receiverPhone) ? '' : 'Số điện thoại phải là số và có 10 chữ số.';
     newErrors.receiverAddress = formData.receiverAddress ? '' : 'Địa chỉ không được để trống.';
     newErrors.receiverDistrict = formData.receiverDistrict ? '' : 'Vui lòng chọn Quận/Huyện.';
     newErrors.receiverWard = formData.receiverWard ? '' : 'Vui lòng chọn Phường/Xã.';
@@ -376,66 +506,72 @@ const CreateOrder = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validateForm()) {
-        const costs = calculateTotalCost();
-        if (costs.weightExceeded) {
-            alert('Tổng trọng lượng không được vượt quá 50kg! Vui lòng điều chỉnh.');
-            return;
-        }
-
-        setLoading(true);
-        try {
-            const token = localStorage.getItem("authToken");
-            if (!token) {
-                alert("Vui lòng đăng nhập để tạo đơn hàng!");
-                setLoading(false);
-                return;
-            }
-
-            if (!formData.items || formData.items.length === 0) {
-                alert("Vui lòng thêm ít nhất một mặt hàng!");
-                setLoading(false);
-                return;
-            }
-
-            const orderPayload = {
-                senderName: formData.senderName,
-                senderPhone: formData.senderPhone,
-                senderAddress: `${formData.senderAddress}, ${getSelectedName(formData.senderWard, wards.sender, 'senderWard')}, ${getSelectedName(formData.senderDistrict, districts, 'senderDistrict')}`,
-                receiverName: formData.receiverName,
-                receiverPhone: formData.receiverPhone,
-                receiverAddress: `${formData.receiverAddress}, ${getSelectedName(formData.receiverWard, wards.receiver, 'receiverWard')}, ${getSelectedName(formData.receiverDistrict, districts, 'receiverDistrict')}`,
-                weight: formData.items.reduce((sum, item) => sum + (parseFloat(item.weight) / 1000 || 0) * (parseInt(item.quantity) || 1), 0),
-                volume: formData.items.reduce((sum, item) => sum + (parseFloat(item.length) * parseFloat(item.width) * parseFloat(item.height) || 0) * (parseInt(item.quantity) || 1), 0),
-                distance: formData.distance,
-                deliveryType: formData.deliveryType,
-                totalCost: costs.total,
-                itemName: formData.items[0]?.itemName || "Hàng hóa mặc định" // Lấy tên từ mặt hàng đầu tiên
-            };
-
-            const response = await axios.post(
-                "http://localhost:5000/api/orders",
-                orderPayload,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
-
-            alert(`Đơn hàng ${response.data.orderId} đã được tạo thành công!`);
-            navigate("/notifications");
-        } catch (err) {
-            console.error("Lỗi khi tạo đơn hàng:", err);
-            alert(err.response?.data?.message || "Lỗi khi tạo đơn hàng, vui lòng thử lại!");
-        } finally {
-            setLoading(false);
-        }
-    } else {
-        alert("Vui lòng kiểm tra lại thông tin!");
+    if (!validateForm()) {
+      alert("Vui lòng kiểm tra lại thông tin!");
+      return;
     }
-};
+
+    const costs = calculateTotalCost();
+    if (costs.weightExceeded) {
+      alert('Tổng trọng lượng không được vượt quá 50kg! Vui lòng điều chỉnh.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        alert("Vui lòng đăng nhập để tạo đơn hàng!");
+        setLoading(false);
+        return;
+      }
+
+      if (!formData.items || formData.items.length === 0) {
+        alert("Vui lòng thêm ít nhất một mặt hàng!");
+        setLoading(false);
+        return;
+      }
+
+      const orderPayload = {
+        SenderName: formData.senderName,
+        SenderPhone: formData.senderPhone,
+        SenderAddress: `${formData.senderAddress}, ${getSelectedName(formData.senderWard, wards.sender, 'senderWard')}, ${getSelectedName(formData.senderDistrict, districts.sender, 'senderDistrict')}, ${getSelectedName(formData.senderProvince, provinces, 'senderProvince')}`,
+        ReceiverName: formData.receiverName,
+        ReceiverPhone: formData.receiverPhone,
+        ReceiverAddress: `${formData.receiverAddress}, ${getSelectedName(formData.receiverWard, wards.receiver, 'receiverWard')}, ${getSelectedName(formData.receiverDistrict, districts.receiver, 'receiverDistrict')}, ${getSelectedName(formData.receiverProvince, provinces, 'receiverProvince')}`,
+        Weight: formData.items.reduce((sum, item) => sum + (parseFloat(item.weight) / 1000 || 0) * (parseInt(item.quantity) || 1), 0),
+        Volume: formData.items.reduce((sum, item) => sum + (parseFloat(item.length) * parseFloat(item.width) * parseFloat(item.height) || 0) * (parseInt(item.quantity) || 1), 0),
+        Distance: formData.distance,
+        DeliveryType: formData.deliveryType,
+        TotalCost: formData.totalCost,
+        ItemName: formData.items.map(item => item.itemName).join(', ') || "Hàng hóa mặc định",
+        PaymentBy: formData.paymentMethod === 'sender' ? 'Sender' : 'Receiver',
+        PaymentStatus: formData.paymentStatus
+      };
+
+      console.log("Dữ liệu gửi lên server:", orderPayload);
+
+      const response = await axios.post(
+        "http://localhost:5000/api/orders/create",
+        orderPayload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("Kết quả từ server:", response.data);
+      alert(`Đơn hàng ${response.data.orderId} đã được tạo thành công!`);
+      navigate("/notifications");
+    } catch (err) {
+      console.error("Lỗi khi tạo đơn hàng:", err.response?.data || err.message);
+      alert(err.response?.data?.message || "Lỗi khi tạo đơn hàng, vui lòng thử lại!");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handlePayment = () => {
     console.log('Current formData:', formData);
@@ -460,12 +596,17 @@ const CreateOrder = () => {
   const handlePaymentSuccess = () => {
     setIsPaymentSuccessful(true);
     setShowPaymentModal(false);
+    setFormData((prev) => ({
+      ...prev,
+      paymentStatus: 'Paid'
+    }));
     alert('Thanh toán thành công!');
   };
 
   const getSelectedName = (value, list, field) => {
     const item = list.find((i) => i.code === value);
     if (item) return item.name;
+    if (field.includes('Province')) return 'Nhập Tỉnh/Thành phố';
     if (field.includes('District')) return 'Nhập Quận/Huyện';
     if (field.includes('Ward')) return 'Nhập Phường/Xã';
     return 'Chọn...';
@@ -495,7 +636,7 @@ const CreateOrder = () => {
             <div className={styles.infoContainer}>
               <div className={styles.leftColumn}>
                 <div className={styles.inputGroup}>
-                  <label className={styles.label}>Tên người gửi</label>
+                  <label className={styles.label}>Họ và tên</label>
                   <input
                     className={styles.input}
                     type="text"
@@ -518,8 +659,6 @@ const CreateOrder = () => {
                   />
                   {errors.senderPhone && <p className={styles.error}>{errors.senderPhone}</p>}
                 </div>
-              </div>
-              <div className={styles.rightColumn}>
                 <div className={styles.inputGroup}>
                   <label className={styles.label}>Địa chỉ</label>
                   <input
@@ -532,16 +671,59 @@ const CreateOrder = () => {
                   />
                   {errors.senderAddress && <p className={styles.error}>{errors.senderAddress}</p>}
                 </div>
+              </div>
+              <div className={styles.rightColumn}>
+                <div className={styles.inputGroup}>
+                  <label className={styles.label}>Tỉnh / Thành phố</label>
+                  <div
+                    className={styles.customSelect}
+                    onClick={() => toggleDropdown('senderProvince')}
+                  >
+                    <span className={styles.selectValue}>
+                      {getSelectedName(formData.senderProvince, provinces, 'senderProvince')}
+                    </span>
+                    {showDropdown.senderProvince && (
+                      <div className={styles.dropdownContainer} onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="text"
+                          className={styles.searchInput}
+                          placeholder="Tìm kiếm Tỉnh/Thành phố..."
+                          value={searchTerms.senderProvince}
+                          onChange={(e) => handleSearchChange('senderProvince', e.target.value)}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                        <ul className={styles.dropdown}>
+                          {filterList(provinces, searchTerms.senderProvince).length > 0 ? (
+                            filterList(provinces, searchTerms.senderProvince).map((province) => (
+                              <li
+                                key={province.code}
+                                className={styles.dropdownItem}
+                                onClick={() =>
+                                  handleChange({ target: { name: 'senderProvince', value: province.code } })
+                                }
+                              >
+                                {province.name}
+                              </li>
+                            ))
+                          ) : (
+                            <li className={styles.noResults}>Không tìm thấy kết quả</li>
+                          )}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                  {errors.senderProvince && <p className={styles.error}>{errors.senderProvince}</p>}
+                </div>
                 <div className={styles.inputGroup}>
                   <label className={styles.label}>Quận / Huyện</label>
                   <div
                     className={styles.customSelect}
-                    onClick={() => toggleDropdown('senderDistrict')}
+                    onClick={() => formData.senderProvince && toggleDropdown('senderDistrict')}
                   >
                     <span className={styles.selectValue}>
-                      {getSelectedName(formData.senderDistrict, districts, 'senderDistrict')}
+                      {getSelectedName(formData.senderDistrict, districts.sender, 'senderDistrict')}
                     </span>
-                    {showDropdown.senderDistrict && (
+                    {showDropdown.senderDistrict && formData.senderProvince && (
                       <div className={styles.dropdownContainer} onClick={(e) => e.stopPropagation()}>
                         <input
                           type="text"
@@ -552,8 +734,8 @@ const CreateOrder = () => {
                           onClick={(e) => e.stopPropagation()}
                         />
                         <ul className={styles.dropdown}>
-                          {filterList(districts, searchTerms.senderDistrict).length > 0 ? (
-                            filterList(districts, searchTerms.senderDistrict).map((district) => (
+                          {filterList(districts.sender, searchTerms.senderDistrict).length > 0 ? (
+                            filterList(districts.sender, searchTerms.senderDistrict).map((district) => (
                               <li
                                 key={district.code}
                                 className={styles.dropdownItem}
@@ -623,7 +805,7 @@ const CreateOrder = () => {
             <div className={styles.infoContainer}>
               <div className={styles.leftColumn}>
                 <div className={styles.inputGroup}>
-                  <label className={styles.label}>Tên người nhận</label>
+                  <label className={styles.label}>Họ và tên</label>
                   <input
                     className={styles.input}
                     type="text"
@@ -646,8 +828,6 @@ const CreateOrder = () => {
                   />
                   {errors.receiverPhone && <p className={styles.error}>{errors.receiverPhone}</p>}
                 </div>
-              </div>
-              <div className={styles.rightColumn}>
                 <div className={styles.inputGroup}>
                   <label className={styles.label}>Địa chỉ</label>
                   <input
@@ -660,16 +840,59 @@ const CreateOrder = () => {
                   />
                   {errors.receiverAddress && <p className={styles.error}>{errors.receiverAddress}</p>}
                 </div>
+              </div>
+              <div className={styles.rightColumn}>
+                <div className={styles.inputGroup}>
+                  <label className={styles.label}>Tỉnh / Thành phố</label>
+                  <div
+                    className={styles.customSelect}
+                    onClick={() => toggleDropdown('receiverProvince')}
+                  >
+                    <span className={styles.selectValue}>
+                      {getSelectedName(formData.receiverProvince, provinces, 'receiverProvince')}
+                    </span>
+                    {showDropdown.receiverProvince && (
+                      <div className={styles.dropdownContainer} onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="text"
+                          className={styles.searchInput}
+                          placeholder="Tìm kiếm Tỉnh/Thành phố..."
+                          value={searchTerms.receiverProvince}
+                          onChange={(e) => handleSearchChange('receiverProvince', e.target.value)}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                        <ul className={styles.dropdown}>
+                          {filterList(provinces, searchTerms.receiverProvince).length > 0 ? (
+                            filterList(provinces, searchTerms.receiverProvince).map((province) => (
+                              <li
+                                key={province.code}
+                                className={styles.dropdownItem}
+                                onClick={() =>
+                                  handleChange({ target: { name: 'receiverProvince', value: province.code } })
+                                }
+                              >
+                                {province.name}
+                              </li>
+                            ))
+                          ) : (
+                            <li className={styles.noResults}>Không tìm thấy kết quả</li>
+                          )}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                  {errors.receiverProvince && <p className={styles.error}>{errors.receiverProvince}</p>}
+                </div>
                 <div className={styles.inputGroup}>
                   <label className={styles.label}>Quận / Huyện</label>
                   <div
                     className={styles.customSelect}
-                    onClick={() => toggleDropdown('receiverDistrict')}
+                    onClick={() => formData.receiverProvince && toggleDropdown('receiverDistrict')}
                   >
                     <span className={styles.selectValue}>
-                      {getSelectedName(formData.receiverDistrict, districts, 'receiverDistrict')}
+                      {getSelectedName(formData.receiverDistrict, districts.receiver, 'receiverDistrict')}
                     </span>
-                    {showDropdown.receiverDistrict && (
+                    {showDropdown.receiverDistrict && formData.receiverProvince && (
                       <div className={styles.dropdownContainer} onClick={(e) => e.stopPropagation()}>
                         <input
                           type="text"
@@ -680,8 +903,8 @@ const CreateOrder = () => {
                           onClick={(e) => e.stopPropagation()}
                         />
                         <ul className={styles.dropdown}>
-                          {filterList(districts, searchTerms.receiverDistrict).length > 0 ? (
-                            filterList(districts, searchTerms.receiverDistrict).map((district) => (
+                          {filterList(districts.receiver, searchTerms.receiverDistrict).length > 0 ? (
+                            filterList(districts.receiver, searchTerms.receiverDistrict).map((district) => (
                               <li
                                 key={district.code}
                                 className={styles.dropdownItem}
@@ -937,10 +1160,7 @@ const CreateOrder = () => {
             <div className={styles.buttonRow}>
               <button
                 className={styles.paymentButton}
-                onClick={() => {
-                  console.log('Payment button clicked');
-                  handlePayment();
-                }}
+                onClick={handlePayment}
                 disabled={formData.paymentMethod === 'receiver' || weightWarning}
               >
                 Thanh toán
@@ -962,17 +1182,17 @@ const CreateOrder = () => {
           <div className={styles.paymentModal}>
             <h3>Thanh toán đơn hàng</h3>
             <div className={styles.qrCode}>
-              <p>Mã QR (giả lập):</p>
-              <div className={styles.qrPlaceholder}>[Mã QR sẽ hiển thị ở đây]</div>
+              <p>Mã QR:</p>
+              <QRCodeCanvas value={`STK: 8386999999 - Ngân hàng: Vietcombank - Số tiền: ${formData.totalCost} VNĐ`} size={150} />
             </div>
             <div className={styles.bankInfo}>
-              <p><strong>Tên tài khoản:</strong> Cửa hàng XYZ</p>
-              <p><strong>Số tài khoản:</strong> 1234567890</p>
+              <p><strong>Tên tài khoản:</strong> GIAO HÀNG NHANH</p>
+              <p><strong>Số tài khoản:</strong> 8386999999</p>
               <p><strong>Ngân hàng:</strong> Vietcombank</p>
               <p><strong>Số tiền:</strong> {formData.totalCost.toLocaleString('vi-VN', { maximumFractionDigits: 0 })} VNĐ</p>
             </div>
             <button className={styles.successButton} onClick={handlePaymentSuccess}>
-              Quét mã thành công (giả lập)
+              Quét mã thành công
             </button>
             <button className={styles.closeButton} onClick={() => setShowPaymentModal(false)}>
               Đóng

@@ -1,28 +1,32 @@
-/* General Styles */
-* {
+/* LoginUser.module.css */
+
+/* Global styles */
+:global(*) {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-body {
+:global(body) {
   font-family: 'Arial', sans-serif;
   background-color: #f7f7f7;
 }
 
-.login-container {
+/* Container chính */
+.loginContainer {
   display: flex;
   height: 100vh;
 }
 
-.login-container .left {
+/* Left section */
+.left {
   height: 100vh;
   padding: 0;
   position: relative;
   width: 40%;
 }
 
-.login-container .background-left {
+.backgroundLeft {
   height: 100%;
   position: relative;
   width: 100%;
@@ -33,7 +37,7 @@ body {
   display: block;
 }
 
-.content-note {
+.contentNote {
   position: absolute;
   top: 0;
   left: 0;
@@ -46,35 +50,20 @@ body {
   padding-top: 20px;
 }
 
-.logo {
-  position: absolute;
-  top: 10%;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 100;
-}
-
-.logo-ghn {
-  width: 400px;
-  /* Điều chỉnh kích thước logo */
-  height: auto;
-  margin-top: 350px;
-}
-
-.login-container .left-row2,
-.login-container .left-row3 {
+.leftRow2,
+.leftRow3 {
   text-align: center;
   color: white;
   font-weight: bold;
   z-index: 3;
 }
 
-.login-container .row-6 {
+.row6 {
   display: flex;
   flex-direction: column;
 }
 
-.background-left .backdrop {
+.backgroundLeft .backdrop {
   position: absolute;
   width: 100%;
   height: 100%;
@@ -82,10 +71,9 @@ body {
   top: 0;
   left: 0;
   z-index: 1;
-  /* Đảm bảo không che nội dung */
 }
 
-.login-container .left-row2 {
+.leftRow2 {
   position: absolute;
   bottom: 15%;
   left: 50%;
@@ -96,7 +84,7 @@ body {
   width: 80%;
 }
 
-.login-container .left-row3 {
+.leftRow3 {
   position: absolute;
   bottom: 5%;
   left: 50%;
@@ -108,13 +96,8 @@ body {
   margin-bottom: 30px;
 }
 
-.login-container .left h1 {
-  font-size: 24px;
-  font-weight: 600;
-  text-align: center;
-}
-
-.login-container .right {
+/* Right section */
+.right {
   flex: 1.5;
   display: flex;
   justify-content: center;
@@ -123,83 +106,61 @@ body {
   padding: 30px;
 }
 
-.login-container .form-container {
+.formContainer {
   width: 100%;
   max-width: 500px;
   padding: 40px;
 }
 
-.login-container .title-login {
+.titleLogin {
   text-align: center;
   margin-bottom: 65px;
 }
 
-.login-container .title-login h2 {
+.titleLogin h2 {
   font-size: 28px;
   color: #333;
   font-weight: 700;
 }
 
-.login-container .title-login p {
+.titleLogin p {
   font-size: 16px;
   color: #ff6339;
   margin-top: 10px;
   font-weight: bold;
 }
 
-.login-container .login-form {
+/* Form styles */
+.loginForm {
   display: flex;
   flex-direction: column;
 }
 
-.login-form .form-group {
+.formGroup {
   margin-bottom: 20px;
 }
 
-.login-container .form-group-pw {
+.formGroupPw {
   display: flex;
   justify-content: space-between;
   margin-bottom: -9px;
 }
 
-.login-container .form-group-text {
+.formGroupText {
   font-size: 14px;
   color: #5c6873;
   margin-bottom: 8px;
   font-weight: bold;
 }
 
-/* Ô nhập mật khẩu */
-.password-container {
+.passwordContainer {
   position: relative;
   display: flex;
   align-items: center;
   width: 100%;
 }
 
-/* Trường nhập mật khẩu */
-.password-container .input-field {
-  flex: 1;
-  padding-right: 40px;
-  /* Dành không gian cho icon */
-}
-
-/* Icon mắt để ẩn/hiện mật khẩu */
-.toggle-password-icon {
-  position: absolute;
-  margin-top: 7px;
-  right: 15px;
-  cursor: pointer;
-  font-size: 18px;
-  color: #888;
-  transition: color 0.3s;
-}
-
-.toggle-password-icon:hover {
-  color: #ff6339;
-}
-
-.login-form .input-field {
+.inputField {
   width: 100%;
   padding: 12px;
   font-size: 16px;
@@ -210,45 +171,53 @@ body {
   transition: border-color 0.3s ease;
 }
 
-.login-container .input-field:focus {
+.inputField:focus {
   border-color: #4CAF50;
 }
 
-.input-field::placeholder {
+.inputField::placeholder {
   color: #c8c8c8;
 }
 
-.input-field.error {
+.error {
   border-color: red;
 }
 
-.login-container .error-text {
+.togglePasswordIcon {
+  position: absolute;
+  margin-top: 7px;
+  right: 15px;
+  cursor: pointer;
+  font-size: 18px;
+  color: #888;
+  transition: color 0.3s;
+}
+
+.togglePasswordIcon:hover {
+  color: #ff6339;
+}
+
+.errorText {
   font-size: 15px;
   color: red;
   margin-top: 5px;
 }
 
-.login-form .link-container {
+.linkContainer {
   margin-left: 10px;
 }
 
-.link-container a {
+.linkContainer a {
   font-size: 14px;
   color: red;
   text-decoration: none;
 }
 
-.link-container a:hover {
+.linkContainer a:hover {
   text-decoration: underline;
 }
 
-.login-container .error-text {
-  font-size: 12px;
-  color: red;
-  margin-top: 5px;
-}
-
-.login-container .button {
+.button {
   width: 100%;
   padding: 12px;
   background-color: #ff6339;
@@ -261,63 +230,153 @@ body {
   margin-top: 20px;
 }
 
-
-.login-container .login-row3 {
+.loginRow3 {
   display: flex;
   justify-content: center;
   margin-top: 30px;
 }
 
-.text-normal {
+.textNormal {
   font-size: 20px;
   font-weight: bold;
   color: #024873;
-  /* Màu xanh đậm */
 }
 
-.text-highlight {
+.textHighlight {
   font-size: 20px;
   font-weight: bold;
   color: #ff5c39;
-  /* Màu cam */
   text-decoration: none;
 }
 
-.text-highlight:hover {
+.textHighlight:hover {
   text-decoration: none;
 }
 
-
-.register-link {
-  color: #ff6339;
-  text-decoration: none;
-}
-
-.register-link span {
-  font-weight: 600;
-}
-
-.register-link:hover {
-  text-decoration: none;
+.loginError {
+  font-size: 12px;
+  color: red;
+  margin-top: 5px;
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
-  .container {
-    flex-direction: column;
+@media (max-width: 1024px) {
+  .loginContainer {
+      flex-direction: column;
   }
 
-  .left,
+  .left {
+      width: 100%;
+      height: 40vh;
+      min-height: 300px;
+  }
+
   .right {
-    flex: none;
-    width: 100%;
+      flex: none;
+      width: 100%;
   }
 
-  .form-container {
-    padding: 20px;
+  .formContainer {
+      max-width: 600px;
   }
 
-  .title-login h2 {
-    font-size: 22px;
+  .leftRow2 {
+      font-size: 16px;
+      padding: 0 20px;
   }
+
+  .leftRow3 {
+      font-size: 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .left {
+      height: 30vh;
+      min-height: 250px;
+  }
+
+  .formContainer {
+      padding: 20px;
+  }
+
+  .titleLogin h2 {
+      font-size: 22px;
+  }
+
+  .titleLogin p {
+      font-size: 14px;
+  }
+
+  .inputField {
+      padding: 10px;
+      font-size: 14px;
+  }
+
+  .button {
+      padding: 10px;
+      font-size: 14px;
+  }
+
+  .leftRow2 {
+      font-size: 14px;
+  }
+
+  .leftRow3 {
+      font-size: 12px;
+  }
+
+  .textNormal,
+  .igliano
+
+.loginRow3 {
+  flex-direction: column;
+  align-items: center;
+}
+
+@media (max-width: 480px) {
+  .left {
+      height: 25vh;
+      min-height: 380px;
+  }
+
+  .formContainer {
+      padding: 20px;
+  }
+
+  .titleLogin h2 {
+      font-size: 20px;
+  }
+
+  .titleLogin p {
+      font-size: 12px;
+  }
+
+  .inputField {
+      padding: 8px;
+      font-size: 13px;
+  }
+
+  .button {
+      padding: 8px;
+      font-size: 13px;
+  }
+
+  .loginRow3 {
+      margin-top: 15px;
+  }
+
+  .textNormal,
+  .textHighlight {
+      font-size: 16px;
+  }
+
+  .leftRow2 {
+      font-size: 15px;  
+  }
+
+  .leftRow3 {
+      font-size: 9px;
+  }
+}
 }
