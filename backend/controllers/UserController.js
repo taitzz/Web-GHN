@@ -85,7 +85,8 @@ class UserController {
 
             const token = jwt.sign(
                 { UserID: user.UserID, fullName: user.FullName, role: "user" },
-                process.env.JWT_SECRET || "your_jwt_secret"
+                process.env.JWT_SECRET || "your_jwt_secret",
+                { expiresIn: "1h" }
             );
 
             console.log(`Đã đăng nhập người dùng: ${username}, UserID: ${user.UserID}, Token: ${token}`);

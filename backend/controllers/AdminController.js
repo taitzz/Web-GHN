@@ -175,40 +175,6 @@ class AdminController {
         }
     }
 
-    // Gán shipper (không cần thiết nữa vì đã tự động gán trong approveOrder, nhưng giữ lại để tương thích với code cũ)
-    static async assignShipper(req, res) {
-        try {
-            const orderId = parseInt(req.params.orderId, 10);
-            const { shipperId } = req.body;
-            if (isNaN(orderId) || !shipperId || isNaN(parseInt(shipperId))) {
-                return res.status(400).json({ message: "Mã đơn hàng hoặc ShipperID không hợp lệ!" });
-            }
-
-            const order = await Order.getOrderByIdForAdmin(orderId);
-            if (!order) {
-                return res.status(404).json({ message: "Không tìm thấy đơn hàng!" });
-            }
-            if (order.Status !== "Approved") {
-                return res.status(400).json({ message: "Đơn hàng chưa được duyệt!" });
-            }
-
-            const shipper = await Order.checkShipper(shipperId);
-            if (!shipper) {
-                return res.status(404).json({ message: "Shipper không tồn tại hoặc không khả dụng!" });
-            }
-
-            await Order.assignShipper(orderId, shipperId);
-            await Order.createShipperAssignment(orderId, shipperId);
-            await Shipper.updateShipperAvailability(shipperId, false);
-
-            console.log(`[PATCH /admin/orders/${orderId}/assign-shipper] Đã gán shipper ${shipperId} cho đơn hàng OrderID: ${orderId}`);
-            res.status(200).json({ message: "Đã gán shipper thành công!" });
-        } catch (err) {
-            console.error(`[PATCH /admin/orders/${req.params.orderId}/assign-shipper] Lỗi:`, { message: err.message, stack: err.stack });
-            res.status(500).json({ message: "Lỗi server khi gán shipper!" });
-        }
-    }
-
     // Lấy danh sách yêu cầu hủy đơn hàng
     static async getCancelRequests(req, res) {
         try {

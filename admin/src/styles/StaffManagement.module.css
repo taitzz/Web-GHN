@@ -12,6 +12,9 @@
 .statusTab {
     padding: 20px;
     flex: 1;
+    overflow: hidden; /* Ngăn thanh kéo không mong muốn ở cấp độ này */
+    display: flex;
+    flex-direction: column;
 }
 
 .tabBar {
@@ -40,5 +43,6 @@
 }
 
 .tabContent {
-    width: 100%;
+    flex: 1; /* Chiếm toàn bộ không gian còn lại */
+    overflow: hidden; /* Ngăn tràn nội dung ở cấp độ này */
 }

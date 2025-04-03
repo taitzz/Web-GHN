@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import styles from "../../assets/styles/RegisterUser.module.css"; 
+import styles from "../../assets/styles/RegisterUser.module.css";
 import ghn from "../../assets/images/ghn.png";
 import bg from "../../assets/images/bg.png";
 import axios from "axios";
+import Swal from "sweetalert2"; // Import SweetAlert2
 
 export default function RegisterUser() {
   const [formData, setFormData] = useState({
@@ -66,7 +67,7 @@ export default function RegisterUser() {
       newErrors.address = "Vui lòng nhập địa chỉ";
     } else if (formData.address.length < 5) {
       newErrors.address = "Địa chỉ phải có ít nhất 5 ký tự";
-    } else if (!(/[^a-zA-Z0-9\s,.-àáạảãăắằẳẵâấầẩẫđèéẹẻẽêếềểễêịỉĩịòóọỏõôốồổỗơớờởỡơùúụủũưứừửữưỳýỵỷỹ]/i).test(formData.address)) {
+    } else if ((/[^a-zA-Z0-9\s,.-àáạảãăắằẳẵâấầẩẫđèéẹẻẽêếềểễêịỉĩịòóọỏõôốồổỗơớờởỡơùúụủũưứừửữưỳýỵỷỹ]/i).test(formData.address)) {
       newErrors.address = "Địa chỉ không hợp lệ. Vui lòng nhập địa chỉ hợp lệ";
     }
 
@@ -108,11 +109,24 @@ export default function RegisterUser() {
       const response = await axios.post("http://localhost:5000/api/users/register", formData);
       console.log("Đăng ký thành công:", response.data);
 
-      alert("Đăng ký thành công! Bạn có thể đăng nhập ngay.");
-      navigate("/");
+      // Hiển thị thông báo thành công với SweetAlert2
+      Swal.fire({
+        title: 'Đăng ký thành công!',
+        text: 'Bạn có thể đăng nhập ngay.',
+        icon: 'success',
+        confirmButtonText: 'OK',
+      });
+
+      navigate("/login");
     } catch (error) {
       console.error("Đăng ký thất bại:", error.response?.data || error.message);
-      alert(error.response?.data?.message || "Đăng ký thất bại, vui lòng thử lại");
+      // Hiển thị thông báo lỗi với SweetAlert2
+      Swal.fire({
+        title: 'Đăng ký thất bại!',
+        text: error.response?.data?.message || "Đăng ký thất bại, vui lòng thử lại",
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
     }
   };
 
@@ -158,44 +172,6 @@ export default function RegisterUser() {
               </div>
 
               <div className={styles.formGroup}>
-                <label>Ngày sinh</label>
-                <input
-                  type="date"
-                  name="birthDate"
-                  value={formData.birthDate}
-                  onChange={handleChange}
-                  className={`${styles.inputField} ${errors.birthDate ? styles.error : ""}`}
-                />
-                {errors.birthDate && <p className={styles.errorText}>{errors.birthDate}</p>}
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Số điện thoại</label>
-                <input
-                  type="text"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className={`${styles.inputField} ${errors.phone ? styles.error : ""}`}
-                  placeholder="Nhập số điện thoại"
-                />
-                {errors.phone && <p className={styles.errorText}>{errors.phone}</p>}
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Mật khẩu</label>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className={`${styles.inputField} ${errors.password ? styles.error : ""}`}
-                  placeholder="Mật khẩu phải tối thiểu 8 ký tự (Bao gồm chữ hoa, thường và số)"
-                />
-                {errors.password && <p className={styles.errorText}>{errors.password}</p>}
-              </div>
-
-              <div className={styles.formGroup}>
                 <label>Tên tài khoản</label>
                 <input
                   type="text"
@@ -206,6 +182,18 @@ export default function RegisterUser() {
                   placeholder="Tên tài khoản"
                 />
                 {errors.username && <p className={styles.errorText}>{errors.username}</p>}
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Ngày sinh</label>
+                <input
+                  type="date"
+                  name="birthDate"
+                  value={formData.birthDate}
+                  onChange={handleChange}
+                  className={`${styles.inputField} ${errors.birthDate ? styles.error : ""}`}
+                />
+                {errors.birthDate && <p className={styles.errorText}>{errors.birthDate}</p>}
               </div>
 
               <div className={styles.formGroup}>
@@ -222,6 +210,19 @@ export default function RegisterUser() {
               </div>
 
               <div className={styles.formGroup}>
+                <label>Số điện thoại</label>
+                <input
+                  type="text"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className={`${styles.inputField} ${errors.phone ? styles.error : ""}`}
+                  placeholder="Nhập số điện thoại"
+                />
+                {errors.phone && <p className={styles.errorText}>{errors.phone}</p>}
+              </div>
+
+              <div className={styles.formGroup}>
                 <label>Địa chỉ</label>
                 <input
                   type="text"
@@ -232,6 +233,19 @@ export default function RegisterUser() {
                   placeholder="Nhập địa chỉ"
                 />
                 {errors.address && <p className={styles.errorText}>{errors.address}</p>}
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Mật khẩu</label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className={`${styles.inputField} ${errors.password ? styles.error : ""}`}
+                  placeholder="Mật khẩu phải tối thiểu 8 ký tự (Bao gồm chữ hoa, thường và số)"
+                />
+                {errors.password && <p className={styles.errorText}>{errors.password}</p>}
               </div>
 
               <div className={styles.formGroup}>
@@ -253,7 +267,7 @@ export default function RegisterUser() {
             </button>
             <div className={styles.loginRow3}>
               <label>Đã có tài khoản?</label>
-              <Link to="/" className={styles.registerLink}>
+              <Link to="/login" className={styles.registerLink}>
                 Đăng nhập ngay
               </Link>
             </div>

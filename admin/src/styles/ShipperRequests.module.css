@@ -1,6 +1,11 @@
 .container {
     padding: 20px;
     width: 100%;
+    max-width: 1200px; /* Giới hạn chiều rộng tối đa */
+    margin: 0 auto; /* Căn giữa container */
+    height: 100%; /* Đảm bảo container chiếm toàn bộ chiều cao của parent */
+    display: flex;
+    flex-direction: column;
 }
 
 .title {
@@ -8,15 +13,52 @@
     font-weight: bold;
     margin-bottom: 20px;
     color: #333;
+    display: flex;
+    align-items: center;
+}
+
+.pendingCount {
+    background: #ff4d4f; /* Màu nền đỏ */
+    color: white; /* Màu chữ trắng */
+    font-size: 14px;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 12px; /* Bo tròn để tạo hình vòng tròn */
+    margin-left: 8px; /* Khoảng cách với tiêu đề */
+    line-height: 1; /* Đảm bảo chiều cao dòng phù hợp */
 }
 
 .tableContainer {
     width: 100%;
-    overflow-x: auto;
+    max-height: 60vh; /* Giới hạn chiều cao tối đa của bảng */
+    overflow-x: auto; /* Thanh kéo ngang */
+    overflow-y: auto; /* Thanh kéo dọc */
+    -webkit-overflow-scrolling: touch; /* Hỗ trợ cuộn mượt trên thiết bị di động */
+}
+
+/* Tùy chỉnh thanh kéo ngang */
+.tableContainer::-webkit-scrollbar {
+    height: 8px; /* Chiều cao của thanh kéo ngang */
+    width: 8px; /* Chiều rộng của thanh kéo dọc */
+}
+
+.tableContainer::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Màu nền của thanh kéo */
+    border-radius: 4px;
+}
+
+.tableContainer::-webkit-scrollbar-thumb {
+    background: #888; /* Màu của thanh kéo */
+    border-radius: 4px;
+}
+
+.tableContainer::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Màu khi hover */
 }
 
 .tableContainer table {
     width: 100%;
+    min-width: 800px; /* Đặt chiều rộng tối thiểu để các cột không bị co quá nhỏ */
     border-collapse: collapse;
     background: #fff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -27,12 +69,16 @@
     padding: 12px 15px;
     text-align: left;
     border-bottom: 1px solid #ddd;
+    white-space: nowrap; /* Ngăn nội dung xuống dòng, hỗ trợ thanh kéo ngang */
 }
 
 .tableContainer th {
     background: #f4f4f4;
     font-weight: bold;
     color: #333;
+    position: sticky; /* Giữ tiêu đề cố định khi cuộn */
+    top: 0; /* Đặt vị trí cố định ở đầu bảng */
+    z-index: 1; /* Đảm bảo tiêu đề nằm trên nội dung */
 }
 
 .tableContainer td {
@@ -106,6 +152,27 @@
     z-index: 1000;
     max-width: 400px;
     width: 100%;
+    max-height: 80vh; /* Giới hạn chiều cao tối đa */
+    overflow-y: auto; /* Thêm thanh kéo dọc nếu nội dung quá dài */
+}
+
+/* Tùy chỉnh thanh kéo dọc cho chi tiết shipper */
+.shipperDetails::-webkit-scrollbar {
+    width: 6px; /* Chiều rộng của thanh kéo dọc */
+}
+
+.shipperDetails::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.shipperDetails::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.shipperDetails::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
 
 .shipperDetails h3 {
@@ -155,4 +222,50 @@
     color: #888;
     padding: 20px;
     font-size: 16px;
+}
+
+/* Responsive cho thiết bị di động */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+
+    .title {
+        font-size: 20px;
+    }
+
+    .pendingCount {
+        font-size: 12px;
+        padding: 2px 6px;
+    }
+
+    .tableContainer {
+        max-height: 50vh; /* Giảm chiều cao tối đa trên thiết bị di động */
+    }
+
+    .tableContainer th,
+    .tableContainer td {
+        padding: 8px 10px;
+        font-size: 14px;
+    }
+
+    .btnApprove,
+    .btnDelete,
+    .btnDetails {
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+
+    .shipperDetails {
+        max-width: 90%;
+        padding: 15px;
+    }
+
+    .shipperDetails h3 {
+        font-size: 18px;
+    }
+
+    .shipperDetails li {
+        font-size: 13px;
+    }
 }

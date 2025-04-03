@@ -246,12 +246,9 @@ class Order {
                 .query(`
                     SELECT TOP 1 ShipperID, FullName
                     FROM Shipper
-                    WHERE IsAvailable = 1 AND Status = 'Approved'
-                    AND EXISTS (
-                        SELECT 1
-                        FROM OPENJSON(WorkAreas) WITH (area NVARCHAR(100) '$')
-                        WHERE area = @Province
-                    )
+                    WHERE IsAvailable = 1 
+                    AND Status = 'Approved'
+                    AND REPLACE(WorkAreas, '"', '') = @Province
                 `);
             console.log(`[Order.findAvailableShipperByProvince] Tìm shipper khả dụng tại ${province}, Kết quả: ${result.recordset[0] ? "Tìm thấy" : "Không tìm thấy"}`);
             return result.recordset[0] || null;

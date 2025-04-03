@@ -1,9 +1,9 @@
-// ShipperLogin.js
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ghnLogo from "../../assets/images/ghn.png";
 import shipperImage from "../../assets/images/shipper.jpg";
 import axios from "axios";
+import Swal from "sweetalert2"; // Import SweetAlert2
 import styles from "./ShipperLogin.module.css";
 
 export default function ShipperLogin() {
@@ -30,10 +30,27 @@ export default function ShipperLogin() {
             localStorage.setItem("shipperId", shipper.id);
             localStorage.setItem("shipperName", shipper.fullName);
 
+            // Hiển thị thông báo thành công
+            Swal.fire({
+                title: 'Đăng nhập thành công!',
+                text: `Chào mừng ${shipper.fullName}`,
+                icon: 'success',
+                confirmButtonText: 'OK',
+            });
+
             // Chuyển hướng tới dashboard
             navigate("/shipper-dashboard");
         } catch (err) {
             console.error("[ShipperLogin] Lỗi:", err);
+
+            // Hiển thị thông báo lỗi nếu có
+            Swal.fire({
+                title: 'Lỗi!',
+                text: err.response?.data?.message || "Đã xảy ra lỗi, vui lòng thử lại.",
+                icon: 'error',
+                confirmButtonText: 'OK',
+            });
+
             setErrorMessage(
                 err.response?.data?.message || "Đã xảy ra lỗi, vui lòng thử lại."
             );

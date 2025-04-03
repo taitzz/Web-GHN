@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import styles from "../styles/StatusTabs.module.css";
+import Swal from "sweetalert2"; // Import SweetAlert2
 
 const StatusTabs = () => {
     const navigate = useNavigate();
@@ -10,7 +11,6 @@ const StatusTabs = () => {
     const [cancelRequests, setCancelRequests] = useState([]);
     const [hasAvailableShippers, setHasAvailableShippers] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [counts, setCounts] = useState({
         pending: 0,
         approved: 0,
@@ -139,7 +139,6 @@ const StatusTabs = () => {
 
     const refreshData = async () => {
         setLoading(true);
-        setError(null);
         try {
             const countsData = await fetchOrderCounts();
             setCounts(countsData);
@@ -157,7 +156,14 @@ const StatusTabs = () => {
 
             await fetchAvailableShippersCount();
         } catch (err) {
-            setError(err.message || "Không thể tải dữ liệu!");
+            // Hiển thị thông báo lỗi bằng SweetAlert2
+            await Swal.fire({
+                title: "Lỗi!",
+                text: err.message || "Không thể tải dữ liệu!",
+                icon: "error",
+                confirmButtonColor: "#ff4d4d",
+                confirmButtonText: "Đóng",
+            });
         } finally {
             setLoading(false);
         }
@@ -173,7 +179,14 @@ const StatusTabs = () => {
             setSelectedOrder(orderDetails);
             setShowDetailModal(true);
         } catch (err) {
-            setError(err.message || "Không thể tải chi tiết đơn hàng!");
+            // Hiển thị thông báo lỗi bằng SweetAlert2
+            await Swal.fire({
+                title: "Lỗi!",
+                text: err.message || "Không thể tải chi tiết đơn hàng!",
+                icon: "error",
+                confirmButtonColor: "#ff4d4d",
+                confirmButtonText: "Đóng",
+            });
         }
     };
 
@@ -200,17 +213,29 @@ const StatusTabs = () => {
             );
             setShowApproveModal(false);
             refreshData();
-            alert(
-                response.data.shipperAssigned
+            // Hiển thị thông báo thành công bằng SweetAlert2
+            await Swal.fire({
+                title: "Thành công!",
+                text: response.data.shipperAssigned
                     ? `Đơn hàng đã được phê duyệt và gán shipper (ID: ${response.data.shipperId})!`
-                    : "Đơn hàng đã được phê duyệt nhưng không có shipper phù hợp!"
-            );
+                    : "Đơn hàng đã được phê duyệt nhưng không có shipper phù hợp!",
+                icon: "success",
+                confirmButtonColor: "#ff6200",
+                confirmButtonText: "OK",
+            });
         } catch (err) {
             if (err.response && (err.response.status === 401 || err.response.status === 403)) {
                 localStorage.removeItem("adminToken");
-                navigate("/");
+                navigate("/login");
             }
-            setError(err.response?.data?.message || "Duyệt đơn hàng thất bại!");
+            // Hiển thị thông báo lỗi bằng SweetAlert2
+            await Swal.fire({
+                title: "Lỗi!",
+                text: err.response?.data?.message || "Duyệt đơn hàng thất bại!",
+                icon: "error",
+                confirmButtonColor: "#ff4d4d",
+                confirmButtonText: "Đóng",
+            });
         }
     };
 
@@ -219,9 +244,23 @@ const StatusTabs = () => {
         try {
             setShowApproveModal(false);
             refreshData();
-            alert("Đã xác nhận gán shipper cho đơn hàng!");
+            // Hiển thị thông báo thành công bằng SweetAlert2
+            await Swal.fire({
+                title: "Thành công!",
+                text: "Đã xác nhận gán shipper cho đơn hàng!",
+                icon: "success",
+                confirmButtonColor: "#ff6200",
+                confirmButtonText: "OK",
+            });
         } catch (err) {
-            setError("Lỗi khi xác nhận gán shipper!");
+            // Hiển thị thông báo lỗi bằng SweetAlert2
+            await Swal.fire({
+                title: "Lỗi!",
+                text: "Lỗi khi xác nhận gán shipper!",
+                icon: "error",
+                confirmButtonColor: "#ff4d4d",
+                confirmButtonText: "Đóng",
+            });
         }
     };
 
@@ -244,13 +283,27 @@ const StatusTabs = () => {
             );
             setShowRejectModal(false);
             refreshData();
-            alert("Đơn hàng đã bị từ chối!");
+            // Hiển thị thông báo thành công bằng SweetAlert2
+            await Swal.fire({
+                title: "Thành công!",
+                text: "Đơn hàng đã bị từ chối!",
+                icon: "success",
+                confirmButtonColor: "#ff6200",
+                confirmButtonText: "OK",
+            });
         } catch (err) {
             if (err.response && (err.response.status === 401 || err.response.status === 403)) {
                 localStorage.removeItem("adminToken");
                 navigate("/");
             }
-            setError(err.response?.data?.message || "Từ chối đơn hàng thất bại!");
+            // Hiển thị thông báo lỗi bằng SweetAlert2
+            await Swal.fire({
+                title: "Lỗi!",
+                text: err.response?.data?.message || "Từ chối đơn hàng thất bại!",
+                icon: "error",
+                confirmButtonColor: "#ff4d4d",
+                confirmButtonText: "Đóng",
+            });
         }
     };
 
@@ -272,13 +325,27 @@ const StatusTabs = () => {
             );
             setShowApproveCancelModal(false);
             refreshData();
-            alert("Yêu cầu hủy đã được phê duyệt!");
+            // Hiển thị thông báo thành công bằng SweetAlert2
+            await Swal.fire({
+                title: "Thành công!",
+                text: "Yêu cầu hủy đã được phê duyệt!",
+                icon: "success",
+                confirmButtonColor: "#ff6200",
+                confirmButtonText: "OK",
+            });
         } catch (err) {
             if (err.response && (err.response.status === 401 || err.response.status === 403)) {
                 localStorage.removeItem("adminToken");
                 navigate("/");
             }
-            setError(err.response?.data?.message || "Phê duyệt yêu cầu hủy thất bại!");
+            // Hiển thị thông báo lỗi bằng SweetAlert2
+            await Swal.fire({
+                title: "Lỗi!",
+                text: err.response?.data?.message || "Phê duyệt yêu cầu hủy thất bại!",
+                icon: "error",
+                confirmButtonColor: "#ff4d4d",
+                confirmButtonText: "Đóng",
+            });
         }
     };
 
@@ -300,13 +367,27 @@ const StatusTabs = () => {
             );
             setShowRejectCancelModal(false);
             refreshData();
-            alert("Yêu cầu hủy đã bị từ chối!");
+            // Hiển thị thông báo thành công bằng SweetAlert2
+            await Swal.fire({
+                title: "Thành công!",
+                text: "Yêu cầu hủy đã bị từ chối!",
+                icon: "success",
+                confirmButtonColor: "#ff6200",
+                confirmButtonText: "OK",
+            });
         } catch (err) {
             if (err.response && (err.response.status === 401 || err.response.status === 403)) {
                 localStorage.removeItem("adminToken");
                 navigate("/");
             }
-            setError(err.response?.data?.message || "Từ chối yêu cầu hủy thất bại!");
+            // Hiển thị thông báo lỗi bằng SweetAlert2
+            await Swal.fire({
+                title: "Lỗi!",
+                text: err.response?.data?.message || "Từ chối yêu cầu hủy thất bại!",
+                icon: "error",
+                confirmButtonColor: "#ff4d4d",
+                confirmButtonText: "Đóng",
+            });
         }
     };
 
@@ -323,7 +404,6 @@ const StatusTabs = () => {
                     </button>
                 ))}
             </div>
-            {error && <p className={styles.error}>{error}</p>}
             {loading ? (
                 <p className={styles.loading}>Đang tải...</p>
             ) : activeTab === "cancelRequests" ? (

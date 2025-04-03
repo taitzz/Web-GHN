@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import { QRCodeCanvas } from "qrcode.react";
+import Swal from 'sweetalert2';
 
 const CreateOrder = () => {
   const [formData, setFormData] = useState({
@@ -204,7 +205,7 @@ const fetchCoordinates = async (provinceCode, districtCode, wardCode, type) => {
   // Tính khoảng cách giữa hai điểm
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
     if (!lat1 || !lon1 || !lat2 || !lon2) return 0;
-    const R = 6371; // Bán kính Trái Đất (km)
+    const R = 6378; // Bán kính Trái Đất (km)
     const dLat = (lat2 - lat1) * (Math.PI / 180);
     const dLon = (lon2 - lon1) * (Math.PI / 180);
     const a =
@@ -222,7 +223,7 @@ const fetchCoordinates = async (provinceCode, districtCode, wardCode, type) => {
         setFormData((prev) => ({ ...prev, distance: 0 }));
         return;
       }
-
+  
       const senderCoords = await fetchCoordinates(
         formData.senderProvince,
         formData.senderDistrict,
@@ -235,24 +236,28 @@ const fetchCoordinates = async (provinceCode, districtCode, wardCode, type) => {
         formData.receiverWard,
         'receiver'
       );
-
+  
       if (!senderCoords || !receiverCoords) {
         console.warn('Không thể lấy tọa độ, đặt khoảng cách về 0.');
         setFormData((prev) => ({ ...prev, distance: 0 }));
-        alert('Không thể tính khoảng cách do không tìm thấy tọa độ. Vui lòng kiểm tra lại địa chỉ.');
+        Swal.fire({
+          icon: 'warning',
+          title: 'Cảnh báo',
+          text: 'Không thể tính khoảng cách do không tìm thấy tọa độ. Vui lòng kiểm tra lại địa chỉ.',
+        });
         return;
       }
-
+  
       const distance = calculateDistance(
         senderCoords.lat,
         senderCoords.lon,
         receiverCoords.lat,
         receiverCoords.lon
       );
-      console.log(`Khoảng cách tính được: ${distance} km`); // Debug
+      console.log(`Khoảng cách tính được: ${distance} km`);
       setFormData((prev) => ({ ...prev, distance: isNaN(distance) ? 0 : distance }));
     };
-
+  
     updateDistance();
   }, [formData.senderWard, formData.receiverWard, formData.senderProvince, formData.receiverProvince]);
 
@@ -507,31 +512,47 @@ const fetchCoordinates = async (provinceCode, districtCode, wardCode, type) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) {
-      alert("Vui lòng kiểm tra lại thông tin!");
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: 'Vui lòng kiểm tra lại thông tin!',
+      });
       return;
     }
-
+  
     const costs = calculateTotalCost();
     if (costs.weightExceeded) {
-      alert('Tổng trọng lượng không được vượt quá 50kg! Vui lòng điều chỉnh.');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Cảnh báo',
+        text: 'Tổng trọng lượng không được vượt quá 50kg! Vui lòng điều chỉnh.',
+      });
       return;
     }
-
+  
     setLoading(true);
     try {
       const token = localStorage.getItem("authToken");
       if (!token) {
-        alert("Vui lòng đăng nhập để tạo đơn hàng!");
+        Swal.fire({
+          icon: 'warning',
+          title: 'Chưa đăng nhập',
+          text: 'Vui lòng đăng nhập để tạo đơn hàng!',
+        });
         setLoading(false);
         return;
       }
-
+  
       if (!formData.items || formData.items.length === 0) {
-        alert("Vui lòng thêm ít nhất một mặt hàng!");
+        Swal.fire({
+          icon: 'error',
+          title: 'Lỗi',
+          text: 'Vui lòng thêm ít nhất một mặt hàng!',
+        });
         setLoading(false);
         return;
       }
-
+  
       const orderPayload = {
         SenderName: formData.senderName,
         SenderPhone: formData.senderPhone,
@@ -548,9 +569,9 @@ const fetchCoordinates = async (provinceCode, districtCode, wardCode, type) => {
         PaymentBy: formData.paymentMethod === 'sender' ? 'Sender' : 'Receiver',
         PaymentStatus: formData.paymentStatus
       };
-
+  
       console.log("Dữ liệu gửi lên server:", orderPayload);
-
+  
       const response = await axios.post(
         "http://localhost:5000/api/orders/create",
         orderPayload,
@@ -561,13 +582,22 @@ const fetchCoordinates = async (provinceCode, districtCode, wardCode, type) => {
           },
         }
       );
-
+  
       console.log("Kết quả từ server:", response.data);
-      alert(`Đơn hàng ${response.data.orderId} đã được tạo thành công!`);
-      navigate("/notifications");
+      Swal.fire({
+        icon: 'success',
+        title: 'Thành công',
+        text: `Đơn hàng ${response.data.orderId} đã được tạo thành công!`,
+      }).then(() => {
+        navigate("/notifications");
+      });
     } catch (err) {
       console.error("Lỗi khi tạo đơn hàng:", err.response?.data || err.message);
-      alert(err.response?.data?.message || "Lỗi khi tạo đơn hàng, vui lòng thử lại!");
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: err.response?.data?.message || "Lỗi khi tạo đơn hàng, vui lòng thử lại!",
+      });
     } finally {
       setLoading(false);
     }
@@ -583,13 +613,21 @@ const fetchCoordinates = async (provinceCode, districtCode, wardCode, type) => {
       console.log('Costs:', costs);
       console.log('Weight warning:', costs.weightExceeded);
       if (costs.weightExceeded) {
-        alert('Tổng trọng lượng không được vượt quá 50kg! Vui lòng điều chỉnh.');
+        Swal.fire({
+          icon: 'warning',
+          title: 'Cảnh báo',
+          text: 'Tổng trọng lượng không được vượt quá 50kg! Vui lòng điều chỉnh.',
+        });
       } else {
         console.log('Showing payment modal');
         setShowPaymentModal(true);
       }
     } else {
-      alert('Vui lòng điền đầy đủ và đúng thông tin trước khi thanh toán.');
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: 'Vui lòng điền đầy đủ và đúng thông tin trước khi thanh toán.',
+      });
     }
   };
 
@@ -600,7 +638,11 @@ const fetchCoordinates = async (provinceCode, districtCode, wardCode, type) => {
       ...prev,
       paymentStatus: 'Paid'
     }));
-    alert('Thanh toán thành công!');
+    Swal.fire({
+      icon: 'success',
+      title: 'Thành công',
+      text: 'Thanh toán thành công!',
+    });
   };
 
   const getSelectedName = (value, list, field) => {

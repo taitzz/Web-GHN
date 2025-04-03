@@ -3,13 +3,13 @@ import axios from "axios";
 import Sidebar from "../../components/Sidebar";
 import TopBar from "../../components/TopBar";
 import styles from "../../styles/UserList.module.css"; // Import CSS Module
+import Swal from "sweetalert2"; // Import SweetAlert2
 
 const API_URL = "http://localhost:5000/api/users";
 
 const UserList = () => {
     const [users, setUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
-    const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const usersPerPage = 10;
@@ -17,11 +17,17 @@ const UserList = () => {
     useEffect(() => {
         const fetchUsers = async () => {
             setLoading(true);
-            setError("");
             try {
                 const token = localStorage.getItem("adminToken");
                 if (!token) {
-                    setError("Bạn chưa đăng nhập! Vui lòng đăng nhập để tiếp tục.");
+                    // Hiển thị thông báo lỗi bằng SweetAlert2
+                    await Swal.fire({
+                        title: "Lỗi!",
+                        text: "Bạn chưa đăng nhập! Vui lòng đăng nhập để tiếp tục.",
+                        icon: "error",
+                        confirmButtonColor: "#ff4d4d",
+                        confirmButtonText: "Đóng",
+                    });
                     return;
                 }
 
@@ -35,7 +41,14 @@ const UserList = () => {
                 setUsers(res.data);
             } catch (err) {
                 console.error("❌ Lỗi khi tải dữ liệu:", err);
-                setError(err.response?.data?.message || "Không thể tải danh sách người dùng!");
+                // Hiển thị thông báo lỗi bằng SweetAlert2
+                await Swal.fire({
+                    title: "Lỗi!",
+                    text: err.response?.data?.message || "Không thể tải danh sách người dùng!",
+                    icon: "error",
+                    confirmButtonColor: "#ff4d4d",
+                    confirmButtonText: "Đóng",
+                });
             } finally {
                 setLoading(false);
             }
@@ -61,7 +74,19 @@ const UserList = () => {
 
     // Xóa người dùng
     const deleteUser = async (userID) => {
-        if (window.confirm("Bạn có chắc chắn muốn xóa người dùng này không?")) {
+        // Hiển thị thông báo xác nhận xóa người dùng bằng SweetAlert2
+        const result = await Swal.fire({
+            title: "Xác nhận xóa người dùng",
+            text: "Bạn có chắc chắn muốn xóa người dùng này không? Hành động này không thể hoàn tác!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#ff4d4d",
+            cancelButtonColor: "#6b7280",
+            confirmButtonText: "Xóa",
+            cancelButtonText: "Hủy",
+        });
+
+        if (result.isConfirmed) {
             try {
                 const token = localStorage.getItem("adminToken");
                 await axios.delete(`${API_URL}/${userID}`, {
@@ -71,9 +96,24 @@ const UserList = () => {
                 });
                 setUsers(users.filter((user) => user.UserID !== userID));
                 console.log("✅ Đã xóa người dùng!");
+                // Hiển thị thông báo thành công bằng SweetAlert2
+                await Swal.fire({
+                    title: "Thành công!",
+                    text: "Người dùng đã bị xóa!",
+                    icon: "success",
+                    confirmButtonColor: "#ff6200",
+                    confirmButtonText: "OK",
+                });
             } catch (err) {
                 console.error("❌ Lỗi khi xóa người dùng:", err);
-                setError(err.response?.data?.message || "Xóa người dùng thất bại!");
+                // Hiển thị thông báo lỗi bằng SweetAlert2
+                await Swal.fire({
+                    title: "Lỗi!",
+                    text: err.response?.data?.message || "Xóa người dùng thất bại!",
+                    icon: "error",
+                    confirmButtonColor: "#ff4d4d",
+                    confirmButtonText: "Đóng",
+                });
             }
         }
     };
@@ -106,12 +146,6 @@ const UserList = () => {
                             />
                         </div>
 
-                        {error && (
-                            <p className={`${styles.textCenter} ${styles.textRed500}`}>
-                                {error}
-                            </p>
-                        )}
-
                         {loading ? (
                             <p className={`${styles.textCenter} ${styles.textGray500}`}>
                                 Đang tải...
@@ -130,7 +164,7 @@ const UserList = () => {
                                                 <th>Họ và Tên</th>
                                                 <th>Ngày Sinh</th>
                                                 <th>Email</th>
-                                                <th>Số Điện Thoại</th>
+                                                <th>SĐT</th>
                                                 <th>Địa Chỉ</th>
                                                 <th>Tài khoản</th>
                                                 <th>Hành động</th>

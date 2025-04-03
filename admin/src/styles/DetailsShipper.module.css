@@ -2,16 +2,9 @@
 .container {
     padding: 20px;
     background-color: #f5f5f5;
-    height: auto;
-}
-
-/* Tiêu đề */
-.title {
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;
-    text-align: center;
-    margin-bottom: 20px;
+    height: 100%; /* Đảm bảo container chiếm toàn bộ chiều cao của parent */
+    display: flex;
+    flex-direction: column;
 }
 
 /* Ô tìm kiếm */
@@ -37,15 +30,37 @@
 
 /* Container cho bảng */
 .tableContainer {
-    max-height: 600px;
-    overflow-y: auto;
-    overflow-x: auto;
+    max-height: 60vh; /* Giới hạn chiều cao tối đa của bảng */
+    overflow-y: auto; /* Thanh cuộn dọc */
+    overflow-x: auto; /* Thanh cuộn ngang nếu cần */
     position: relative;
+    -webkit-overflow-scrolling: touch; /* Hỗ trợ cuộn mượt trên thiết bị di động */
+}
+
+/* Tùy chỉnh thanh cuộn */
+.tableContainer::-webkit-scrollbar {
+    width: 8px; /* Chiều rộng của thanh cuộn dọc */
+    height: 8px; /* Chiều cao của thanh cuộn ngang */
+}
+
+.tableContainer::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Màu nền của thanh cuộn */
+    border-radius: 4px;
+}
+
+.tableContainer::-webkit-scrollbar-thumb {
+    background: #888; /* Màu của thanh cuộn */
+    border-radius: 4px;
+}
+
+.tableContainer::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Màu khi hover */
 }
 
 /* Bảng nhân viên */
 .shipperTable {
     width: 100%;
+    min-width: 1100px; /* Tăng min-width để chứa các cột mà không xuống dòng */
     border-collapse: collapse;
     background: white;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -59,34 +74,45 @@
     font-size: 14px;
     border-bottom: 1px solid #ddd;
     text-align: left;
-    white-space: normal;
-    word-wrap: break-word;
+    white-space: nowrap; /* Ngăn xuống dòng */
+    overflow: hidden; /* Ẩn nội dung thừa */
+    text-overflow: ellipsis; /* Hiển thị "..." nếu nội dung quá dài */
 }
 
 /* Cố định chiều rộng cột */
 .shipperTable th:nth-child(1),
 .shipperTable td:nth-child(1) {
-    width: 50px; /* STT */
+    width: 46px; /* STT */
 }
 
 .shipperTable th:nth-child(2),
 .shipperTable td:nth-child(2) {
-    width: 200px; /* Họ và Tên */
+    width: 130px; /* Họ Tên */
 }
 
 .shipperTable th:nth-child(3),
 .shipperTable td:nth-child(3) {
-    width: 150px; /* Số Điện Thoại */
+    width: 110px; /* Số ĐT */
 }
 
 .shipperTable th:nth-child(4),
 .shipperTable td:nth-child(4) {
-    width: 250px; /* Email */
+    width: 160px; /* Email */
 }
 
 .shipperTable th:nth-child(5),
 .shipperTable td:nth-child(5) {
-    width: 200px; /* Hành Động */
+    width: 120px; /* Cơ Sở */
+}
+
+.shipperTable th:nth-child(6),
+.shipperTable td:nth-child(6) {
+    width: 100px; /* Trạng Thái */
+}
+
+.shipperTable th:nth-child(7),
+.shipperTable td:nth-child(7) {
+    width: 175px; /* Hành Động */
 }
 
 /* Tiêu đề cố định */
@@ -111,6 +137,17 @@
 
 .shipperTable td {
     color: #333;
+}
+
+/* Trạng thái */
+.statusIdle {
+    color: #4caf50; /* Màu xanh cho "Đang rảnh" */
+    font-weight: bold;
+}
+
+.statusDelivering {
+    color: #ff9800; /* Màu cam cho "Đang giao hàng" */
+    font-weight: bold;
 }
 
 /* Nút xem chi tiết */
@@ -154,52 +191,23 @@
     margin-top: 20px;
 }
 
-/* Phân trang */
-.pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-.pagination button {
-    background-color: #ff6200;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.pagination button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-}
-
-.pagination button:hover:not(:disabled) {
-    background-color: #e55a00;
-}
-
-.pagination span {
-    font-size: 14px;
-    color: #333;
-}
-
-
-
-
 /* Responsive cho thiết bị di động */
 @media (max-width: 768px) {
     .container {
         padding: 15px;
     }
 
+    .tableContainer {
+        max-height: 50vh; /* Giảm chiều cao tối đa trên thiết bị di động */
+    }
+
     .shipperTable th,
     .shipperTable td {
         padding: 8px 10px;
         font-size: 12px;
+        white-space: normal; /* Cho phép xuống dòng trên thiết bị di động */
+        overflow: visible; /* Hiển thị toàn bộ nội dung */
+        text-overflow: clip; /* Không hiển thị "..." */
     }
 
     .custom-modal {

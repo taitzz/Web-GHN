@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import Swal from "sweetalert2"; // Import SweetAlert2
 import ghnLogo from "../../assets/images/ghn.png";
 import styles from "./ShipperRegister.module.css";
 
@@ -20,8 +21,8 @@ export default function ShipperRegister() {
                 email: "",
                 cccd: "",
                 driverLicense: "",
-                agreed: false,
-                workAreas: "", // Chỉ lưu tỉnh/thành phố duy nhất
+                acceptRequirements: false,
+                workAreas: "",
             };
     });
 
@@ -39,7 +40,7 @@ export default function ShipperRegister() {
         try {
             const response = await axios.get("https://provinces.open-api.vn/api/p/");
             setProvinces(response.data);
-            setFilteredProvinces(response.data);  // Lưu danh sách đầy đủ
+            setFilteredProvinces(response.data);
         } catch (err) {
             setError((prev) => ({ ...prev, general: "Không thể tải danh sách tỉnh/thành phố!" }));
         } finally {
@@ -82,10 +83,10 @@ export default function ShipperRegister() {
     const handleSelectProvince = (province) => {
         setFormData({
             ...formData,
-            workAreas: province.name, // Chọn một tỉnh/thành phố duy nhất
+            workAreas: province.name,
         });
-        setSearchQuery(""); // Xóa từ khóa tìm kiếm
-        setShowDropdown(false); // Đóng dropdown
+        setSearchQuery("");
+        setShowDropdown(false);
     };
 
     const checkEmailExists = async (email) => {
@@ -140,8 +141,8 @@ export default function ShipperRegister() {
             newError.driverLicense = "Số giấy phép lái xe phải có đúng 12 chữ số";
         }
 
-        if (!formData.agreed) {
-            newError.agreed = "Vui lòng đồng ý với yêu cầu của công ty";
+        if (!formData.acceptRequirements) {
+            newError.acceptRequirements = "Vui lòng chấp nhận yêu cầu của cửa hàng";
         }
 
         if (!formData.workAreas) {
@@ -151,11 +152,14 @@ export default function ShipperRegister() {
         setError(newError);
 
         if (Object.keys(newError).length === 0) {
-            console.log("Dữ liệu gửi đi:", formData);
             try {
                 const response = await axios.post(`${API_URL}/register`, formData);
-                console.log("Phản hồi từ server:", response.data);
-                alert(response.data.message);
+                Swal.fire({
+                    title: 'Thành công!',
+                    text: response.data.message,
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                });
                 localStorage.removeItem("shipperRegisterFormData");
                 navigate("/shipper-login");
             } catch (err) {
@@ -170,6 +174,12 @@ export default function ShipperRegister() {
                     newError.general = "Không thể kết nối đến server.";
                 }
                 setError(newError);
+                Swal.fire({
+                    title: 'Lỗi!',
+                    text: newError.general || 'Không thể kết nối đến server.',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                });
             }
         }
     };
@@ -333,8 +343,26 @@ export default function ShipperRegister() {
                         {error.workAreas && <p className={styles.errorText}>{error.workAreas}</p>}
                     </div>
 
-                    {/* Các input khác và nút submit */}
-                    <button type="submit" className={styles.registerButton} disabled={!formData.agreed || loading}>
+                    {/* Ô tích "Chấp nhận yêu cầu của cửa hàng" với liên kết đến ShipperRequirement.js */}
+                    <div className={styles.checkboxGroup}>
+                        <input
+                            type="checkbox"
+                            name="acceptRequirements"
+                            checked={formData.acceptRequirements}
+                            onChange={handleChange}
+                        />
+                        <label>
+                            Tôi chấp nhận <Link to="/shipper-requirements">yêu cầu</Link> của cửa hàng
+                        </label>
+                        {error.acceptRequirements && <p className={styles.errorText}>{error.acceptRequirements}</p>}
+                    </div>
+
+                    {/* Nút Đăng ký */}
+                    <button
+                        type="submit"
+                        className={styles.registerButton}
+                        disabled={!formData.acceptRequirements || loading}
+                    >
                         Đăng ký
                     </button>
                 </form>

@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import styles from "../../assets/styles/LoginUser.module.css"; // Cập nhật import
+import styles from "../../assets/styles/LoginUser.module.css"; 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import bg from "../../assets/images/shipper_icon.jpg";
 import axios from "axios";
+import Swal from "sweetalert2"; // Import SweetAlert2
 
 export default function LoginUser() {
     const [username, setUsername] = useState("");
@@ -50,11 +51,28 @@ export default function LoginUser() {
                 if (response.status === 200) {
                     const { token } = response.data;
                     localStorage.setItem("authToken", token);
-                    alert("🎉 Đăng nhập thành công!");
+                    
+                    // Hiển thị thông báo thành công với SweetAlert2
+                    Swal.fire({
+                        title: 'Đăng nhập thành công!',
+                        text: 'Chào mừng bạn đến với hệ thống.',
+                        icon: 'success',
+                        confirmButtonText: 'OK',
+                    });
+
                     navigate("/home");
                 }
             } catch (error) {
                 console.error("❌ Lỗi đăng nhập:", error.response ? error.response.data : error.message);
+
+                // Hiển thị thông báo lỗi với SweetAlert2
+                Swal.fire({
+                    title: 'Đăng nhập thất bại!',
+                    text: error.response?.data?.message || "Đã xảy ra lỗi, vui lòng thử lại.",
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                });
+
                 if (error.response?.status === 400) {
                     if (error.response?.data?.message === "Tài khoản của bạn đã bị xóa.") {
                         setLoginError("⚠️ Tài khoản của bạn đã bị xóa.");

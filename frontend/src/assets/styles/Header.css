@@ -4,12 +4,13 @@
   align-items: center;
   justify-content: space-between;
   background-color: white;
-  padding: 15px 20px;
-  border-bottom: 2px solid #f1f1f1;
+  padding: 10px 30px; /* Giảm padding dọc, tăng padding ngang cho cân đối */
+  border-bottom: 1px solid #e0e0e0; /* Viền mỏng hơn và nhạt hơn */
   font-family: "Arial", sans-serif;
   position: sticky;
-  top: 0; /* Dính header ở trên cùng khi cuộn */
-  z-index: 1000; /* Đảm bảo header luôn ở trên */
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Thêm bóng nhẹ để nổi bật */
 }
 
 /* --- Bên trái: Logo --- */
@@ -18,8 +19,13 @@
 }
 
 .header__logo {
-  height: 40px; /* Điều chỉnh chiều cao logo */
+  height: 45px; /* Tăng nhẹ chiều cao logo cho rõ nét */
   object-fit: contain;
+  transition: transform 0.3s ease; /* Hiệu ứng phóng to khi hover */
+}
+
+.header__logo:hover {
+  transform: scale(1.05); /* Phóng to nhẹ khi hover */
 }
 
 /* --- Ở giữa: Menu điều hướng --- */
@@ -27,7 +33,7 @@
   flex: 2;
   display: flex;
   justify-content: center;
-  gap: 25px;
+  gap: 30px; /* Tăng khoảng cách giữa các mục cho thoáng */
 }
 
 .nav-item {
@@ -36,123 +42,152 @@
   cursor: pointer;
   color: #333;
   position: relative;
-  padding-bottom: 5px;
-  text-decoration: none; /* Bỏ gạch chân */
-  transition: color 0.3s ease; /* Hiệu ứng mượt mà khi thay đổi màu */
+  padding-bottom: 6px;
+  text-decoration: none;
+  transition: color 0.3s ease;
 }
 
 .nav-item:hover {
-  color: #ff6600; /* Màu khi di chuột qua */
+  color: #ff6200; /* Màu cam đặc trưng của GHN */
 }
 
 .nav-item.active {
-  color: #ff6600; /* Màu khi mục được chọn */
+  color: #ff6200;
 }
 
 .nav-item.active::after {
   content: "";
   width: 100%;
-  height: 3px;
-  background-color: #ff6600;
+  height: 2px; /* Giảm chiều cao viền dưới cho tinh tế */
+  background-color: #ff6200;
   position: absolute;
   bottom: 0;
   left: 0;
+  transition: width 0.3s ease; /* Hiệu ứng mở rộng viền */
 }
 
-/* --- Bên phải: Tạo đơn hàng - Tìm kiếm - Đăng xuất --- */
+/* --- Bên phải: Tạo đơn hàng - Thông báo - Tìm kiếm - Đăng nhập/Đăng xuất --- */
 .header-right {
   flex: 3;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 15px;
+  gap: 20px; /* Tăng khoảng cách giữa các phần tử */
 }
 
-.header .header__button,
-.header .header__logout {
-  background-color: #ff6600;
+/* Nút Tạo đơn hàng và Đăng xuất */
+.header__button,
+.header__logout {
+  background-color: #ff6200; /* Màu cam đặc trưng */
   color: white;
-  padding: 10px 18px;
+  padding: 8px 16px; /* Giảm padding cho nhỏ gọn */
   font-size: 14px;
-  font-weight: bold;
+  font-weight: 600;
   text-decoration: none;
   border: none;
-  border-radius: 5px;
+  border-radius: 4px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 5px;
-  transition: background 0.3s ease;
+  gap: 6px;
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Thêm hiệu ứng transform */
 }
 
-.header .header__button:hover,
-.header .header__logout:hover {
-  background-color: #e65500;
+.header__button:hover,
+.header__logout:hover {
+  background-color: #e55a00; /* Màu cam đậm hơn khi hover */
+  transform: translateY(-2px); /* Nâng nhẹ lên khi hover */
 }
 
-/* --- Icon thông báo --- */
-.header__notification {
-  position: relative;
-  color: #333;
+/* Liên kết Đăng nhập / Đăng ký */
+.header__auth-link {
+  background-color: #ff6200;
+  color: white;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
   text-decoration: none;
-  padding: 10px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.header__auth-link:hover {
+  background-color: #e55a00;
+  transform: translateY(-2px);
+}
+
+/* Icon thông báo */
+.header__notification {
+  position: relative;
+  color: #555; /* Màu xám đậm hơn cho icon */
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  cursor: pointer; /* Thêm con trỏ để báo hiệu có thể nhấp */
   transition: color 0.3s ease;
 }
 
 .header__notification:hover {
-  color: #ff6600; /* Đổi màu khi hover */
+  color: #ff6200;
 }
 
 .notification-badge {
   position: absolute;
-  top: 2px; /* Điều chỉnh vị trí badge */
-  right: 2px;
-  background-color: #ff0000; /* Màu đỏ cho badge */
+  top: 0; /* Điều chỉnh badge sát hơn */
+  right: 0;
+  background-color: #ff0000;
   color: white;
-  font-size: 12px;
-  width: 18px;
-  height: 18px;
+  font-size: 10px; /* Giảm kích thước badge cho tinh tế */
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* --- Thanh tìm kiếm --- */
+/* Thanh tìm kiếm */
 .header__search-container {
   display: flex;
   align-items: center;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 5px;
-  flex-grow: 1;
-  background-color: #f9f9f9;
-  transition: all 0.3s ease; /* Thêm hiệu ứng khi hover */
+  border: 1px solid #ddd; /* Viền nhạt hơn */
+  border-radius: 4px;
+  padding: 6px 10px;
+  background-color: #fff; /* Nền trắng thay vì xám nhạt */
+  flex-grow: 0.5; /* Giảm độ mở rộng để không quá dài */
+  max-width: 250px; /* Giới hạn chiều rộng tối đa */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.header__search-container:hover {
-  border-color: #ff6600; /* Hiển thị viền màu cam khi hover */
+.header__search-container:hover,
+.header__search-container:focus-within {
+  border-color: #ff6200;
+  box-shadow: 0 0 5px rgba(255, 98, 0, 0.3); /* Hiệu ứng sáng khi hover hoặc focus */
 }
 
 .header__search {
   border: none;
   outline: none;
   font-size: 14px;
-  padding: 5px;
+  padding: 4px;
   width: 100%;
-  background-color: transparent; /* Đảm bảo nền trong suốt */
+  background-color: transparent;
 }
 
 .search-icon {
-  font-size: 18px;
-  color: #888;
-  cursor: pointer;
-  margin-left: 5px;
+  font-size: 16px; /* Giảm kích thước icon cho cân đối */
+  color: #666;
+  margin-left: 8px;
   transition: color 0.3s ease;
 }
 
 .search-icon:hover {
-  color: #ff6600; /* Đổi màu khi hover vào icon tìm kiếm */
+  color: #ff6200;
+}
+
+/* Icon chung */
+.icon {
+  font-size: 16px; /* Chuẩn hóa kích thước icon */
 }

@@ -4,12 +4,12 @@ import './Login.css';
 import ghn from '../../assets/images/ghn.png';
 import bg from '../../assets/images/bg.png';
 import axios from 'axios';
+import Swal from "sweetalert2"; // Import SweetAlert2
 
 export default function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState({});
-    const [loginError, setLoginError] = useState('');
     const [greeting, setGreeting] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -26,9 +26,9 @@ export default function Login() {
 
     const handleLogin = async () => {
         let newErrors = {};
-        setLoginError('');
         setLoading(true);
 
+        // Kiểm tra lỗi đầu vào
         if (!username.trim()) newErrors.username = 'Vui lòng nhập tài khoản';
         if (!password.trim()) newErrors.password = 'Vui lòng nhập mật khẩu';
 
@@ -49,24 +49,62 @@ export default function Login() {
                     const { token, user } = response.data;
                     localStorage.setItem('adminToken', token);
                     console.log('✅ Token saved:', token);
-                    alert('🎉 Đăng nhập thành công!');
+                    // Sử dụng SweetAlert2 để hiển thị thông báo thành công
+                    await Swal.fire({
+                        title: "Thành công!",
+                        text: "Đăng nhập thành công!",
+                        icon: "success",
+                        confirmButtonColor: "#ff6200",
+                        confirmButtonText: "OK",
+                    });
                     navigate('/dashboard', { replace: true });
                 } else {
-                    setLoginError('Không có token trong phản hồi!');
+                    // Sử dụng SweetAlert2 để hiển thị lỗi
+                    await Swal.fire({
+                        title: "Lỗi!",
+                        text: "Không có token trong phản hồi!",
+                        icon: "error",
+                        confirmButtonColor: "#ff4d4d",
+                        confirmButtonText: "Đóng",
+                    });
                     console.error('No token in response:', response.data);
                 }
             } catch (error) {
                 console.error('❌ Login error:', error.message, error.response?.data);
                 if (error.response) {
                     if (error.response.status === 400 || error.response.status === 401) {
-                        setLoginError('⚠️ ' + (error.response.data.message || 'Thông tin đăng nhập không hợp lệ!'));
+                        await Swal.fire({
+                            title: "Lỗi!",
+                            text: error.response.data.message || 'Thông tin đăng nhập không hợp lệ!',
+                            icon: "error",
+                            confirmButtonColor: "#ff4d4d",
+                            confirmButtonText: "Đóng",
+                        });
                     } else {
-                        setLoginError(`❌ Lỗi server: ${error.response.status}`);
+                        await Swal.fire({
+                            title: "Lỗi!",
+                            text: `Lỗi server: ${error.response.status}`,
+                            icon: "error",
+                            confirmButtonColor: "#ff4d4d",
+                            confirmButtonText: "Đóng",
+                        });
                     }
                 } else if (error.request) {
-                    setLoginError('❌ Không kết nối được đến server, kiểm tra backend!');
+                    await Swal.fire({
+                        title: "Lỗi!",
+                        text: "Không kết nối được đến server, kiểm tra backend!",
+                        icon: "error",
+                        confirmButtonColor: "#ff4d4d",
+                        confirmButtonText: "Đóng",
+                    });
                 } else {
-                    setLoginError('❌ Lỗi không xác định: ' + error.message);
+                    await Swal.fire({
+                        title: "Lỗi!",
+                        text: `Lỗi không xác định: ${error.message}`,
+                        icon: "error",
+                        confirmButtonColor: "#ff4d4d",
+                        confirmButtonText: "Đóng",
+                    });
                 }
             } finally {
                 setLoading(false);
@@ -128,7 +166,6 @@ export default function Login() {
                                 <button className="button" onClick={handleLogin} disabled={loading}>
                                     {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
                                 </button>
-                                {loginError && <p className="error-text login-error">{loginError}</p>}
                                 <div className="login-row3">
                                     <span className="text-normal">Nhân sự GHN bấm </span>
                                     <Link to="/shipper-login" className="text-highlight">vào đây</Link>

@@ -8,6 +8,7 @@ import {
 import logo from "../assets/images/ghn.png";
 import avt from "../assets/images/logo.png";
 import "../styles/Sidebar.css";
+import Swal from "sweetalert2"; // Import SweetAlert2
 
 const Sidebar = ({ setIsAuthenticated }) => {
     const navigate = useNavigate();
@@ -37,12 +38,36 @@ const Sidebar = ({ setIsAuthenticated }) => {
         }
     }, [location.pathname]);
 
-    const handleLogout = () => {
-        if (window.confirm("Bạn có muốn đăng xuất không?")) {
+    const handleLogout = async () => {
+        // Hiển thị thông báo xác nhận đăng xuất bằng SweetAlert2
+        const result = await Swal.fire({
+            title: "Bạn có muốn đăng xuất không?",
+            text: "Bạn sẽ được chuyển hướng về trang đăng nhập.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#ff4d4d",
+            cancelButtonColor: "#6b7280",
+            confirmButtonText: "Đăng xuất",
+            cancelButtonText: "Hủy",
+        });
+
+        if (result.isConfirmed) {
+            // Xóa token và thực hiện đăng xuất
             localStorage.removeItem("authToken");
             if (typeof setIsAuthenticated === "function") {
                 setIsAuthenticated(false);
             }
+
+            // Hiển thị thông báo đăng xuất thành công
+            await Swal.fire({
+                title: "Thành công!",
+                text: "Bạn đã đăng xuất thành công.",
+                icon: "success",
+                confirmButtonColor: "#ff6200",
+                confirmButtonText: "OK",
+            });
+
+            // Chuyển hướng về trang đăng nhập
             navigate("/");
         }
     };

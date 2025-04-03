@@ -35,7 +35,7 @@ class ShipperController {
         }
 
         if (!workAreas || workAreas.length === 0) {
-            return res.status(400).json({ message: "Vui lòng chọn ít nhất một cơ sở làm việc" });
+            return res.status(400).json({ message: "Vui lòng chọn cơ sở làm việc" });
         }
 
         try {
@@ -157,6 +157,7 @@ class ShipperController {
                 driverLicense: shipper.DriverLicense,
                 status: shipper.Status,
                 employeeId: shipper.EmployeeID,
+                workAreas: shipper.WorkAreas,
             });
         } catch (err) {
             console.error("[ShipperController.getProfile] Lỗi:", { message: err.message, stack: err.stack });
@@ -253,6 +254,7 @@ class ShipperController {
                 driverLicense: shipper.DriverLicense,
                 status: shipper.Status,
                 employeeId: shipper.EmployeeID,
+                workAreas: shipper.WorkAreas,
             });
         } catch (err) {
             console.error("[ShipperController.getShipperById] Lỗi:", { message: err.message, stack: err.stack });

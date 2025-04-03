@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import styles from "../../assets/styles/ForgotPassword.module.css"; // Cập nhật import
 import bg from "../../assets/images/shipper_icon.jpg";
 import { FaArrowLeft } from 'react-icons/fa';
+import Swal from "sweetalert2"; // Import SweetAlert2
 
 export default function ForgotPassword() {
     const [username, setUsername] = useState("");
@@ -34,9 +35,21 @@ export default function ForgotPassword() {
                 setIsOtpSent(true);
                 setError("");
                 setTimer(60);
+                Swal.fire({
+                    title: 'Mã OTP đã được gửi!',
+                    text: 'Vui lòng kiểm tra email của bạn để nhận mã OTP.',
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                });
             }
         } catch (error) {
             setError(error.response?.data?.message || "Có lỗi xảy ra!");
+            Swal.fire({
+                title: 'Có lỗi xảy ra!',
+                text: error.response?.data?.message || "Vui lòng thử lại.",
+                icon: 'error',
+                confirmButtonText: 'OK',
+            });
         }
     };
 
@@ -64,9 +77,21 @@ export default function ForgotPassword() {
                 setTimeout(() => {
                     navigate("/");
                 }, 3000);
+                Swal.fire({
+                    title: 'Thành công!',
+                    text: 'Mật khẩu của bạn đã được thay đổi.',
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                });
             }
         } catch (error) {
             setError(error.response?.data?.message || "Mã OTP không hợp lệ.");
+            Swal.fire({
+                title: 'Lỗi!',
+                text: error.response?.data?.message || "Vui lòng kiểm tra lại mã OTP.",
+                icon: 'error',
+                confirmButtonText: 'OK',
+            });
         }
     };
 

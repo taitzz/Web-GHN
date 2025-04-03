@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import styles from "../../styles/ShipperRequests.module.css"; // Import CSS Module
+import Swal from "sweetalert2"; // Import SweetAlert2
 
 const API_URL = "http://localhost:5000/api/shipper";
 
@@ -31,7 +32,7 @@ const ShipperRequests = () => {
                     CurrentAddress: item.currentAddress || item.CurrentAddress,
                     CCCD: item.cccd || item.CCCD,
                     DriverLicense: item.driverLicense || item.DriverLicense,
-                    WorkAreas : item.workAreas || item.WorkAreas,
+                    WorkAreas: item.workAreas || item.WorkAreas,
                 }));
                 setRequests(mappedRequests);
             } catch (err) {
@@ -58,44 +59,97 @@ const ShipperRequests = () => {
 
     // Xử lý duyệt shipper
     const handleApprove = async (id) => {
-        if (!window.confirm("Bạn có chắc chắn muốn duyệt shipper này?")) return;
+        // Hiển thị thông báo xác nhận duyệt shipper
+        const result = await Swal.fire({
+            title: "Xác nhận duyệt shipper",
+            text: "Bạn có chắc chắn muốn duyệt shipper này?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#28a745",
+            cancelButtonColor: "#6b7280",
+            confirmButtonText: "Duyệt",
+            cancelButtonText: "Hủy",
+        });
 
-        try {
-            const response = await axios.put(
-                `${API_URL}/approve/${id}`,
-                {},
-                {
-                    headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` },
-                }
-            );
-            alert(response.data.message); // "Shipper đã được duyệt và email thông báo đã được gửi!"
-            // Loại bỏ shipper khỏi danh sách "Chờ Duyệt"
-            setRequests((prevRequests) =>
-                prevRequests.filter((request) => request.ShipperID !== id)
-            );
-        } catch (err) {
-            console.error("Lỗi khi duyệt shipper:", err);
-            const errorMessage =
-                err.response?.data?.message || "Có lỗi xảy ra khi duyệt shipper, vui lòng thử lại.";
-            alert(errorMessage);
+        if (result.isConfirmed) {
+            try {
+                const response = await axios.put(
+                    `${API_URL}/approve/${id}`,
+                    {},
+                    {
+                        headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` },
+                    }
+                );
+                // Hiển thị thông báo thành công
+                await Swal.fire({
+                    title: "Thành công!",
+                    text: response.data.message || "Shipper đã được duyệt và email thông báo đã được gửi!",
+                    icon: "success",
+                    confirmButtonColor: "#ff6200",
+                    confirmButtonText: "OK",
+                });
+                // Loại bỏ shipper khỏi danh sách "Chờ Duyệt"
+                setRequests((prevRequests) =>
+                    prevRequests.filter((request) => request.ShipperID !== id)
+                );
+            } catch (err) {
+                console.error("Lỗi khi duyệt shipper:", err);
+                const errorMessage =
+                    err.response?.data?.message || "Có lỗi xảy ra khi duyệt shipper, vui lòng thử lại.";
+                // Hiển thị thông báo lỗi
+                await Swal.fire({
+                    title: "Lỗi!",
+                    text: errorMessage,
+                    icon: "error",
+                    confirmButtonColor: "#ff4d4d",
+                    confirmButtonText: "Đóng",
+                });
+            }
         }
     };
 
     // Xử lý xóa shipper
     const handleDelete = async (id) => {
-        if (!window.confirm("Bạn có chắc chắn muốn xóa shipper này?")) return;
+        // Hiển thị thông báo xác nhận xóa shipper
+        const result = await Swal.fire({
+            title: "Xác nhận xóa shipper",
+            text: "Bạn có chắc chắn muốn xóa shipper này? Hành động này không thể hoàn tác!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#ff4d4d",
+            cancelButtonColor: "#6b7280",
+            confirmButtonText: "Xóa",
+            cancelButtonText: "Hủy",
+        });
 
-        try {
-            await axios.delete(`${API_URL}/delete/${id}`, {
-                headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` },
-            });
-            alert("Shipper đã bị xóa!");
-            setRequests((prevRequests) =>
-                prevRequests.filter((request) => request.ShipperID !== id)
-            );
-        } catch (err) {
-            console.error("Lỗi khi xóa shipper:", err);
-            alert("Có lỗi xảy ra khi xóa, vui lòng thử lại.");
+        if (result.isConfirmed) {
+            try {
+                await axios.delete(`${API_URL}/delete/${id}`, {
+                    headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` },
+                });
+                // Hiển thị thông báo thành công
+                await Swal.fire({
+                    title: "Thành công!",
+                    text: "Shipper đã bị xóa!",
+                    icon: "success",
+                    confirmButtonColor: "#ff6200",
+                    confirmButtonText: "OK",
+                });
+                // Loại bỏ shipper khỏi danh sách
+                setRequests((prevRequests) =>
+                    prevRequests.filter((request) => request.ShipperID !== id)
+                );
+            } catch (err) {
+                console.error("Lỗi khi xóa shipper:", err);
+                // Hiển thị thông báo lỗi
+                await Swal.fire({
+                    title: "Lỗi!",
+                    text: "Có lỗi xảy ra khi xóa, vui lòng thử lại.",
+                    icon: "error",
+                    confirmButtonColor: "#ff4d4d",
+                    confirmButtonText: "Đóng",
+                });
+            }
         }
     };
 
@@ -118,12 +172,19 @@ const ShipperRequests = () => {
                 CurrentAddress: response.data.currentAddress || response.data.CurrentAddress,
                 CCCD: response.data.cccd || response.data.CCCD,
                 DriverLicense: response.data.driverLicense || response.data.DriverLicense,
-                WorkAreas : response.data.workAreas || response.data.WorkAreas,
+                WorkAreas: response.data.workAreas || response.data.WorkAreas,
             };
             setSelectedShipper(shipperData);
         } catch (err) {
             console.error("Lỗi khi lấy chi tiết shipper:", err);
-            alert("Có lỗi xảy ra khi lấy thông tin chi tiết, vui lòng thử lại.");
+            // Hiển thị thông báo lỗi
+            await Swal.fire({
+                title: "Lỗi!",
+                text: "Có lỗi xảy ra khi lấy thông tin chi tiết, vui lòng thử lại.",
+                icon: "error",
+                confirmButtonColor: "#ff4d4d",
+                confirmButtonText: "Đóng",
+            });
         }
     };
 
@@ -132,9 +193,15 @@ const ShipperRequests = () => {
         setSelectedShipper(null);
     };
 
+    // Đếm số shipper đang chờ duyệt
+    const pendingShipperCount = requests.length;
+
     return (
         <div className={styles.container}>
-            <h2 className={styles.title}>Danh sách Shipper Chờ Duyệt</h2>
+            <h2 className={styles.title}>
+                Danh sách Shipper Chờ Duyệt{" "}
+                <span className={styles.pendingCount}>{pendingShipperCount}</span>
+            </h2>
             {loading && <p className={styles.textCenter}>Đang tải...</p>}
             {error && <p className={styles.textCenter} style={{ color: "red" }}>{error}</p>}
             {!loading && requests.length === 0 ? (
@@ -227,6 +294,9 @@ const ShipperRequests = () => {
                         </li>
                         <li>
                             <strong>Địa Chỉ Hiện Tại:</strong> {selectedShipper.CurrentAddress}
+                        </li>
+                        <li>
+                            <strong>Cơ sở làm việc:</strong> {selectedShipper.WorkAreas}
                         </li>
                     </ul>
                 </div>

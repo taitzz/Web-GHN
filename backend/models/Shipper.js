@@ -220,7 +220,6 @@ class Shipper {
             const result = await pool
                 .request()
                 .input("id", sql.Int, id)
-                W
                 .query("SELECT * FROM Shipper WHERE ShipperID = @id");
             if (!result.recordset[0]) {
                 throw new Error("Shipper không tồn tại!");
