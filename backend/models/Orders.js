@@ -304,7 +304,7 @@ class Order {
                 .input("ShipperID", sql.Int, shipperId)
                 .input("Status", sql.NVarChar, "Pending")
                 .query(`
-                    INSERT INTO ShipperAssignment (OrderID, ShipperID, Status, AssignedDate)
+                    INSERT INTO ShipperAssignment (OrderID, ShipperID, Status , CreatedAt)
                     VALUES (@OrderID, @ShipperID, @Status, GETDATE())
                 `);
             console.log(`[Order.createShipperAssignment] Đã tạo bản ghi gán OrderID: ${orderId} cho ShipperID: ${shipperId}`);

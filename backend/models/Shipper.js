@@ -362,7 +362,7 @@ class Shipper {
                 .request()
                 .input('ShipperID', sql.Int, shipperId)
                 .query(`
-                    SELECT sa.AssignmentID, sa.OrderID, sa.Status, sa.AssignedDate,
+                    SELECT sa.AssignmentID, sa.OrderID, sa.Status, sa.CreatedAt,
                            o.SenderName, o.ReceiverName, o.TotalCost, o.Status AS OrderStatus
                     FROM ShipperAssignment sa
                     JOIN Orders o ON sa.OrderID = o.OrderID

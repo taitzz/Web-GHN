@@ -391,6 +391,45 @@ const StatusTabs = () => {
         }
     };
 
+    const fetchShipperDetails = async (shipperId) => {
+        try {
+            const token = localStorage.getItem("adminToken");
+            if (!token) throw new Error("Không tìm thấy token, vui lòng đăng nhập lại!");
+            const response = await axios.get(`http://localhost:5000/api/shipper/shipper-details/${shipperId}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            return response.data;
+        } catch (error) {
+            throw new Error(error.response?.data?.message || "Không thể tải chi tiết shipper!");
+        }
+    };
+    
+    const viewShipperDetails = async (shipperId) => {
+        try {
+            const shipperDetails = await fetchShipperDetails(shipperId);
+            Swal.fire({
+                title: `Chi tiết shipper #${shipperId}`,
+                html: `
+                    <p><strong>Họ và tên:</strong> ${shipperDetails.fullName || "N/A"}</p>
+                    <p><strong>Số điện thoại:</strong> ${shipperDetails.phoneNumber || "N/A"}</p>
+                    <p><strong>Email:</strong> ${shipperDetails.email || "N/A"}</p>
+                    <p><strong>Cơ sở làm việc:</strong> ${shipperDetails.workAreas || "N/A"}</p>                    
+                `,
+                icon: "info",
+                confirmButtonColor: "#ff6200",
+                confirmButtonText: "Đóng",
+            });
+        } catch (err) {
+            Swal.fire({
+                title: "Lỗi!",
+                text: err.message,
+                icon: "error",
+                confirmButtonColor: "#ff4d4d",
+                confirmButtonText: "Đóng",
+            });
+        }
+    };
+
     return (
         <div className={styles.container}>
             <div className={styles.tabs}>
@@ -512,14 +551,13 @@ const StatusTabs = () => {
                                     {order.Status === "Approved" && (
                                         <>
                                             {order.ShipperID ? (
-                                                <>
-                                                    <span>Shipper: {order.ShipperName || "N/A"} (ID: {order.ShipperID})</span>
+                                                <>                                                   
                                                     <button
-                                                        className={styles.actionButton}
-                                                        onClick={() => handleApproveToShipping(order)}
+                                                        className={styles.detailButton}
+                                                        onClick={() => viewShipperDetails(order.ShipperID)}
                                                     >
-                                                        Duyệt
-                                                    </button>
+                                                        Thông tin Shipper
+                                                    </button>                                                  
                                                 </>
                                             ) : (
                                                 <span className={styles.noShipper}>Không có shipper phù hợp</span>
