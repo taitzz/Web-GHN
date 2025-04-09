@@ -37,7 +37,8 @@ const CreateOrder = () => {
     paymentMethod: 'sender',
     totalCost: 0,
     distance: 0,
-    paymentStatus: 'Pending'
+    paymentStatus: 'Pending',
+    Notes: ''
   });
 
   const [errors, setErrors] = useState({
@@ -512,96 +513,103 @@ const fetchCoordinates = async (provinceCode, districtCode, wardCode, type) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Lỗi',
-        text: 'Vui lòng kiểm tra lại thông tin!',
-      });
-      return;
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi',
+            text: 'Vui lòng kiểm tra lại thông tin!',
+        });
+        return;
     }
-  
+
     const costs = calculateTotalCost();
     if (costs.weightExceeded) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Cảnh báo',
-        text: 'Tổng trọng lượng không được vượt quá 50kg! Vui lòng điều chỉnh.',
-      });
-      return;
+        Swal.fire({
+            icon: 'warning',
+            title: 'Cảnh báo',
+            text: 'Tổng trọng lượng không được vượt quá 50kg! Vui lòng điều chỉnh.',
+        });
+        return;
     }
-  
+
     setLoading(true);
     try {
-      const token = localStorage.getItem("authToken");
-      if (!token) {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Chưa đăng nhập',
-          text: 'Vui lòng đăng nhập để tạo đơn hàng!',
-        });
-        setLoading(false);
-        return;
-      }
-  
-      if (!formData.items || formData.items.length === 0) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Lỗi',
-          text: 'Vui lòng thêm ít nhất một mặt hàng!',
-        });
-        setLoading(false);
-        return;
-      }
-  
-      const orderPayload = {
-        SenderName: formData.senderName,
-        SenderPhone: formData.senderPhone,
-        SenderAddress: `${formData.senderAddress}, ${getSelectedName(formData.senderWard, wards.sender, 'senderWard')}, ${getSelectedName(formData.senderDistrict, districts.sender, 'senderDistrict')}, ${getSelectedName(formData.senderProvince, provinces, 'senderProvince')}`,
-        ReceiverName: formData.receiverName,
-        ReceiverPhone: formData.receiverPhone,
-        ReceiverAddress: `${formData.receiverAddress}, ${getSelectedName(formData.receiverWard, wards.receiver, 'receiverWard')}, ${getSelectedName(formData.receiverDistrict, districts.receiver, 'receiverDistrict')}, ${getSelectedName(formData.receiverProvince, provinces, 'receiverProvince')}`,
-        Weight: formData.items.reduce((sum, item) => sum + (parseFloat(item.weight) / 1000 || 0) * (parseInt(item.quantity) || 1), 0),
-        Volume: formData.items.reduce((sum, item) => sum + (parseFloat(item.length) * parseFloat(item.width) * parseFloat(item.height) || 0) * (parseInt(item.quantity) || 1), 0),
-        Distance: formData.distance,
-        DeliveryType: formData.deliveryType,
-        TotalCost: formData.totalCost,
-        ItemName: formData.items.map(item => item.itemName).join(', ') || "Hàng hóa mặc định",
-        PaymentBy: formData.paymentMethod === 'sender' ? 'Sender' : 'Receiver',
-        PaymentStatus: formData.paymentStatus
-      };
-  
-      console.log("Dữ liệu gửi lên server:", orderPayload);
-  
-      const response = await axios.post(
-        "http://localhost:5000/api/orders/create",
-        orderPayload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Chưa đăng nhập',
+                text: 'Vui lòng đăng nhập để tạo đơn hàng!',
+            });
+            setLoading(false);
+            return;
         }
-      );
-  
-      console.log("Kết quả từ server:", response.data);
-      Swal.fire({
-        icon: 'success',
-        title: 'Thành công',
-        text: `Đơn hàng ${response.data.orderId} đã được tạo thành công!`,
-      }).then(() => {
-        navigate("/notifications");
-      });
+
+        if (!formData.items || formData.items.length === 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Vui lòng thêm ít nhất một mặt hàng!',
+            });
+            setLoading(false);
+            return;
+        }
+
+        // Gộp tất cả notes từ items thành một chuỗi
+        const combinedNotes = formData.items
+            .map((item, index) => item.notes ? `SP ${index + 1}: ${item.notes}` : null)
+            .filter(note => note) // Loại bỏ các giá trị null/undefined
+            .join('; '); // Phân cách bằng dấu chấm phẩy
+
+        const orderPayload = {
+            SenderName: formData.senderName,
+            SenderPhone: formData.senderPhone,
+            SenderAddress: `${formData.senderAddress}, ${getSelectedName(formData.senderWard, wards.sender, 'senderWard')}, ${getSelectedName(formData.senderDistrict, districts.sender, 'senderDistrict')}, ${getSelectedName(formData.senderProvince, provinces, 'senderProvince')}`,
+            ReceiverName: formData.receiverName,
+            ReceiverPhone: formData.receiverPhone,
+            ReceiverAddress: `${formData.receiverAddress}, ${getSelectedName(formData.receiverWard, wards.receiver, 'receiverWard')}, ${getSelectedName(formData.receiverDistrict, districts.receiver, 'receiverDistrict')}, ${getSelectedName(formData.receiverProvince, provinces, 'receiverProvince')}`,
+            Weight: formData.items.reduce((sum, item) => sum + (parseFloat(item.weight) / 1000 || 0) * (parseInt(item.quantity) || 1), 0),
+            Volume: formData.items.reduce((sum, item) => sum + (parseFloat(item.length) * parseFloat(item.width) * parseFloat(item.height) || 0) * (parseInt(item.quantity) || 1), 0),
+            Distance: formData.distance,
+            DeliveryType: formData.deliveryType,
+            TotalCost: formData.totalCost,
+            ItemName: formData.items.map(item => item.itemName).join(', ') || "Hàng hóa mặc định",
+            PaymentBy: formData.paymentMethod === 'sender' ? 'Sender' : 'Receiver',
+            PaymentStatus: formData.paymentStatus,
+            Notes: combinedNotes || null // Gửi chuỗi notes gộp từ items
+        };
+
+        console.log("Dữ liệu gửi lên server:", orderPayload);
+
+        const response = await axios.post(
+            "http://localhost:5000/api/orders/create",
+            orderPayload,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+
+        console.log("Kết quả từ server:", response.data);
+        Swal.fire({
+            icon: 'success',
+            title: 'Thành công',
+            text: `Đơn hàng ${response.data.orderId} đã được tạo thành công!`,
+        }).then(() => {
+            navigate("/notifications");
+        });
     } catch (err) {
-      console.error("Lỗi khi tạo đơn hàng:", err.response?.data || err.message);
-      Swal.fire({
-        icon: 'error',
-        title: 'Lỗi',
-        text: err.response?.data?.message || "Lỗi khi tạo đơn hàng, vui lòng thử lại!",
-      });
+        console.error("Lỗi khi tạo đơn hàng:", err.response?.data || err.message);
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi',
+            text: err.response?.data?.message || "Lỗi khi tạo đơn hàng, vui lòng thử lại!",
+        });
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
 
   const handlePayment = () => {
     console.log('Current formData:', formData);

@@ -103,10 +103,6 @@ export default function ShipperLogin() {
                         </button>
                     </div>
 
-                    <div className={styles.forgotPassword}>
-                        <Link to="/forgot-password">Quên mật khẩu?</Link>
-                    </div>
-
                     <button className={styles.loginButton} onClick={handleLogin}>
                         Đăng nhập
                     </button>

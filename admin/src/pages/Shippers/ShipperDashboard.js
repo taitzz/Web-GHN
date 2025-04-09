@@ -11,7 +11,7 @@ const ShipperDashboard = () => {
     const [activeTab, setActiveTab] = useState("assignments");
     const [assignments, setAssignments] = useState([]);
     const [shippingOrders, setShippingOrders] = useState([]);
-    const [completedOrders, setCompletedOrders] = useState([]); // Thêm tab lịch sử đơn hàng
+    const [completedOrders, setCompletedOrders] = useState([]); 
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [loadingName, setLoadingName] = useState(true);
@@ -106,15 +106,16 @@ const ShipperDashboard = () => {
         }
     };
 
-    // Lấy danh sách đơn hàng đã hoàn thành (giả lập API, bạn cần thêm API tương ứng trong backend)
     const fetchCompletedOrders = async () => {
         try {
             setLoadingCompletedOrders(true);
             const token = localStorage.getItem("shipperToken");
+            console.log("[fetchCompletedOrders] Token:", token);
             if (!token) throw new Error("Không tìm thấy token!");
             const response = await axios.get("http://localhost:5000/api/shipper/completed-orders", {
                 headers: { Authorization: `Bearer ${token}` },
             });
+            console.log("[fetchCompletedOrders] Response:", response.data);
             setCompletedOrders(response.data);
         } catch (err) {
             console.error("[fetchCompletedOrders] Lỗi:", err);
@@ -216,6 +217,31 @@ const ShipperDashboard = () => {
                 handleAuthError();
             } else {
                 toast.error(err.response?.data?.message || "Xác nhận hoàn thành thất bại!");
+            }
+        }
+    };
+
+    // Xác nhận thanh toán từ người nhận
+    const confirmPayment = async (orderId) => {
+        try {
+            const token = localStorage.getItem("shipperToken");
+            const shipperId = localStorage.getItem("shipperId");
+            if (!token || !shipperId) throw new Error("Không tìm thấy token hoặc shipperId!");
+            await axios.post(
+                "http://localhost:5000/api/shipper/confirm-payment",
+                { orderId, shipperId },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            toast.success("Đã xác nhận thanh toán từ người nhận!");
+            fetchShippingOrders();
+            fetchCompletedOrders();
+            setShowDetailModal(false);
+        } catch (err) {
+            console.error("[confirmPayment] Lỗi:", err);
+            if (err.response?.status === 401 || err.response?.status === 403) {
+                handleAuthError();
+            } else {
+                toast.error(err.response?.data?.message || "Xác nhận thanh toán thất bại!");
             }
         }
     };
@@ -570,6 +596,7 @@ const ShipperDashboard = () => {
                                     <p><strong>Thể tích:</strong> {selectedOrder.Volume || "N/A"} m³</p>
                                     <p><strong>Khoảng cách:</strong> {selectedOrder.Distance || "N/A"} km</p>
                                     <p><strong>Loại giao hàng:</strong> {selectedOrder.DeliveryType}</p>
+                                    <p><strong>Ghi chú:</strong> {selectedOrder.Notes || "Không có"}</p>
                                 </div>
                                 <div className={styles.detailSection}>
                                     <h3>Thông tin thanh toán</h3>
@@ -581,37 +608,7 @@ const ShipperDashboard = () => {
                                     </p>
                                     <p><strong>Thanh toán bởi:</strong> {selectedOrder.PaymentBy || "N/A"}</p>
                                     <p><strong>Trạng thái thanh toán:</strong> {selectedOrder.PaymentStatus || "N/A"}</p>
-                                </div>
-                                <div className={styles.detailSection}>
-                                    <h3>Thông tin vận chuyển</h3>
-                                    <p>
-                                        <strong>Shipper:</strong>{" "}
-                                        {selectedOrder.ShipperFullName || "Chưa gán"} (ID: {selectedOrder.ShipperID || "N/A"})
-                                    </p>
-                                    <p><strong>Số điện thoại shipper:</strong> {selectedOrder.ShipperPhone || "N/A"}</p>
-                                    <p>
-                                        <strong>Trạng thái:</strong>{" "}
-                                        <span
-                                            className={`${styles.status} ${
-                                                selectedOrder.Status === "Pending"
-                                                    ? styles.statusPending
-                                                    : selectedOrder.Status === "Approved"
-                                                    ? styles.statusApproved
-                                                    : selectedOrder.Status === "Shipping"
-                                                    ? styles.statusShipping
-                                                    : selectedOrder.Status === "Completed"
-                                                    ? styles.statusCompleted
-                                                    : styles.statusRejected
-                                            }`}
-                                        >
-                                            {selectedOrder.Status}
-                                        </span>
-                                    </p>
-                                    <p><strong>Ngày tạo:</strong> {new Date(selectedOrder.CreatedDate).toLocaleString()}</p>
-                                    {selectedOrder.CancelReason && (
-                                        <p><strong>Lý do hủy:</strong> {selectedOrder.CancelReason}</p>
-                                    )}
-                                </div>
+                                </div>                               
                             </div>
                             <div className={styles.modalActions}>
                                 {selectedOrder.Status === "Approved" && (
@@ -626,15 +623,25 @@ const ShipperDashboard = () => {
                                     </button>
                                 )}
                                 {selectedOrder.Status === "Shipping" && (
-                                    <button
-                                        className={styles.completeButton}
-                                        onClick={() => {
-                                            setShowDetailModal(false);
-                                            completeOrder(selectedOrder.OrderID);
-                                        }}
-                                    >
-                                        <FaCheckCircle /> Hoàn thành
-                                    </button>
+                                    <>
+                                        {selectedOrder.PaymentBy === "Receiver" && selectedOrder.PaymentStatus === "Pending" && (
+                                            <button
+                                                className={styles.paymentButton}
+                                                onClick={() => confirmPayment(selectedOrder.OrderID)}
+                                            >
+                                                <FaCheckCircle /> Xác nhận thanh toán
+                                            </button>
+                                        )}
+                                        <button
+                                            className={styles.completeButton}
+                                            onClick={() => {
+                                                setShowDetailModal(false);
+                                                completeOrder(selectedOrder.OrderID);
+                                            }}
+                                        >
+                                            <FaCheckCircle /> Hoàn thành
+                                        </button>
+                                    </>
                                 )}
                                 <button
                                     className={styles.closeButton}

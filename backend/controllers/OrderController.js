@@ -79,11 +79,12 @@ class OrderController {
 
             const {
                 SenderName, SenderPhone, SenderAddress, ReceiverName, ReceiverPhone, ReceiverAddress,
-                Weight, Volume, Distance, DeliveryType, TotalCost, ItemName, PaymentBy, PaymentStatus
+                Weight, Volume, Distance, DeliveryType, TotalCost, ItemName, PaymentBy, PaymentStatus, Notes
             } = req.body;
 
             console.log("Dữ liệu nhận được từ frontend:", req.body); // Debug dữ liệu nhận được
 
+            // Kiểm tra các trường bắt buộc
             if (!SenderName || !SenderAddress || !ReceiverName || !ReceiverAddress || !Weight || !TotalCost) {
                 console.log("Các trường thiếu hoặc không hợp lệ:", {
                     SenderName, SenderAddress, ReceiverName, ReceiverAddress, Weight, TotalCost
@@ -92,8 +93,21 @@ class OrderController {
             }
 
             const orderData = {
-                SenderName, SenderPhone, SenderAddress, ReceiverName, ReceiverPhone, ReceiverAddress,
-                Weight, Volume, Distance, DeliveryType, TotalCost, ItemName, PaymentBy, PaymentStatus
+                SenderName,
+                SenderPhone,
+                SenderAddress,
+                ReceiverName,
+                ReceiverPhone,
+                ReceiverAddress,
+                Weight,
+                Volume,
+                Distance,
+                DeliveryType,
+                TotalCost,
+                ItemName,
+                PaymentBy,
+                PaymentStatus,
+                Notes
             };
 
             const newOrderId = await Order.createOrder(userId, orderData);

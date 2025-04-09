@@ -38,7 +38,7 @@ class Order {
                 .input("UserID", sql.Int, userId)
                 .query(`
                     SELECT OrderID, SenderName, SenderPhone, SenderAddress, ReceiverName, ReceiverPhone, ReceiverAddress,
-                           Weight, Volume, Distance, DeliveryType, ISNULL(TotalCost, 0) AS TotalCost, Status, CreatedDate, ItemName,
+                           Weight, Volume, Distance, DeliveryType, ISNULL(TotalCost, 0) AS TotalCost, Notes, Status, CreatedDate, ItemName,
                            PaymentBy, PaymentStatus, CancelReason, ShipperID
                     FROM Orders
                     WHERE OrderID = @OrderID AND UserID = @UserID
@@ -55,7 +55,7 @@ class Order {
     static async createOrder(userId, orderData) {
         const {
             SenderName, SenderPhone, SenderAddress, ReceiverName, ReceiverPhone, ReceiverAddress,
-            Weight, Volume, Distance, DeliveryType, TotalCost, ItemName, PaymentBy, PaymentStatus
+            Weight, Volume, Distance, DeliveryType, TotalCost, ItemName, PaymentBy, PaymentStatus, Notes
         } = orderData;
 
         try {
@@ -78,13 +78,14 @@ class Order {
                 .input("PaymentBy", sql.NVarChar, PaymentBy || "Sender")
                 .input("PaymentStatus", sql.NVarChar, PaymentStatus || "Pending")
                 .input("Status", sql.NVarChar, "Pending")
+                .input("Notes", sql.NVarChar, Notes || null)
                 .query(`
-                    INSERT INTO Orders (UserID, SenderName, SenderPhone, SenderAddress, ReceiverName, ReceiverPhone, ReceiverAddress,
-                                       Weight, Volume, Distance, DeliveryType, TotalCost, ItemName, PaymentBy, PaymentStatus, Status, CreatedDate)
-                    VALUES (@UserID, @SenderName, @SenderPhone, @SenderAddress, @ReceiverName, @ReceiverPhone, @ReceiverAddress,
-                            @Weight, @Volume, @Distance, @DeliveryType, @TotalCost, @ItemName, @PaymentBy, @PaymentStatus, @Status, GETDATE());
-                    SELECT SCOPE_IDENTITY() AS OrderID;
-                `);
+                INSERT INTO Orders (UserID, SenderName, SenderPhone, SenderAddress, ReceiverName, ReceiverPhone, ReceiverAddress,
+                                   Weight, Volume, Distance, DeliveryType, TotalCost, ItemName, PaymentBy, PaymentStatus, Status, CreatedDate, Notes)
+                VALUES (@UserID, @SenderName, @SenderPhone, @SenderAddress, @ReceiverName, @ReceiverPhone, @ReceiverAddress,
+                        @Weight, @Volume, @Distance, @DeliveryType, @TotalCost, @ItemName, @PaymentBy, @PaymentStatus, @Status, GETDATE(), @Notes);
+                SELECT SCOPE_IDENTITY() AS OrderID;
+            `);
             const orderId = result.recordset[0].OrderID;
             console.log(`[Order.createOrder] Đã tạo đơn hàng mới OrderID: ${orderId} cho UserID: ${userId}`);
             return orderId;
@@ -125,7 +126,7 @@ class Order {
                 .input("UserID", sql.Int, userId)
                 .query(`
                     UPDATE Orders
-                    SET Status = 'Cancelled', CancelReason = 'Huỷ bởi người dùng'
+                    SET Status = 'Cancelled', CancelReason = N'Huỷ bởi người dùng'
                     WHERE OrderID = @OrderID AND UserID = @UserID
                 `);
             console.log(`[Order.cancelOrder] Đã hủy đơn hàng OrderID: ${orderId} bởi UserID: ${userId}, Rows affected: ${result.rowsAffected}`);
@@ -143,7 +144,7 @@ class Order {
                 SELECT 
                     o.OrderID, o.UserID, o.SenderName, o.ReceiverName, o.SenderPhone, o.ReceiverPhone,
                     o.SenderAddress, o.ReceiverAddress, o.ItemName, o.Weight, o.Volume, o.Distance,
-                    o.DeliveryType, o.Status, o.CreatedDate, 
+                    o.DeliveryType, o.Status, o.CreatedDate, o.Notes, 
                     ISNULL(o.TotalCost, 0) AS TotalCost,
                     o.PaymentBy, o.PaymentStatus, o.ShipperID, o.CancelReason,
                     s.FullName AS ShipperName
@@ -178,7 +179,7 @@ class Order {
                     SELECT 
                         o.OrderID, o.UserID, o.SenderName, o.SenderPhone, o.SenderAddress,
                         o.ReceiverName, o.ReceiverPhone, o.ReceiverAddress, o.ItemName,
-                        o.Weight, o.Volume, o.Distance, o.DeliveryType, o.Status,
+                        o.Weight, o.Volume, o.Distance, o.DeliveryType, o.Status, o.Notes, 
                         o.CreatedDate, ISNULL(o.TotalCost, 0) AS TotalCost,
                         o.PaymentBy, o.PaymentStatus, o.ShipperID, o.CancelReason,
                         u.Username AS UserName,

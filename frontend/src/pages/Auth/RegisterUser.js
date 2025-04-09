@@ -67,7 +67,7 @@ export default function RegisterUser() {
       newErrors.address = "Vui lòng nhập địa chỉ";
     } else if (formData.address.length < 5) {
       newErrors.address = "Địa chỉ phải có ít nhất 5 ký tự";
-    } else if ((/[^a-zA-Z0-9\s,.-àáạảãăắằẳẵâấầẩẫđèéẹẻẽêếềểễêịỉĩịòóọỏõôốồổỗơớờởỡơùúụủũưứừửữưỳýỵỷỹ]/i).test(formData.address)) {
+    } else if (!(/[^a-zA-Z0-9\s,.-àáạảãăắằẳẵâấầẩẫđèéẹẻẽêếềểễêịỉĩịòóọỏõôốồổỗơớờởỡơùúụủũưứừửữưỳýỵỷỹ]/i).test(formData.address)) {
       newErrors.address = "Địa chỉ không hợp lệ. Vui lòng nhập địa chỉ hợp lệ";
     }
 

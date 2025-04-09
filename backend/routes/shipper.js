@@ -13,10 +13,12 @@ router.get("/profile", authenticateToken, isShipper, ShipperController.getProfil
 router.get("/name", authenticateToken, isShipper, ShipperController.getShipperName);
 router.get("/assignments", authenticateToken, isShipper, ShipperController.getAssignments);
 router.get("/shipping-orders", authenticateToken, isShipper, ShipperController.getShippingOrders);
+router.get("/completed-orders", authenticateToken, isShipper, ShipperController.getCompletedOrders);
 router.get("/orders/:orderId", authenticateToken, isShipper, ShipperController.getOrderDetails);
 router.post("/respond-assignment", authenticateToken, isShipper, ShipperController.respondToAssignment);
 router.post("/start-shipping", authenticateToken, isShipper, ShipperController.startShipping);
 router.post("/complete-order", authenticateToken, isShipper, ShipperController.completeOrder);
+router.post("/confirm-payment", authenticateToken, isShipper, ShipperController.confirmPayment);
 
 // === Admin Routes (Yêu cầu admin) ===
 router.get("/shipper-requests", authenticateToken, isAdmin, ShipperController.getPendingShippers);

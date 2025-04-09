@@ -3,6 +3,7 @@ import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import styles from "../../assets/styles/Notifications.module.css";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 const Notifications = () => {
     const [orders, setOrders] = useState([]);
@@ -57,6 +58,11 @@ const Notifications = () => {
         } catch (err) {
             console.error("Lỗi lấy chi tiết đơn hàng:", err);
             setSelectedOrder(null);
+            Swal.fire({
+                icon: "error",
+                title: "Lỗi",
+                text: "Không thể tải chi tiết đơn hàng!",
+            });
         }
     };
 
@@ -76,44 +82,74 @@ const Notifications = () => {
 
         if (orderId == null || isNaN(Number(orderId))) {
             console.error(`[cancelOrder] OrderID không hợp lệ: ${orderId}`);
-            alert("Mã đơn hàng không hợp lệ, không thể hủy!");
+            Swal.fire({
+                icon: "error",
+                title: "Lỗi",
+                text: "Mã đơn hàng không hợp lệ, không thể hủy!",
+            });
             return;
         }
 
         const orderExists = orders.some(order => order.OrderID === Number(orderId));
         if (!orderExists) {
             console.error(`[cancelOrder] Không tìm thấy đơn hàng với OrderID: ${orderId} trong danh sách orders`);
-            alert("Không tìm thấy đơn hàng này, không thể hủy!");
+            Swal.fire({
+                icon: "error",
+                title: "Lỗi",
+                text: "Không tìm thấy đơn hàng này, không thể hủy!",
+            });
             return;
         }
 
-        const confirmCancel = window.confirm("Bạn có chắc chắn muốn hủy đơn hàng này?");
-        if (!confirmCancel) return;
+        const confirmCancel = await Swal.fire({
+            title: "Xác nhận hủy đơn hàng",
+            text: "Bạn có chắc chắn muốn hủy đơn hàng này?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Có",
+            cancelButtonText: "Không",
+        });
+
+        if (!confirmCancel.isConfirmed) return;
 
         try {
             const token = localStorage.getItem("authToken");
             await axios.delete(`http://localhost:5000/api/orders/${orderId}`, {
                 headers: { Authorization: `Bearer ${token}` },
-                data: cancelData, // Gửi dữ liệu lý do hủy, số tài khoản, ngân hàng
+                data: cancelData,
             });
 
             const updatedOrders = await fetchOrders();
             setOrders(updatedOrders);
-            alert(cancelData.cancelReason ? "Yêu cầu hủy đơn hàng đã được gửi, vui lòng chờ admin phê duyệt!" : "Đơn hàng đã được hủy thành công!");
+            Swal.fire({
+                icon: "success",
+                title: "Thành công",
+                text: cancelData.cancelReason
+                    ? "Yêu cầu hủy đơn hàng đã được gửi, vui lòng chờ admin phê duyệt!"
+                    : "Đơn hàng đã được hủy thành công!",
+            });
             setShowCancelForm(false);
             setCancelReason("");
             setBankAccount("");
             setBankName("");
         } catch (err) {
             console.error("Lỗi hủy đơn hàng:", err);
-            alert(err.response?.data?.message || "Lỗi khi hủy đơn hàng, vui lòng thử lại!");
+            Swal.fire({
+                icon: "error",
+                title: "Lỗi",
+                text: err.response?.data?.message || "Lỗi khi hủy đơn hàng, vui lòng thử lại!",
+            });
         }
     };
 
-    const handleCancelFormSubmit = (e) => {
+    const handleCancelFormSubmit = async (e) => {
         e.preventDefault();
         if (!cancelReason || !bankAccount || !bankName) {
-            alert("Vui lòng điền đầy đủ thông tin!");
+            Swal.fire({
+                icon: "warning",
+                title: "Thiếu thông tin",
+                text: "Vui lòng điền đầy đủ thông tin!",
+            });
             return;
         }
         const cancelData = {
@@ -161,7 +197,7 @@ const Notifications = () => {
             }
         } else if (order.PaymentBy === "Receiver") {
             if (order.PaymentStatus === "Paid") {
-                return " - Người nhận thanh toán thành công";
+                return " - Người nhận đã thanh toán";
             } else if (order.PaymentStatus === "Pending") {
                 return " - Người nhận chưa thanh toán";
             }
@@ -208,7 +244,6 @@ const Notifications = () => {
                 </div>
 
                 <div className={styles.notificationList}>
-                    
                     {filteredOrders.length > 0 ? (
                         filteredOrders.map((order) => (
                             <div key={order.OrderID} className={styles.notificationCard}>
@@ -282,12 +317,24 @@ const Notifications = () => {
                                 </div>
                                 <div className={styles.formGroup}>
                                     <label>Ngân hàng:</label>
-                                    <input
-                                        type="text"
+                                    <select
                                         value={bankName}
                                         onChange={(e) => setBankName(e.target.value)}
                                         required
-                                    />
+                                        className={styles.select}
+                                    >
+                                        <option value="">Chọn ngân hàng</option>
+                                        <option value="Vietcombank">Vietcombank</option>
+                                        <option value="Techcombank">Techcombank</option>
+                                        <option value="MB Bank">MB Bank</option>
+                                        <option value="VPBank">VPBank</option>
+                                        <option value="Agribank">Agribank</option>
+                                        <option value="BIDV">BIDV</option>
+                                        <option value="Sacombank">Sacombank</option>
+                                        <option value="ACB">ACB</option>
+                                        <option value="TPBank">TPBank</option>
+                                        <option value="VietinBank">VietinBank</option>
+                                    </select>
                                 </div>
                                 <div className={styles.formActions}>
                                     <button type="submit" className={styles.submitButton}>
@@ -333,6 +380,7 @@ const Notifications = () => {
                                     <p><strong>Loại giao hàng:</strong> {selectedOrder.DeliveryType}</p>
                                     <p><strong>Tổng chi phí:</strong> {selectedOrder.TotalCost.toLocaleString()} VNĐ</p>
                                     <p><strong>Ngày tạo:</strong> {new Date(selectedOrder.CreatedDate).toLocaleString()}</p>
+                                    <p><strong>Ghi chú:</strong> {selectedOrder.Notes || "Không có"}</p>
                                 </div>
                             </div>
 

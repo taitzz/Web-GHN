@@ -477,6 +477,55 @@ class Shipper {
         }
     }
 
+    // Xác nhận thanh toán từ người nhận
+    static async confirmPayment(orderId, shipperId) {
+        try {
+            const pool = await poolPromise;
+            // Kiểm tra trạng thái đơn hàng
+            const orderResult = await pool
+                .request()
+                .input('OrderID', sql.Int, orderId)
+                .input('ShipperID', sql.Int, shipperId)
+                .query(`
+                SELECT Status, PaymentBy, PaymentStatus
+                FROM Orders
+                WHERE OrderID = @OrderID AND ShipperID = @ShipperID
+            `);
+            if (!orderResult.recordset[0]) {
+                throw new Error("Không tìm thấy đơn hàng hoặc shipper không được gán cho đơn hàng này!");
+            }
+            const { Status, PaymentBy, PaymentStatus } = orderResult.recordset[0];
+            if (Status !== "Shipping") {
+                throw new Error("Đơn hàng không ở trạng thái Shipping để xác nhận thanh toán!");
+            }
+            if (PaymentBy !== "Receiver") {
+                throw new Error("Đơn hàng không yêu cầu thanh toán từ người nhận!");
+            }
+            if (PaymentStatus !== "Pending") {
+                throw new Error("Trạng thái thanh toán không phải là Pending!");
+            }
+
+            // Cập nhật trạng thái thanh toán
+            const updateResult = await pool
+                .request()
+                .input('OrderID', sql.Int, orderId)
+                .input('ShipperID', sql.Int, shipperId)
+                .query(`
+                UPDATE Orders
+                SET PaymentStatus = 'Paid'
+                WHERE OrderID = @OrderID AND ShipperID = @ShipperID
+            `);
+            if (updateResult.rowsAffected[0] === 0) {
+                throw new Error("Không thể cập nhật trạng thái thanh toán!");
+            }
+
+            console.log(`[Shipper.confirmPayment] ShipperID: ${shipperId} đã xác nhận thanh toán cho OrderID: ${orderId}`);
+        } catch (error) {
+            console.error("❌ Lỗi khi xác nhận thanh toán:", error);
+            throw error;
+        }
+    }
+
     // Xác nhận hoàn thành đơn hàng
     static async completeOrder(orderId, shipperId) {
         try {
@@ -532,6 +581,26 @@ class Shipper {
             console.log(`[Shipper.completeOrder] ShipperID: ${shipperId} đã hoàn thành OrderID: ${orderId}`);
         } catch (error) {
             console.error("❌ Lỗi khi xác nhận hoàn thành đơn hàng:", error);
+            throw error;
+        }
+    }
+
+    // Lấy danh sách đơn hoàn thành
+    static async getCompletedOrders(shipperId) {
+        try {
+            const pool = await poolPromise;
+            const result = await pool
+                .request()
+                .input('ShipperID', sql.Int, shipperId)
+                .query(`
+                    SELECT o.OrderID, o.SenderName, o.ReceiverName, o.TotalCost, o.CreatedDate, o.Status
+                    FROM Orders o
+                    WHERE o.ShipperID = @ShipperID AND o.Status = 'Completed'
+                `);
+            console.log(`[Shipper.getCompletedOrders] Lấy danh sách đơn hàng hoàn thành cho ShipperID: ${shipperId}, Số lượng: ${result.recordset.length}`);
+            return result.recordset;
+        } catch (error) {
+            console.error("❌ Lỗi khi lấy danh sách đơn hàng hoàn thành:", error);
             throw error;
         }
     }

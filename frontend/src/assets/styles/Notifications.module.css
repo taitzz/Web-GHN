@@ -313,22 +313,13 @@
     background-color: #e65c00;
 }
 
-/* Style cho nút "Thay đổi địa chỉ" */
-.editAddressButton {
-    background-color: #A9A9A9; /* Màu cam đặc trưng */
-    color: black;
-    padding: 6px 12px;
-    border: none;
+.select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
     border-radius: 4px;
-    cursor: pointer;
     font-size: 14px;
-    margin-left: 10px; /* Khoảng cách với nút khác */
-    transition: background-color 0.3s ease;
-  }
-  
-  .editAddressButton:hover {
-    background-color: #696969; /* Màu cam đậm hơn khi hover */
-  }
+}
 
 @keyframes slideIn {
     from {

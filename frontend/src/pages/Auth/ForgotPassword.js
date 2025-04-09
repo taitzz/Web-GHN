@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import styles from "../../assets/styles/ForgotPassword.module.css"; // Cập nhật import
+import styles from "../../assets/styles/ForgotPassword.module.css"; 
 import bg from "../../assets/images/shipper_icon.jpg";
 import { FaArrowLeft } from 'react-icons/fa';
 import Swal from "sweetalert2"; // Import SweetAlert2
@@ -205,7 +205,7 @@ export default function ForgotPassword() {
                     )}
                     {error && <p className={styles.errorText}>{error}</p>}
 
-                    <div className={styles.backToLogin} onClick={() => navigate("/")}>
+                    <div className={styles.backToLogin} onClick={() => navigate("/login")}>
                         <FaArrowLeft className={styles.backIcon} />
                         <span>Quay lại trang </span>
                         <span className={styles.loginText}>Đăng nhập</span>

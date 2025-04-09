@@ -30,9 +30,7 @@ const Dashboard = () => {
             <div className="app__container">
                 
                 <div className="main">
-                    
-                    
-
+                                        
                     {/* Điều hướng nội dung chính */}
                     <Routes>
                         <Route path="/" element={<Orders status="pending" />} /> {/* Route mặc định */}

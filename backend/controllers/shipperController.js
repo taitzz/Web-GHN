@@ -3,7 +3,7 @@ const Shipper = require("../models/Shipper");
 const Order = require("../models/Orders");
 
 class ShipperController {
-    // Kiểm tra email trùng lặp (phương thức mới)
+    // Kiểm tra email trùng lặp
     static async checkEmail(req, res) {
         try {
             const { email } = req.body;
@@ -25,7 +25,6 @@ class ShipperController {
     static async register(req, res) {
         const { fullName, birthDate, permanentAddress, currentAddress, phoneNumber, email, cccd, driverLicense, workAreas } = req.body;
 
-        // Kiểm tra dữ liệu đầu vào
         if (!fullName || !birthDate || !permanentAddress || !currentAddress || !phoneNumber || !email || !cccd || !driverLicense) {
             return res.status(400).json({ message: "Vui lòng điền đầy đủ thông tin" });
         }
@@ -39,7 +38,6 @@ class ShipperController {
         }
 
         try {
-            // Kiểm tra email đã tồn tại
             const existingShipper = await Shipper.getShipperByEmail(email);
             if (existingShipper) {
                 return res.status(400).json({ message: "Email đã được sử dụng!" });
@@ -175,13 +173,11 @@ class ShipperController {
                 return res.status(400).json({ message: "Mã đơn hàng không hợp lệ!" });
             }
 
-            // Lấy chi tiết đơn hàng
             const order = await Order.getOrderByIdForAdmin(orderId);
             if (!order) {
                 return res.status(404).json({ message: "Không tìm thấy đơn hàng!" });
             }
 
-            // Kiểm tra xem shipper có được gán cho đơn hàng này không
             if (order.ShipperID !== shipperId) {
                 return res.status(403).json({ message: "Bạn không có quyền xem đơn hàng này!" });
             }
@@ -255,6 +251,7 @@ class ShipperController {
                 status: shipper.Status,
                 employeeId: shipper.EmployeeID,
                 workAreas: shipper.WorkAreas,
+                isVailable: shipper.availableShippers,
             });
         } catch (err) {
             console.error("[ShipperController.getShipperById] Lỗi:", { message: err.message, stack: err.stack });
@@ -340,7 +337,7 @@ class ShipperController {
     // Lấy danh sách đơn hàng được gán
     static async getAssignments(req, res) {
         try {
-            const shipperId = req.user.shipperId; // Lấy shipperId từ token
+            const shipperId = req.user.shipperId;
             const assignments = await Shipper.getAssignments(shipperId);
             console.log(`[ShipperController.getAssignments] Đã lấy danh sách đơn hàng được gán cho ShipperID: ${shipperId}`);
             res.status(200).json(assignments);
@@ -374,7 +371,6 @@ class ShipperController {
                 return res.status(400).json({ message: "Phản hồi không hợp lệ!" });
             }
 
-            // Kiểm tra shipperId từ token
             if (req.user.shipperId !== parseInt(shipperId)) {
                 return res.status(403).json({ message: "Bạn không có quyền thực hiện hành động này!" });
             }
@@ -396,7 +392,6 @@ class ShipperController {
                 return res.status(400).json({ message: "Vui lòng cung cấp đầy đủ thông tin!" });
             }
 
-            // Kiểm tra shipperId từ token
             if (req.user.shipperId !== parseInt(shipperId)) {
                 return res.status(403).json({ message: "Bạn không có quyền thực hiện hành động này!" });
             }
@@ -418,7 +413,6 @@ class ShipperController {
                 return res.status(400).json({ message: "Vui lòng cung cấp đầy đủ thông tin!" });
             }
 
-            // Kiểm tra shipperId từ token
             if (req.user.shipperId !== parseInt(shipperId)) {
                 return res.status(403).json({ message: "Bạn không có quyền thực hiện hành động này!" });
             }
@@ -429,6 +423,44 @@ class ShipperController {
         } catch (err) {
             console.error("[ShipperController.completeOrder] Lỗi:", { message: err.message, stack: err.stack });
             res.status(500).json({ message: err.message || "Lỗi server khi xác nhận hoàn thành đơn hàng!" });
+        }
+    }
+
+    // Xác nhận thanh toán từ người nhận
+    static async confirmPayment(req, res) {
+        try {
+            const { orderId, shipperId } = req.body;
+            if (!orderId || !shipperId) {
+                return res.status(400).json({ message: "Vui lòng cung cấp đầy đủ thông tin!" });
+            }
+
+            if (req.user.shipperId !== parseInt(shipperId)) {
+                return res.status(403).json({ message: "Bạn không có quyền thực hiện hành động này!" });
+            }
+
+            await Shipper.confirmPayment(orderId, shipperId);
+            console.log(`[ShipperController.confirmPayment] ShipperID: ${shipperId} đã xác nhận thanh toán cho OrderID: ${orderId}`);
+            res.status(200).json({ message: "Xác nhận thanh toán thành công!" });
+        } catch (err) {
+            console.error("[ShipperController.confirmPayment] Lỗi:", { message: err.message, stack: err.stack });
+            res.status(500).json({ message: err.message || "Lỗi server khi xác nhận thanh toán!" });
+        }
+    }
+
+    // Danh sách các đơn đã hoàn thành
+    static async getCompletedOrders(req, res) {
+        try {
+            const shipperId = req.user.shipperId;
+            if (!shipperId) {
+                return res.status(400).json({ message: "Thiếu shipperId trong token!" });
+            }
+    
+            const completedOrders = await Shipper.getCompletedOrders(shipperId);
+            console.log(`[ShipperController.getCompletedOrders] Đã lấy danh sách đơn hàng hoàn thành cho ShipperID: ${shipperId}`);
+            res.status(200).json(completedOrders);
+        } catch (err) {
+            console.error("[ShipperController.getCompletedOrders] Lỗi:", err);
+            res.status(500).json({ message: err.message || "Lỗi server khi lấy danh sách đơn hàng hoàn thành!" });
         }
     }
 }

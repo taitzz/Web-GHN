@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import styles from "../styles/StatusTabs.module.css";
-import Swal from "sweetalert2"; // Import SweetAlert2
+import Swal from "sweetalert2";
 
 const StatusTabs = () => {
     const navigate = useNavigate();
@@ -156,7 +156,6 @@ const StatusTabs = () => {
 
             await fetchAvailableShippersCount();
         } catch (err) {
-            // Hiển thị thông báo lỗi bằng SweetAlert2
             await Swal.fire({
                 title: "Lỗi!",
                 text: err.message || "Không thể tải dữ liệu!",
@@ -179,7 +178,6 @@ const StatusTabs = () => {
             setSelectedOrder(orderDetails);
             setShowDetailModal(true);
         } catch (err) {
-            // Hiển thị thông báo lỗi bằng SweetAlert2
             await Swal.fire({
                 title: "Lỗi!",
                 text: err.message || "Không thể tải chi tiết đơn hàng!",
@@ -207,13 +205,10 @@ const StatusTabs = () => {
             const response = await axios.patch(
                 `http://localhost:5000/api/admin/orders/${selectedOrder.OrderID}/approve`,
                 {},
-                {
-                    headers: { Authorization: `Bearer ${token}` },
-                }
+                { headers: { Authorization: `Bearer ${token}` } }
             );
             setShowApproveModal(false);
             refreshData();
-            // Hiển thị thông báo thành công bằng SweetAlert2
             await Swal.fire({
                 title: "Thành công!",
                 text: response.data.shipperAssigned
@@ -228,7 +223,6 @@ const StatusTabs = () => {
                 localStorage.removeItem("adminToken");
                 navigate("/login");
             }
-            // Hiển thị thông báo lỗi bằng SweetAlert2
             await Swal.fire({
                 title: "Lỗi!",
                 text: err.response?.data?.message || "Duyệt đơn hàng thất bại!",
@@ -244,7 +238,6 @@ const StatusTabs = () => {
         try {
             setShowApproveModal(false);
             refreshData();
-            // Hiển thị thông báo thành công bằng SweetAlert2
             await Swal.fire({
                 title: "Thành công!",
                 text: "Đã xác nhận gán shipper cho đơn hàng!",
@@ -253,7 +246,6 @@ const StatusTabs = () => {
                 confirmButtonText: "OK",
             });
         } catch (err) {
-            // Hiển thị thông báo lỗi bằng SweetAlert2
             await Swal.fire({
                 title: "Lỗi!",
                 text: "Lỗi khi xác nhận gán shipper!",
@@ -277,13 +269,10 @@ const StatusTabs = () => {
             await axios.patch(
                 `http://localhost:5000/api/admin/orders/${selectedOrder.OrderID}/reject`,
                 { reason: rejectReason },
-                {
-                    headers: { Authorization: `Bearer ${token}` },
-                }
+                { headers: { Authorization: `Bearer ${token}` } }
             );
             setShowRejectModal(false);
             refreshData();
-            // Hiển thị thông báo thành công bằng SweetAlert2
             await Swal.fire({
                 title: "Thành công!",
                 text: "Đơn hàng đã bị từ chối!",
@@ -296,7 +285,6 @@ const StatusTabs = () => {
                 localStorage.removeItem("adminToken");
                 navigate("/");
             }
-            // Hiển thị thông báo lỗi bằng SweetAlert2
             await Swal.fire({
                 title: "Lỗi!",
                 text: err.response?.data?.message || "Từ chối đơn hàng thất bại!",
@@ -319,16 +307,13 @@ const StatusTabs = () => {
             await axios.post(
                 `http://localhost:5000/api/admin/orders/cancel-requests/${selectedRequest.RequestID}/approve`,
                 { orderId: selectedRequest.OrderID },
-                {
-                    headers: { Authorization: `Bearer ${token}` },
-                }
+                { headers: { Authorization: `Bearer ${token}` } }
             );
             setShowApproveCancelModal(false);
             refreshData();
-            // Hiển thị thông báo thành công bằng SweetAlert2
             await Swal.fire({
                 title: "Thành công!",
-                text: "Yêu cầu hủy đã được phê duyệt!",
+                text: "Hoàn tiền thành công! Người dùng đã được thông báo.",
                 icon: "success",
                 confirmButtonColor: "#ff6200",
                 confirmButtonText: "OK",
@@ -338,10 +323,9 @@ const StatusTabs = () => {
                 localStorage.removeItem("adminToken");
                 navigate("/");
             }
-            // Hiển thị thông báo lỗi bằng SweetAlert2
             await Swal.fire({
                 title: "Lỗi!",
-                text: err.response?.data?.message || "Phê duyệt yêu cầu hủy thất bại!",
+                text: err.response?.data?.message || "Hoàn tiền thất bại!",
                 icon: "error",
                 confirmButtonColor: "#ff4d4d",
                 confirmButtonText: "Đóng",
@@ -361,16 +345,13 @@ const StatusTabs = () => {
             await axios.post(
                 `http://localhost:5000/api/admin/orders/cancel-requests/${selectedRequest.RequestID}/reject`,
                 {},
-                {
-                    headers: { Authorization: `Bearer ${token}` },
-                }
+                { headers: { Authorization: `Bearer ${token}` } }
             );
             setShowRejectCancelModal(false);
             refreshData();
-            // Hiển thị thông báo thành công bằng SweetAlert2
             await Swal.fire({
                 title: "Thành công!",
-                text: "Yêu cầu hủy đã bị từ chối!",
+                text: "Yêu cầu hủy đã bị từ chối! Đơn hàng tiếp tục quy trình.",
                 icon: "success",
                 confirmButtonColor: "#ff6200",
                 confirmButtonText: "OK",
@@ -380,7 +361,6 @@ const StatusTabs = () => {
                 localStorage.removeItem("adminToken");
                 navigate("/");
             }
-            // Hiển thị thông báo lỗi bằng SweetAlert2
             await Swal.fire({
                 title: "Lỗi!",
                 text: err.response?.data?.message || "Từ chối yêu cầu hủy thất bại!",
@@ -403,7 +383,7 @@ const StatusTabs = () => {
             throw new Error(error.response?.data?.message || "Không thể tải chi tiết shipper!");
         }
     };
-    
+
     const viewShipperDetails = async (shipperId) => {
         try {
             const shipperDetails = await fetchShipperDetails(shipperId);
@@ -450,12 +430,14 @@ const StatusTabs = () => {
                     <table className={styles.orderTable}>
                         <thead>
                             <tr>
-                                <th>Mã Yêu Cầu</th>
+                                <th>Mã</th>
                                 <th>Mã Đơn</th>
                                 <th>Người Gửi</th>
                                 <th>Người Nhận</th>
                                 <th>Chi Phí</th>
                                 <th>Lý Do Hủy</th>
+                                <th>Số Tài Khoản</th>
+                                <th>Ngân Hàng</th>
                                 <th>Ngày Yêu Cầu</th>
                                 <th>Hành Động</th>
                             </tr>
@@ -472,8 +454,10 @@ const StatusTabs = () => {
                                             ? `${request.TotalCost.toLocaleString()} VNĐ`
                                             : "N/A"}
                                     </td>
-                                    <td>{request.Reason}</td>
-                                    <td>{new Date(request.RequestDate).toLocaleDateString()}</td>
+                                    <td>{request.CancelReason}</td>
+                                    <td>{request.BankAccount || "N/A"}</td>
+                                    <td>{request.BankName || "N/A"}</td>
+                                    <td>{new Date(request.CreatedDate).toLocaleDateString()}</td>
                                     <td>
                                         <button
                                             className={styles.detailButton}
@@ -485,7 +469,7 @@ const StatusTabs = () => {
                                             className={styles.actionButton}
                                             onClick={() => handleApproveCancelClick(request)}
                                         >
-                                            Phê duyệt
+                                            Hoàn tiền
                                         </button>
                                         <button
                                             className={styles.actionButton}
@@ -551,14 +535,12 @@ const StatusTabs = () => {
                                     {order.Status === "Approved" && (
                                         <>
                                             {order.ShipperID ? (
-                                                <>                                                   
-                                                    <button
-                                                        className={styles.detailButton}
-                                                        onClick={() => viewShipperDetails(order.ShipperID)}
-                                                    >
-                                                        Thông tin Shipper
-                                                    </button>                                                  
-                                                </>
+                                                <button
+                                                    className={styles.detailButton}
+                                                    onClick={() => viewShipperDetails(order.ShipperID)}
+                                                >
+                                                    Thông tin Shipper
+                                                </button>
                                             ) : (
                                                 <span className={styles.noShipper}>Không có shipper phù hợp</span>
                                             )}
@@ -601,6 +583,7 @@ const StatusTabs = () => {
                                     ? `${selectedOrder.TotalCost.toLocaleString()} VNĐ`
                                     : "N/A"}
                             </p>
+                            <p><strong>Ghi chú:</strong> {selectedOrder.Notes}</p>
                             <p><strong>Thanh toán bởi:</strong> {selectedOrder.PaymentBy || "N/A"}</p>
                             <p><strong>Trạng thái thanh toán:</strong> {selectedOrder.PaymentStatus || "N/A"}</p>
                             <p><strong>Shipper:</strong> {selectedOrder.ShipperName || "Chưa gán"} (ID: {selectedOrder.ShipperID || "N/A"})</p>
@@ -692,18 +675,21 @@ const StatusTabs = () => {
                 </div>
             )}
 
-            {/* Modal xác nhận phê duyệt yêu cầu hủy */}
+            {/* Modal xác nhận hoàn tiền yêu cầu hủy */}
             {showApproveCancelModal && selectedRequest && (
                 <div className={styles.modalOverlay}>
                     <div className={styles.modal}>
-                        <h2>Xác nhận phê duyệt yêu cầu hủy #{selectedRequest.RequestID}</h2>
-                        <p>Bạn có muốn phê duyệt yêu cầu hủy đơn hàng #{selectedRequest.OrderID} không?</p>
+                        <h2>Xác nhận hoàn tiền yêu cầu hủy #{selectedRequest.RequestID}</h2>
+                        <p>Bạn có muốn hoàn tiền cho đơn hàng #{selectedRequest.OrderID} không?</p>
+                        <p><strong>Lý do hủy:</strong> {selectedRequest.CancelReason}</p>
+                        <p><strong>Số tài khoản:</strong> {selectedRequest.BankAccount || "N/A"}</p>
+                        <p><strong>Ngân hàng:</strong> {selectedRequest.BankName || "N/A"}</p>
                         <div className={styles.modalActions}>
                             <button
                                 className={styles.confirmButton}
                                 onClick={approveCancelRequest}
                             >
-                                Xác nhận
+                                Hoàn tiền thành công
                             </button>
                             <button
                                 className={styles.cancelButton}
