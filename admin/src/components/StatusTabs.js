@@ -4,6 +4,25 @@ import axios from "axios";
 import styles from "../styles/StatusTabs.module.css";
 import Swal from "sweetalert2";
 
+// Hàm định dạng ngày (trích xuất thủ công từ chuỗi ISO)
+const formatDate = (dateString) => {
+    if (!dateString || typeof dateString !== "string") return "Ngày không hợp lệ";
+    const datePart = dateString.split("T")[0];
+    const [year, month, day] = datePart.split("-");
+    return `${day.padStart(2, "0")}/${month.padStart(2, "0")}/${year}`;
+};
+
+// Hàm định dạng ngày và giờ (trích xuất thủ công từ chuỗi ISO)
+const formatDateTime = (dateString) => {
+    if (!dateString || typeof dateString !== "string") return "Thời gian không hợp lệ";
+    const [datePart, timePart] = dateString.split("T");
+    const [year, month, day] = datePart.split("-");
+    const time = timePart.split(":");
+    const hours = time[0].padStart(2, "0");
+    const minutes = time[1].padStart(2, "0");
+    return `${day.padStart(2, "0")}/${month.padStart(2, "0")}/${year} ${hours}:${minutes}`;
+};
+
 const StatusTabs = () => {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("pending");
@@ -193,11 +212,6 @@ const StatusTabs = () => {
         setShowApproveModal(true);
     };
 
-    const handleApproveToShipping = (order) => {
-        setSelectedOrder(order);
-        setShowApproveModal(true);
-    };
-
     const approveOrder = async () => {
         if (!selectedOrder) return;
         try {
@@ -226,29 +240,6 @@ const StatusTabs = () => {
             await Swal.fire({
                 title: "Lỗi!",
                 text: err.response?.data?.message || "Duyệt đơn hàng thất bại!",
-                icon: "error",
-                confirmButtonColor: "#ff4d4d",
-                confirmButtonText: "Đóng",
-            });
-        }
-    };
-
-    const confirmShipperAssignment = async () => {
-        if (!selectedOrder) return;
-        try {
-            setShowApproveModal(false);
-            refreshData();
-            await Swal.fire({
-                title: "Thành công!",
-                text: "Đã xác nhận gán shipper cho đơn hàng!",
-                icon: "success",
-                confirmButtonColor: "#ff6200",
-                confirmButtonText: "OK",
-            });
-        } catch (err) {
-            await Swal.fire({
-                title: "Lỗi!",
-                text: "Lỗi khi xác nhận gán shipper!",
                 icon: "error",
                 confirmButtonColor: "#ff4d4d",
                 confirmButtonText: "Đóng",
@@ -288,6 +279,44 @@ const StatusTabs = () => {
             await Swal.fire({
                 title: "Lỗi!",
                 text: err.response?.data?.message || "Từ chối đơn hàng thất bại!",
+                icon: "error",
+                confirmButtonColor: "#ff4d4d",
+                confirmButtonText: "Đóng",
+            });
+        }
+    };
+
+    const handleAssignShipperClick = (order) => {
+        setSelectedOrder(order);
+        assignShipper(order.OrderID);
+    };
+
+    const assignShipper = async (orderId) => {
+        try {
+            const token = localStorage.getItem("adminToken");
+            const response = await axios.patch(
+                `http://localhost:5000/api/admin/orders/assign-shippers`,
+                {},
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            refreshData();
+            await Swal.fire({
+                title: "Thành công!",
+                text: response.data.assignedCount > 0
+                    ? `Đã gán shipper cho ${response.data.assignedCount} đơn hàng!`
+                    : "Không có shipper phù hợp để gán!",
+                icon: "success",
+                confirmButtonColor: "#ff6200",
+                confirmButtonText: "OK",
+            });
+        } catch (err) {
+            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                localStorage.removeItem("adminToken");
+                navigate("/");
+            }
+            await Swal.fire({
+                title: "Lỗi!",
+                text: err.response?.data?.message || "Gán shipper thất bại!",
                 icon: "error",
                 confirmButtonColor: "#ff4d4d",
                 confirmButtonText: "Đóng",
@@ -342,7 +371,7 @@ const StatusTabs = () => {
         if (!selectedRequest) return;
         try {
             const token = localStorage.getItem("adminToken");
-            await axios.post(
+            const response = await axios.post(
                 `http://localhost:5000/api/admin/orders/cancel-requests/${selectedRequest.RequestID}/reject`,
                 {},
                 { headers: { Authorization: `Bearer ${token}` } }
@@ -351,7 +380,7 @@ const StatusTabs = () => {
             refreshData();
             await Swal.fire({
                 title: "Thành công!",
-                text: "Yêu cầu hủy đã bị từ chối! Đơn hàng tiếp tục quy trình.",
+                text: response.data.message || "Yêu cầu hủy đã bị từ chối! Đơn hàng tiếp tục quy trình.",
                 icon: "success",
                 confirmButtonColor: "#ff6200",
                 confirmButtonText: "OK",
@@ -436,8 +465,6 @@ const StatusTabs = () => {
                                 <th>Người Nhận</th>
                                 <th>Chi Phí</th>
                                 <th>Lý Do Hủy</th>
-                                <th>Số Tài Khoản</th>
-                                <th>Ngân Hàng</th>
                                 <th>Ngày Yêu Cầu</th>
                                 <th>Hành Động</th>
                             </tr>
@@ -455,9 +482,7 @@ const StatusTabs = () => {
                                             : "N/A"}
                                     </td>
                                     <td>{request.CancelReason}</td>
-                                    <td>{request.BankAccount || "N/A"}</td>
-                                    <td>{request.BankName || "N/A"}</td>
-                                    <td>{new Date(request.CreatedDate).toLocaleDateString()}</td>
+                                    <td>{formatDate(request.CreatedDate)}</td>
                                     <td>
                                         <button
                                             className={styles.detailButton}
@@ -508,7 +533,7 @@ const StatusTabs = () => {
                                         ? `${order.TotalCost.toLocaleString()} VNĐ`
                                         : "N/A"}
                                 </td>
-                                <td>{new Date(order.CreatedDate).toLocaleDateString()}</td>
+                                <td>{formatDate(order.CreatedDate)}</td>
                                 <td>
                                     <button
                                         className={styles.detailButton}
@@ -524,12 +549,14 @@ const StatusTabs = () => {
                                             >
                                                 Phê duyệt
                                             </button>
-                                            <button
-                                                className={styles.actionButton}
-                                                onClick={() => handleRejectClick(order)}
-                                            >
-                                                Từ chối
-                                            </button>
+                                            {order.PaymentBy === "Receiver" && (
+                                                <button
+                                                    className={styles.actionButton}
+                                                    onClick={() => handleRejectClick(order)}
+                                                >
+                                                    Từ chối
+                                                </button>
+                                            )}
                                         </>
                                     )}
                                     {order.Status === "Approved" && (
@@ -542,9 +569,25 @@ const StatusTabs = () => {
                                                     Thông tin Shipper
                                                 </button>
                                             ) : (
-                                                <span className={styles.noShipper}>Không có shipper phù hợp</span>
+                                                <>
+                                                    <span className={styles.noShipper}>Không có shipper phù hợp</span>
+                                                    <button
+                                                        className={styles.actionButton}
+                                                        onClick={() => handleAssignShipperClick(order)}
+                                                    >
+                                                        Gán Shipper
+                                                    </button>
+                                                </>
                                             )}
                                         </>
+                                    )}
+                                    {order.Status === "Shipping" && (
+                                        <button
+                                            className={styles.detailButton}
+                                            onClick={() => viewShipperDetails(order.ShipperID)}
+                                        >
+                                            Thông tin Shipper
+                                        </button>
                                     )}
                                     {order.Status === "Cancelled" && (
                                         <span>Lý do hủy: {order.CancelReason || "Chưa có lý do"}</span>
@@ -588,7 +631,7 @@ const StatusTabs = () => {
                             <p><strong>Trạng thái thanh toán:</strong> {selectedOrder.PaymentStatus || "N/A"}</p>
                             <p><strong>Shipper:</strong> {selectedOrder.ShipperName || "Chưa gán"} (ID: {selectedOrder.ShipperID || "N/A"})</p>
                             <p><strong>Trạng thái:</strong> {selectedOrder.Status}</p>
-                            <p><strong>Ngày tạo:</strong> {new Date(selectedOrder.CreatedDate).toLocaleString()}</p>
+                            <p><strong>Ngày tạo:</strong> {formatDateTime(selectedOrder.CreatedDate)}</p>
                             {selectedOrder.CancelReason && (
                                 <p><strong>Lý do hủy:</strong> {selectedOrder.CancelReason}</p>
                             )}
@@ -617,15 +660,11 @@ const StatusTabs = () => {
                 <div className={styles.modalOverlay}>
                     <div className={styles.modal}>
                         <h2>Xác nhận phê duyệt đơn hàng #{selectedOrder.OrderID}</h2>
-                        <p>
-                            {selectedOrder.Status === "Pending"
-                                ? "Bạn có muốn duyệt đơn hàng này không? Hệ thống sẽ tự động gán shipper."
-                                : "Bạn có muốn xác nhận gán shipper cho đơn hàng này không?"}
-                        </p>
+                        <p>Bạn có muốn duyệt đơn hàng này không? Hệ thống sẽ tự động gán shipper nếu có.</p>
                         <div className={styles.modalActions}>
                             <button
                                 className={styles.confirmButton}
-                                onClick={selectedOrder.Status === "Pending" ? approveOrder : confirmShipperAssignment}
+                                onClick={approveOrder}
                             >
                                 Xác nhận
                             </button>

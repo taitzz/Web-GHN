@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import Sidebar from "../../components/Sidebar"; 
-import TopBar from "../../components/TopBar";   
+import Sidebar from "../../components/Sidebar";
 import ShipperRequests from "../Shippers/ShipperRequests"; 
 import DetailsShipper from "../Shippers/DetailsShipper";  
 import styles from "../../styles/StaffManagement.module.css";
@@ -12,7 +11,6 @@ const StaffManagement = ({ setIsAuthenticated }) => {
         <div className={styles.container}>
             <Sidebar setIsAuthenticated={setIsAuthenticated} />
             <div className={styles.mainContent}>
-                <TopBar />
                 <div className={styles.statusTab}>
                     <div className={styles.tabBar}>
                         <button

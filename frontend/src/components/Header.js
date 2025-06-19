@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "../assets/styles/Header.css";
-import { FaSearch, FaSignOutAlt, FaShoppingCart, FaBell } from "react-icons/fa";
+import { FaSignOutAlt, FaShoppingCart, FaBell } from "react-icons/fa";
 import logo from "../assets/images/ghn.png";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -12,14 +12,40 @@ const Header = () => {
     const [activeTab, setActiveTab] = useState("home");
     const [notificationCount, setNotificationCount] = useState(0);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [userName, setUserName] = useState("");
 
-    // Kiểm tra trạng thái đăng nhập
+    // Kiểm tra trạng thái đăng nhập và lấy tên người dùng từ API
     useEffect(() => {
         const token = localStorage.getItem("authToken");
         setIsLoggedIn(!!token);
+
+        if (token) {
+            fetchUserProfile(token);
+        } else {
+            setUserName(""); // Reset khi không đăng nhập
+        }
     }, []);
 
-    // Lấy số lượng thông báo (chỉ khi đã đăng nhập)
+    // Hàm lấy tên người dùng từ API
+    const fetchUserProfile = async (token) => {
+        try {
+            const response = await axios.get("http://localhost:5000/api/users/profile", {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setUserName(response.data.fullName || "Người dùng");
+        } catch (err) {
+            console.error("Lỗi lấy tên người dùng:", err);
+            setUserName("Người dùng"); // Mặc định nếu lỗi
+            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                localStorage.removeItem("authToken");
+                setIsLoggedIn(false);
+                navigate("/login");
+                Swal.fire("Phiên đăng nhập hết hạn", "Vui lòng đăng nhập lại!", "warning");
+            }
+        }
+    };
+
+    // Lấy số lượng thông báo
     useEffect(() => {
         const fetchNotificationCount = async () => {
             const token = localStorage.getItem("authToken");
@@ -64,9 +90,9 @@ const Header = () => {
         }).then((result) => {
             if (result.isConfirmed) {
                 localStorage.removeItem("authToken");
-                localStorage.removeItem("fullName");
                 setIsLoggedIn(false);
-                navigate("/login"); // Về trang chủ sau khi đăng xuất
+                setUserName("");
+                navigate("/login");
                 Swal.fire("Đã đăng xuất", "Bạn đã đăng xuất thành công", "success");
             }
         });
@@ -116,7 +142,7 @@ const Header = () => {
                 </Link>
             </nav>
 
-            {/* Bên phải: Tạo đơn hàng - Thông báo - Tìm kiếm - Đăng nhập/Đăng ký hoặc Đăng xuất */}
+            {/* Bên phải: Tạo đơn hàng - Thông báo - Lời chào hoặc Đăng nhập/Đăng ký */}
             <div className="header-right">
                 {/* Nút tạo đơn hàng */}
                 <Link
@@ -144,21 +170,14 @@ const Header = () => {
                     </div>
                 )}
 
-                {/* Thanh tìm kiếm */}
-                <div className="header__search-container">
-                    <input
-                        type="text"
-                        className="header__search"
-                        placeholder="Nhập mã đơn hàng bạn cần tra cứu..."
-                    />
-                    <FaSearch className="search-icon" />
-                </div>
-
-                {/* Đăng nhập/Đăng ký hoặc Đăng xuất */}
+                {/* Lời chào người dùng hoặc Đăng nhập/Đăng ký */}
                 {isLoggedIn ? (
-                    <button className="header__logout" onClick={handleLogout}>
-                        <FaSignOutAlt className="icon" /> Đăng xuất
-                    </button>
+                    <>
+                        <span className="header__greeting">Xin chào, {userName}</span>
+                        <button className="header__logout" onClick={handleLogout}>
+                            <FaSignOutAlt className="icon" /> Đăng xuất
+                        </button>
+                    </>
                 ) : (
                     <Link to="/login" className="header__auth-link">
                         Đăng nhập / Đăng ký

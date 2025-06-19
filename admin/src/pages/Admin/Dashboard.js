@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, Routes, Route } from "react-router-dom";
-import Sidebar from "../../components/Sidebar";
-import TopBar from "../../components/TopBar";
-import StatusTabs from "../../components/StatusTabs";
 import Orders from "./Orders"; 
 import ShipperRequests from "../Shippers/ShipperRequests";
 import DetailsShipper from "../Shippers/DetailsShipper";

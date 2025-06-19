@@ -111,7 +111,7 @@ class UserController {
             res.status(500).json({ message: "Không thể lấy danh sách người dùng!" });
         }
 }
-    // Lấy thông tin người dùng
+    // Lấy tên người dùng
     static async getProfile(req, res) {
         try {
             const userId = req.user?.UserID;
@@ -124,10 +124,10 @@ class UserController {
                 return res.status(404).json({ message: "Không tìm thấy người dùng!" });
             }
 
-            console.log(`Đã lấy thông tin người dùng UserID: ${userId}`);
-            res.status(200).json(user);
+            console.log(`Đã lấy tên người dùng UserID: ${userId}`);
+            res.status(200).json({ fullName: user.FullName }); // Chỉ trả về FullName
         } catch (err) {
-            console.error("❌ Lỗi lấy thông tin người dùng:", { message: err.message, stack: err.stack });
+            console.error("❌ Lỗi lấy tên người dùng:", { message: err.message, stack: err.stack });
             res.status(500).json({ message: "Lỗi server!" });
         }
     }
@@ -135,31 +135,30 @@ class UserController {
     // Xóa người dùng
     static async deleteUser(req, res) {
         const { id } = req.params;
-
+    
         if (isNaN(parseInt(id))) {
             return res.status(400).json({ message: "ID người dùng không hợp lệ!" });
         }
-
+    
         try {
-            const userId = req.user?.UserID;
-            if (!userId) {
-                return res.status(401).json({ message: "❌ Không tìm thấy UserID trong token!" });
+            // Kiểm tra xem người dùng có đơn hàng chưa hoàn thành không
+            const hasIncompleteOrders = await User.hasIncompleteOrders(id);
+            if (hasIncompleteOrders) {
+                return res.status(403).json({
+                    message: "Không thể xóa người dùng vì họ có đơn hàng chưa hoàn thành!",
+                });
             }
-
-            if (parseInt(id) !== userId) {
-                return res.status(403).json({ message: "Bạn chỉ có thể xóa tài khoản của chính mình!" });
-            }
-
+    
             const rowsAffected = await User.deleteUser(id);
             if (rowsAffected === 0) {
                 return res.status(404).json({ message: "Không tìm thấy người dùng!" });
             }
-
+    
             console.log(`Đã xóa người dùng UserID: ${id}`);
             res.status(200).json({ message: "Người dùng đã bị xóa." });
         } catch (err) {
             console.error("❌ Lỗi khi xóa người dùng:", { message: err.message, stack: err.stack });
-            res.status(500).json({ message: "Lỗi server!" });
+            res.status(500).json({ message: "Lỗi server khi xóa người dùng!" });
         }
     }
 

@@ -69,6 +69,126 @@ class ShipperController {
         }
     }
 
+    // Thêm shipper cho admin
+    static async createAndApproveShipper(req, res) {
+        try {
+            const {
+                fullName,
+                birthDate,
+                permanentAddress,
+                currentAddress,
+                phoneNumber,
+                email,
+                cccd,
+                driverLicense,
+                workAreas,
+            } = req.body;
+
+            // Kiểm tra dữ liệu đầu vào
+            if (!fullName || !birthDate || !permanentAddress || !currentAddress || !phoneNumber || !email || !cccd || !driverLicense) {
+                return res.status(400).json({ message: "Vui lòng điền đầy đủ thông tin!" });
+            }
+
+            if (isNaN(Date.parse(birthDate))) {
+                return res.status(400).json({ message: "Ngày sinh không hợp lệ!" });
+            }
+
+            if (!workAreas) {
+                return res.status(400).json({ message: "Vui lòng cung cấp cơ sở làm việc!" });
+            }
+
+            // Gọi phương thức insertAndApproveShipper
+            const shipperId = await Shipper.insertAndApproveShipper(
+                fullName,
+                new Date(birthDate),
+                permanentAddress,
+                currentAddress,
+                phoneNumber,
+                email,
+                cccd,
+                driverLicense,
+                workAreas
+            );
+
+            console.log(`[ShipperController.createAndApproveShipper] Đã tạo và duyệt shipper: ${email}, ShipperID: ${shipperId}`);
+            res.status(201).json({
+                message: "Shipper đã được thêm, duyệt và email thông báo đã được gửi!",
+                shipperId,
+            });
+        } catch (err) {
+            console.error("[ShipperController.createAndApproveShipper] Lỗi:", { message: err.message, stack: err.stack });
+            if (err.message.includes("CCCD")) {
+                return res.status(400).json({ message: err.message });
+            }
+            if (err.message.includes("DriverLicense")) {
+                return res.status(400).json({ message: err.message });
+            }
+            if (err.message.includes("Email")) {
+                return res.status(400).json({ message: err.message });
+            }
+            res.status(500).json({ message: err.message || "Lỗi server khi thêm và duyệt shipper!" });
+        }
+    }
+
+    //Cập nhật shipper cho admin
+    static async updateShipper(req, res) {
+        try {
+            const shipperId = parseInt(req.params.id, 10);
+            if (isNaN(shipperId)) {
+                return res.status(400).json({ message: "ShipperID không hợp lệ!" });
+            }
+    
+            const {
+                fullName,
+                birthDate,
+                permanentAddress,
+                currentAddress,
+                phoneNumber,
+                email,
+                cccd,
+                driverLicense,
+                workAreas,
+            } = req.body;
+    
+            console.log("Dữ liệu nhận được:", req.body); // Log để kiểm tra
+    
+            if (!fullName || !birthDate || !permanentAddress || !currentAddress || !phoneNumber || !email || !cccd || !driverLicense || !workAreas) {
+                return res.status(400).json({ message: "Vui lòng điền đầy đủ thông tin!" });
+            }
+    
+            await Shipper.updateShipper(
+                shipperId,
+                fullName,
+                new Date(birthDate),
+                permanentAddress,
+                currentAddress,
+                phoneNumber,
+                email,
+                cccd,
+                driverLicense,
+                workAreas
+            );
+    
+            console.log(`[ShipperController.updateShipper] Đã cập nhật ShipperID: ${shipperId}`);
+            res.status(200).json({ message: "Thông tin shipper đã được cập nhật!" });
+        } catch (err) {
+            console.error("[ShipperController.updateShipper] Lỗi:", err);
+            if (err.message.includes("CCCD đã tồn tại")) {
+                return res.status(400).json({ message: "CCCD đã tồn tại!" });
+            }
+            if (err.message.includes("Số giấy phép lái xe đã tồn tại")) {
+                return res.status(400).json({ message: "Số giấy phép lái xe đã tồn tại!" });
+            }
+            if (err.message.includes("Email không hợp lệ")) {
+                return res.status(400).json({ message: "Email không hợp lệ!" });
+            }
+            if (err.message.includes("Shipper không tồn tại")) {
+                return res.status(404).json({ message: "Shipper không tồn tại!" });
+            }
+            res.status(500).json({ message: err.message || "Lỗi server khi cập nhật shipper!" });
+        }
+    }
+
     // Đăng nhập shipper
     static async login(req, res) {
         try {
@@ -93,7 +213,8 @@ class ShipperController {
 
             const token = jwt.sign(
                 { shipperId: shipper.ShipperID, role: "shipper" },
-                process.env.JWT_SECRET || "your_jwt_secret"
+                process.env.JWT_SECRET || "your_jwt_secret",
+                { expiresIn: "1h" }
             );
 
             res.status(200).json({
@@ -461,6 +582,30 @@ class ShipperController {
         } catch (err) {
             console.error("[ShipperController.getCompletedOrders] Lỗi:", err);
             res.status(500).json({ message: err.message || "Lỗi server khi lấy danh sách đơn hàng hoàn thành!" });
+        }
+    }
+
+    // Lấy chi tiết shipper theo ShipperID
+    static async getShipperDetails(req, res) {
+        try {
+            const shipperId = parseInt(req.params.shipperId, 10);
+            if (isNaN(shipperId)) {
+                return res.status(400).json({ message: "ShipperID không hợp lệ!" });
+            }
+
+            const shipper = await Shipper.getShipperDetails(shipperId);
+            if (!shipper) {
+                return res.status(404).json({ message: "Không tìm thấy shipper!" });
+            }
+
+            console.log(`[GET /shipper/shipper-details/${shipperId}] Tìm thấy shipper:`, shipper);
+            res.status(200).json(shipper);
+        } catch (err) {
+            console.error(`[GET /shipper/shipper-details/${req.params.shipperId}] Lỗi:`, {
+                message: err.message,
+                stack: err.stack,
+            });
+            res.status(500).json({ message: "Lỗi server khi lấy thông tin shipper!" });
         }
     }
 }

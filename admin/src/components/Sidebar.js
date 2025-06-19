@@ -89,15 +89,7 @@ const Sidebar = ({ setIsAuthenticated }) => {
                 </div>
             </div>
             <nav className="sidebar__nav">
-                {/* Trang Tổng Quan */}
-                <div
-                    onClick={() => handleNavigate("/admin/dashboard")}
-                    className={`sidebar__nav-item ${activeItem === "dashboard" ? "active" : ""}`}
-                >
-                    <FontAwesomeIcon icon={faTachometerAlt} className="sidebar__icon" />
-                    Trang Tổng Quan
-                </div>
-
+ 
                 {/* Quản Lý Đơn Hàng */}
                 <div
                     onClick={() => handleNavigate("/admin/orders")}

@@ -114,13 +114,33 @@ class User {
                 .request()
                 .input("userId", sql.Int, userId)
                 .query(`
-                    SELECT FullName, Email, Phone, Address, Username, BirthDate
+                    SELECT FullName
                     FROM Users
                     WHERE UserID = @userId
                 `);
-            return result.recordset[0];
+            return result.recordset[0]; 
         } catch (error) {
-            console.error("❌ Lỗi khi lấy thông tin người dùng theo ID:", error);
+            console.error("❌ Lỗi khi lấy tên người dùng theo ID:", error);
+            throw error;
+        }
+    }
+
+    // Kiểm tra xem người dùng có đơn hàng chưa hoàn thành không
+    static async hasIncompleteOrders(userId) {
+        try {
+            const pool = await poolPromise;
+            const result = await pool
+                .request()
+                .input("UserID", sql.Int, userId)
+                .query(`
+                    SELECT COUNT(*) AS incompleteOrders
+                    FROM Orders
+                    WHERE UserID = @UserID
+                    AND Status NOT IN ('Completed', 'Cancelled')  -- Coi Cancelled là hoàn thành
+                `);
+            return result.recordset[0].incompleteOrders > 0;
+        } catch (error) {
+            console.error("❌ Lỗi khi kiểm tra đơn hàng chưa hoàn thành:", error);
             throw error;
         }
     }

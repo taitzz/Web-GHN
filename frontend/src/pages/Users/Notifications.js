@@ -5,6 +5,15 @@ import styles from "../../assets/styles/Notifications.module.css";
 import axios from "axios";
 import Swal from "sweetalert2";
 
+// Hàm định dạng ngày giờ từ chuỗi ISO
+const formatDateTime = (dateString) => {
+    if (!dateString || typeof dateString !== "string") return "Thời gian không hợp lệ";
+    const [datePart, timePart] = dateString.split("T");
+    const [year, month, day] = datePart.split("-");
+    const [hours, minutes] = timePart.split(":");
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+};
+
 const Notifications = () => {
     const [orders, setOrders] = useState([]);
     const [selectedOrder, setSelectedOrder] = useState(null);
@@ -26,12 +35,12 @@ const Notifications = () => {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const data = Array.isArray(response.data) ? response.data : [];
-            console.log("Dữ liệu từ API:", data);
+            console.log("Dữ liệu từ API /api/orders:", data);
 
             const validOrders = data.filter(
                 (order) => order.OrderID != null && typeof order.OrderID === "number" && !isNaN(order.OrderID)
             );
-            const uniqueOrders = Array.from(new Map(validOrders.map(order => [order.OrderID, order])).values());
+            const uniqueOrders = Array.from(new Map(validOrders.map((order) => [order.OrderID, order])).values());
             console.log("Dữ liệu sau khi lọc:", uniqueOrders);
             return uniqueOrders;
         } catch (err) {
@@ -68,7 +77,7 @@ const Notifications = () => {
 
     const handleCancelRequest = (orderId) => {
         setCancelOrderId(orderId);
-        const order = orders.find(o => o.OrderID === orderId);
+        const order = orders.find((o) => o.OrderID === orderId);
         if (order && order.PaymentStatus === "Paid") {
             setShowCancelForm(true);
         } else {
@@ -90,7 +99,7 @@ const Notifications = () => {
             return;
         }
 
-        const orderExists = orders.some(order => order.OrderID === Number(orderId));
+        const orderExists = orders.some((order) => order.OrderID === Number(orderId));
         if (!orderExists) {
             console.error(`[cancelOrder] Không tìm thấy đơn hàng với OrderID: ${orderId} trong danh sách orders`);
             Swal.fire({
@@ -167,6 +176,43 @@ const Notifications = () => {
         setBankName("");
     };
 
+    const fetchShipperDetails = async (shipperId) => {
+        try {
+            const token = localStorage.getItem("authToken");
+            const response = await axios.get(`http://localhost:5000/api/shipper/shipper-details/${shipperId}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            console.log(`Thông tin shipper từ API (ShipperID: ${shipperId}):`, response.data);
+            return response.data;
+        } catch (err) {
+            console.error("Lỗi lấy thông tin shipper:", err);
+            throw new Error(err.response?.data?.message || "Không thể tải thông tin shipper!");
+        }
+    };
+
+    const handleShowShipperInfo = async (shipperId) => {
+        try {
+            const shipper = await fetchShipperDetails(shipperId);
+            Swal.fire({
+                title: "Thông tin người giao hàng",
+                html: `
+                    <p><strong>Tên:</strong> ${shipper.fullName || "Không có"}</p>
+                    <p><strong>Số điện thoại:</strong> ${shipper.phoneNumber || "Không có"}</p>
+                `,
+                icon: "info",
+                confirmButtonText: "Đóng",
+                confirmButtonColor: "#ff6200",
+            });
+        } catch (err) {
+            Swal.fire({
+                icon: "error",
+                title: "Lỗi",
+                text: err.message,
+                confirmButtonColor: "#ff4d4d",
+            });
+        }
+    };
+
     const filteredOrders =
         activeTab === "all"
             ? orders.filter((order) => order.Status !== "Cancelled")
@@ -184,7 +230,16 @@ const Notifications = () => {
     const cancelledCount = orders.filter((o) => o.Status === "Cancelled").length;
 
     const getPaymentInfo = (order) => {
-        console.log(`OrderID: ${order.OrderID}, PaymentBy: ${order.PaymentBy}, PaymentStatus: ${order.PaymentStatus}`);
+        console.log(`OrderID: ${order.OrderID}, PaymentBy: ${order.PaymentBy}, PaymentStatus: ${order.PaymentStatus}, Status: ${order.Status}`);
+
+        if (order.Status === "Cancelled") {
+            return " - Người gửi hủy";
+        }
+
+        if (order.CancelReason && order.Status !== "Cancelled") {
+            return " - Người gửi yêu cầu hủy";
+        }
+
         if (!order.PaymentBy || !order.PaymentStatus) {
             return " - Chưa xác định";
         }
@@ -245,44 +300,57 @@ const Notifications = () => {
 
                 <div className={styles.notificationList}>
                     {filteredOrders.length > 0 ? (
-                        filteredOrders.map((order) => (
-                            <div key={order.OrderID} className={styles.notificationCard}>
-                                <div className={styles.cardHeader}>
-                                    <span className={styles.orderId}>Mã đơn: {order.OrderID}</span>
-                                    <span className={styles.date}>{order.CreatedDate}</span>
-                                </div>
-                                <div className={styles.cardBody}>
-                                    <p className={styles.message}>
-                                        Đơn hàng {
-                                            order.Status === "Pending" ? "đang chờ xử lý" :
-                                                order.Status === "Approved" ? "đã được phê duyệt" :
-                                                    order.Status === "Shipping" ? "đang vận chuyển" :
-                                                        order.Status === "Cancelled" ? "đã bị hủy" :
-                                                            "đã hoàn thành"
-                                        }.
-                                    </p>
-                                    <p className={styles.details}>
-                                        Từ: {order.SenderName} - Đến: {order.ReceiverName}
-                                    </p>
-                                    <div className={styles.actionArea}>
-                                        <button className={styles.detailsButton} onClick={() => openDetails(order)}>
-                                            Xem chi tiết
-                                        </button>
-                                        {order.Status === "Pending" && (
-                                            <button
-                                                className={styles.cancelButton}
-                                                onClick={() => handleCancelRequest(order.OrderID)}
-                                            >
-                                                Hủy đơn hàng
+                        filteredOrders.map((order) => {
+                            console.log(`OrderID: ${order.OrderID}, Status: ${order.Status}, ShipperID: ${order.ShipperID}`);
+                            return (
+                                <div key={order.OrderID} className={styles.notificationCard}>
+                                    <div className={styles.cardHeader}>
+                                        <span className={styles.orderId}>Mã đơn: {order.OrderID}</span>
+                                        <span className={styles.date}>{formatDateTime(order.CreatedDate)}</span>
+                                    </div>
+                                    <div className={styles.cardBody}>
+                                        <p className={styles.message}>
+                                            Đơn hàng{" "}
+                                            {order.Status === "Pending"
+                                                ? "đang chờ xử lý"
+                                                : order.Status === "Approved"
+                                                ? "đã được phê duyệt"
+                                                : order.Status === "Shipping"
+                                                ? "đang vận chuyển"
+                                                : order.Status === "Cancelled"
+                                                ? "đã bị hủy"
+                                                : "đã hoàn thành"}
+                                            .
+                                        </p>
+                                        <p className={styles.details}>
+                                            Từ: {order.SenderName} - Đến: {order.ReceiverName}
+                                        </p>
+                                        <div className={styles.actionArea}>
+                                            <button className={styles.detailsButton} onClick={() => openDetails(order)}>
+                                                Xem chi tiết
                                             </button>
-                                        )}
-                                        <span className={styles.paymentInfo}>
-                                            {getPaymentInfo(order)}
-                                        </span>
+                                            {order.Status === "Pending" && (
+                                                <button
+                                                    className={styles.cancelButton}
+                                                    onClick={() => handleCancelRequest(order.OrderID)}
+                                                >
+                                                    Hủy đơn hàng
+                                                </button>
+                                            )}
+                                            {order.Status === "Shipping" && order.ShipperID && (
+                                                <button
+                                                    className={styles.detailsButton}
+                                                    onClick={() => handleShowShipperInfo(order.ShipperID)}
+                                                >
+                                                    Thông tin người giao hàng
+                                                </button>
+                                            )}
+                                            <span className={styles.paymentInfo}>{getPaymentInfo(order)}</span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))
+                            );
+                        })
                     ) : (
                         <p className={styles.emptyMessage}>Không có thông báo nào trong mục này.</p>
                     )}
@@ -379,7 +447,7 @@ const Notifications = () => {
                                     <p><strong>Khoảng cách:</strong> {selectedOrder.Distance} km</p>
                                     <p><strong>Loại giao hàng:</strong> {selectedOrder.DeliveryType}</p>
                                     <p><strong>Tổng chi phí:</strong> {selectedOrder.TotalCost.toLocaleString()} VNĐ</p>
-                                    <p><strong>Ngày tạo:</strong> {new Date(selectedOrder.CreatedDate).toLocaleString()}</p>
+                                    <p><strong>Ngày tạo:</strong> {formatDateTime(selectedOrder.CreatedDate)}</p>
                                     <p><strong>Ghi chú:</strong> {selectedOrder.Notes || "Không có"}</p>
                                 </div>
                             </div>

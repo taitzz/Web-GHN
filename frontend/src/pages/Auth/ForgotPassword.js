@@ -75,7 +75,7 @@ export default function ForgotPassword() {
                 setSuccessMessage("Mật khẩu đã được thay đổi thành công!");
                 setError("");
                 setTimeout(() => {
-                    navigate("/");
+                    navigate("/login");
                 }, 3000);
                 Swal.fire({
                     title: 'Thành công!',

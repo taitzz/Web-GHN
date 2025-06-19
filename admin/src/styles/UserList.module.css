@@ -1,5 +1,6 @@
 /* Container chính cho danh sách người dùng */
 .container {
+    height: 100%;
     padding: 20px;
     background-color: #f5f5f5;
     min-height: calc(100vh - 60px); /* Trừ chiều cao của TopBar */

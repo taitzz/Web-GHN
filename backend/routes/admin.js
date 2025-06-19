@@ -75,12 +75,21 @@ router.patch("/orders/:orderId/reject", authenticateToken, isAdmin, async (req, 
     AdminController.rejectOrder(req, res, next);
 });
 
-// Gán shipper
+// Gán shipper cho một đơn hàng cụ thể
 router.patch("/orders/:orderId/assign-shipper", authenticateToken, isAdmin, async (req, res, next) => {
     if (!(await checkDatabaseConnection())) {
         return res.status(503).json({ message: "❌ Lỗi kết nối database!" });
     }
     AdminController.assignShipper(req, res, next);
+});
+
+// Gán shipper cho tất cả đơn hàng Approved chưa có shipper
+router.patch("/orders/assign-shippers", authenticateToken, isAdmin, async (req, res, next) => {
+    if (!(await checkDatabaseConnection())) {
+        return res.status(503).json({ message: "❌ Lỗi kết nối database!" });
+    }
+    console.log(`[PATCH /admin/orders/assign-shippers] Yêu cầu từ AdminID: ${req.user.AdminID}`);
+    AdminController.assignShipperToApprovedOrders(req, res, next);
 });
 
 // Lấy số lượng shipper khả dụng

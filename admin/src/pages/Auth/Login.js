@@ -57,7 +57,7 @@ export default function Login() {
                         confirmButtonColor: "#ff6200",
                         confirmButtonText: "OK",
                     });
-                    navigate('/dashboard', { replace: true });
+                    navigate('/admin/orders', { replace: true });
                 } else {
                     // Sử dụng SweetAlert2 để hiển thị lỗi
                     await Swal.fire({

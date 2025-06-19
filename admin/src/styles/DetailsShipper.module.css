@@ -1,13 +1,10 @@
-/* Container chính */
 .container {
     padding: 20px;
-    background-color: #f5f5f5;
-    height: 100%; /* Đảm bảo container chiếm toàn bộ chiều cao của parent */
-    display: flex;
-    flex-direction: column;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-/* Ô tìm kiếm */
 .searchContainer {
     margin-bottom: 20px;
 }
@@ -15,217 +12,178 @@
 .searchContainer input {
     width: 100%;
     padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
     font-size: 14px;
-    box-sizing: border-box;
-    transition: border-color 0.3s ease;
 }
 
-.searchContainer input:focus {
-    outline: none;
-    border-color: #ff6200;
-    box-shadow: 0 0 5px rgba(255, 98, 0, 0.3);
-}
-
-/* Container cho bảng */
 .tableContainer {
-    max-height: 60vh; /* Giới hạn chiều cao tối đa của bảng */
-    overflow-y: auto; /* Thanh cuộn dọc */
-    overflow-x: auto; /* Thanh cuộn ngang nếu cần */
-    position: relative;
-    -webkit-overflow-scrolling: touch; /* Hỗ trợ cuộn mượt trên thiết bị di động */
+    width: 100%;
+    max-height: 60vh;
+    overflow-x: auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
-/* Tùy chỉnh thanh cuộn */
-.tableContainer::-webkit-scrollbar {
-    width: 8px; /* Chiều rộng của thanh cuộn dọc */
-    height: 8px; /* Chiều cao của thanh cuộn ngang */
-}
-
-.tableContainer::-webkit-scrollbar-track {
-    background: #f1f1f1; /* Màu nền của thanh cuộn */
-    border-radius: 4px;
-}
-
-.tableContainer::-webkit-scrollbar-thumb {
-    background: #888; /* Màu của thanh cuộn */
-    border-radius: 4px;
-}
-
-.tableContainer::-webkit-scrollbar-thumb:hover {
-    background: #555; /* Màu khi hover */
-}
-
-/* Bảng nhân viên */
 .shipperTable {
     width: 100%;
-    min-width: 1100px; /* Tăng min-width để chứa các cột mà không xuống dòng */
+    min-width: 800px;
     border-collapse: collapse;
-    background: white;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
-    table-layout: fixed;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .shipperTable th,
 .shipperTable td {
     padding: 12px 15px;
-    font-size: 14px;
-    border-bottom: 1px solid #ddd;
     text-align: left;
-    white-space: nowrap; /* Ngăn xuống dòng */
-    overflow: hidden; /* Ẩn nội dung thừa */
-    text-overflow: ellipsis; /* Hiển thị "..." nếu nội dung quá dài */
+    border-bottom: 1px solid #ddd;
+    white-space: nowrap;
 }
 
-/* Cố định chiều rộng cột */
-.shipperTable th:nth-child(1),
-.shipperTable td:nth-child(1) {
-    width: 46px; /* STT */
-}
-
-.shipperTable th:nth-child(2),
-.shipperTable td:nth-child(2) {
-    width: 130px; /* Họ Tên */
-}
-
-.shipperTable th:nth-child(3),
-.shipperTable td:nth-child(3) {
-    width: 110px; /* Số ĐT */
-}
-
-.shipperTable th:nth-child(4),
-.shipperTable td:nth-child(4) {
-    width: 160px; /* Email */
-}
-
-.shipperTable th:nth-child(5),
-.shipperTable td:nth-child(5) {
-    width: 120px; /* Cơ Sở */
-}
-
-.shipperTable th:nth-child(6),
-.shipperTable td:nth-child(6) {
-    width: 100px; /* Trạng Thái */
-}
-
-.shipperTable th:nth-child(7),
-.shipperTable td:nth-child(7) {
-    width: 175px; /* Hành Động */
-}
-
-/* Tiêu đề cố định */
 .shipperTable th {
-    background-color: #ff6200;
-    color: white;
-    font-weight: 600;
-    text-transform: uppercase;
+    background: #00FFFF;
+    font-weight: bold;
+    color: #333;
     position: sticky;
     top: 0;
     z-index: 1;
 }
 
-/* Hiệu ứng hover cho hàng */
-.shipperTable tr {
-    transition: background-color 0.2s ease;
+.shipperTable td {
+    color: #555;
 }
 
 .shipperTable tr:hover {
-    background-color: #f9f9f9;
+    background: #f9f9f9;
 }
 
-.shipperTable td {
-    color: #333;
-}
-
-/* Trạng thái */
 .statusIdle {
-    color: #4caf50; /* Màu xanh cho "Đang rảnh" */
+    color: #4caf50;
     font-weight: bold;
 }
 
 .statusDelivering {
-    color: #ff9800; /* Màu cam cho "Đang giao hàng" */
+    color: #ff9800;
     font-weight: bold;
 }
 
-/* Nút xem chi tiết */
 .viewButton {
-    background-color: #4a90e2;
+    background: #007bff;
     color: white;
+    padding: 6px 12px;
     border: none;
-    padding: 6px 10px;
-    border-radius: 5px;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 14px;
     margin-right: 5px;
-    transition: background-color 0.3s ease;
 }
 
 .viewButton:hover {
-    background-color: #357abd;
+    background: #0056b3;
 }
 
-/* Nút xóa */
-.deleteButton {
-    background-color: #ff4d4d;
+.editButton {
+    background-color: #ff6200;
     color: white;
+    padding: 6px 12px;
     border: none;
-    padding: 6px 10px;
-    border-radius: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 8px;
+}
+
+.editButton:hover {
+    background-color: #e55a00;
+}
+
+.deleteButton {
+    background: #ff4d4f;
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+.deleteButton:hover {
+    background: #d9363e;
+}
+
+.textCenter {
+    text-align: center;
+    color: #888;
+    padding: 20px;
+    font-size: 16px;
+}
+
+.editForm {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    max-width: 500px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.editForm h3 {
+    margin-bottom: 20px;
+    font-size: 20px;
+    color: #333;
+    text-align: center;
+}
+
+.editForm input {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+}
+
+.editForm input:focus {
+    border-color: #ff6200;
+    outline: none;
+}
+
+.btnSubmit {
+    background-color: #ff6200;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
     cursor: pointer;
     font-size: 14px;
     transition: background-color 0.3s ease;
 }
 
-.deleteButton:hover {
-    background-color: #cc0000;
+.btnSubmit:hover {
+    background-color: #e55a00;
 }
 
-/* Thông báo không tìm thấy */
-.textCenter {
-    text-align: center;
-    color: #6b7280;
-    font-size: 16px;
-    margin-top: 20px;
+.btnCancel {
+    background-color: #6b7280;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 10px;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
 }
 
-/* Responsive cho thiết bị di động */
-@media (max-width: 768px) {
-    .container {
-        padding: 15px;
-    }
-
-    .tableContainer {
-        max-height: 50vh; /* Giảm chiều cao tối đa trên thiết bị di động */
-    }
-
-    .shipperTable th,
-    .shipperTable td {
-        padding: 8px 10px;
-        font-size: 12px;
-        white-space: normal; /* Cho phép xuống dòng trên thiết bị di động */
-        overflow: visible; /* Hiển thị toàn bộ nội dung */
-        text-overflow: clip; /* Không hiển thị "..." */
-    }
-
-    .custom-modal {
-        width: 90% !important;
-        padding: 15px;
-    }
-
-    .custom-modal-title {
-        font-size: 18px;
-    }
-
-    .detail-item {
-        flex-direction: column;
-        gap: 5px;
-        padding: 8px;
-    }
-
-    .detail-label {
-        min-width: auto;
-    }
+.btnCancel:hover {
+    background-color: #5a6268;
 }

@@ -12,9 +12,9 @@
 .statusTab {
     padding: 20px;
     flex: 1;
-    overflow: hidden; /* Ngăn thanh kéo không mong muốn ở cấp độ này */
     display: flex;
     flex-direction: column;
+    overflow: auto; /* Thay từ hidden thành auto để hỗ trợ cuộn khi cần */
 }
 
 .tabBar {
@@ -30,6 +30,7 @@
     cursor: pointer;
     font-size: 16px;
     color: #555;
+    transition: color 0.3s ease;
 }
 
 .tabButton:hover {
@@ -43,6 +44,6 @@
 }
 
 .tabContent {
-    flex: 1; /* Chiếm toàn bộ không gian còn lại */
-    overflow: hidden; /* Ngăn tràn nội dung ở cấp độ này */
+    flex: 1;
+    overflow: hidden; /* Giữ nguyên để kiểm soát nội dung bên trong */
 }

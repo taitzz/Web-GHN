@@ -11,7 +11,7 @@ const ShipperDashboard = () => {
     const [activeTab, setActiveTab] = useState("assignments");
     const [assignments, setAssignments] = useState([]);
     const [shippingOrders, setShippingOrders] = useState([]);
-    const [completedOrders, setCompletedOrders] = useState([]); 
+    const [completedOrders, setCompletedOrders] = useState([]);
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [loadingName, setLoadingName] = useState(true);
@@ -24,7 +24,7 @@ const ShipperDashboard = () => {
     const [currentPage, setCurrentPage] = useState(0);
     const navigate = useNavigate();
 
-    const itemsPerPage = 5; // Số đơn hàng mỗi trang
+    const itemsPerPage = 5;
 
     const tabs = [
         { key: "assignments", label: "Đơn hàng được gán" },
@@ -32,7 +32,6 @@ const ShipperDashboard = () => {
         { key: "completed", label: "Đã hoàn thành" },
     ];
 
-    // Hàm xử lý lỗi nghiêm trọng
     const handleAuthError = () => {
         localStorage.removeItem("shipperToken");
         localStorage.removeItem("shipperId");
@@ -40,7 +39,6 @@ const ShipperDashboard = () => {
         navigate("/shipper-login");
     };
 
-    // Lấy tên shipper
     const fetchShipperName = async () => {
         try {
             setLoadingName(true);
@@ -62,7 +60,6 @@ const ShipperDashboard = () => {
         }
     };
 
-    // Lấy danh sách đơn hàng được gán
     const fetchAssignments = async () => {
         try {
             setLoadingAssignments(true);
@@ -71,6 +68,7 @@ const ShipperDashboard = () => {
             const response = await axios.get("http://localhost:5000/api/shipper/assignments", {
                 headers: { Authorization: `Bearer ${token}` },
             });
+            console.log("[fetchAssignments] Dữ liệu từ API:", response.data);
             setAssignments(response.data);
         } catch (err) {
             console.error("[fetchAssignments] Lỗi:", err);
@@ -84,7 +82,6 @@ const ShipperDashboard = () => {
         }
     };
 
-    // Lấy danh sách đơn hàng đang vận chuyển
     const fetchShippingOrders = async () => {
         try {
             setLoadingShippingOrders(true);
@@ -93,6 +90,7 @@ const ShipperDashboard = () => {
             const response = await axios.get("http://localhost:5000/api/shipper/shipping-orders", {
                 headers: { Authorization: `Bearer ${token}` },
             });
+            console.log("[fetchShippingOrders] Dữ liệu từ API:", response.data);
             setShippingOrders(response.data);
         } catch (err) {
             console.error("[fetchShippingOrders] Lỗi:", err);
@@ -110,12 +108,11 @@ const ShipperDashboard = () => {
         try {
             setLoadingCompletedOrders(true);
             const token = localStorage.getItem("shipperToken");
-            console.log("[fetchCompletedOrders] Token:", token);
             if (!token) throw new Error("Không tìm thấy token!");
             const response = await axios.get("http://localhost:5000/api/shipper/completed-orders", {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            console.log("[fetchCompletedOrders] Response:", response.data);
+            console.log("[fetchCompletedOrders] Dữ liệu từ API:", response.data);
             setCompletedOrders(response.data);
         } catch (err) {
             console.error("[fetchCompletedOrders] Lỗi:", err);
@@ -129,7 +126,6 @@ const ShipperDashboard = () => {
         }
     };
 
-    // Lấy chi tiết đơn hàng
     const fetchOrderDetails = async (orderId) => {
         try {
             const token = localStorage.getItem("shipperToken");
@@ -149,7 +145,6 @@ const ShipperDashboard = () => {
         }
     };
 
-    // Phản hồi đơn hàng (Đồng ý/Từ chối)
     const respondToAssignment = async (assignmentId, response) => {
         try {
             const token = localStorage.getItem("shipperToken");
@@ -173,14 +168,13 @@ const ShipperDashboard = () => {
         }
     };
 
-    // Bắt đầu vận chuyển đơn hàng
     const startShipping = async (orderId) => {
         try {
             const token = localStorage.getItem("shipperToken");
             const shipperId = localStorage.getItem("shipperId");
             if (!token || !shipperId) throw new Error("Không tìm thấy token hoặc shipperId!");
             await axios.post(
-                "http://localhost:5000/api/shipper/start-shipping",
+                "http://localhost:5000/api/shipper/start鲜hipping",
                 { orderId, shipperId },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -197,7 +191,6 @@ const ShipperDashboard = () => {
         }
     };
 
-    // Xác nhận hoàn thành đơn hàng
     const completeOrder = async (orderId) => {
         try {
             const token = localStorage.getItem("shipperToken");
@@ -221,8 +214,7 @@ const ShipperDashboard = () => {
         }
     };
 
-    // Xác nhận thanh toán từ người nhận
-    const confirmPayment = async (orderId) => {
+    const confirmReceiverPayment = async (orderId) => {
         try {
             const token = localStorage.getItem("shipperToken");
             const shipperId = localStorage.getItem("shipperId");
@@ -237,7 +229,7 @@ const ShipperDashboard = () => {
             fetchCompletedOrders();
             setShowDetailModal(false);
         } catch (err) {
-            console.error("[confirmPayment] Lỗi:", err);
+            console.error("[confirmReceiverPayment] Lỗi:", err);
             if (err.response?.status === 401 || err.response?.status === 403) {
                 handleAuthError();
             } else {
@@ -246,7 +238,6 @@ const ShipperDashboard = () => {
         }
     };
 
-    // Đăng xuất
     const handleLogout = () => {
         localStorage.removeItem("shipperToken");
         localStorage.removeItem("shipperId");
@@ -254,19 +245,14 @@ const ShipperDashboard = () => {
         navigate("/shipper-login");
     };
 
-    // Làm mới dữ liệu
     const refreshData = async () => {
         setError(null);
         setCurrentPage(0);
         try {
             await fetchShipperName();
-            if (activeTab === "assignments") {
-                await fetchAssignments();
-            } else if (activeTab === "shipping") {
-                await fetchShippingOrders();
-            } else if (activeTab === "completed") {
-                await fetchCompletedOrders();
-            }
+            if (activeTab === "assignments") await fetchAssignments();
+            else if (activeTab === "shipping") await fetchShippingOrders();
+            else if (activeTab === "completed") await fetchCompletedOrders();
         } catch (err) {
             console.error("[refreshData] Lỗi:", err);
             toast.error(err.message || "Không thể tải dữ liệu!");
@@ -277,16 +263,42 @@ const ShipperDashboard = () => {
         refreshData();
     }, [activeTab]);
 
-    // Lọc và phân trang dữ liệu
+    const formatDate = (dateString) => {
+        if (!dateString || typeof dateString !== "string") return "Chưa xác định";
+        const date = new Date(dateString);
+        return isNaN(date.getTime()) ? "Chưa xác định" : date.toLocaleDateString("vi-VN");
+    };
+
+    const getPaymentInfo = (order) => {
+        const { PaymentBy, PaymentStatus, TotalCost } = order;
+        const cost = TotalCost != null && !isNaN(TotalCost) ? `${TotalCost.toLocaleString()} VNĐ` : "N/A";
+
+        if (!PaymentBy || !PaymentStatus) {
+            return { text: "Thông tin thanh toán không đầy đủ", requiresAction: false };
+        }
+
+        if (PaymentBy === "Sender") {
+            return {
+                text: PaymentStatus === "Paid" ? `Người gửi đã trả (${cost})` : "Người gửi chưa trả",
+                requiresAction: false,
+            };
+        }
+
+        if (PaymentBy === "Receiver") {
+            return {
+                text: PaymentStatus === "Paid" ? `Người nhận đã trả (${cost})` : "Người nhận chưa trả",
+                requiresAction: PaymentStatus === "Pending" && order.Status === "Shipping",
+            };
+        }
+
+        return { text: "Thông tin thanh toán không hợp lệ", requiresAction: false };
+    };
+
     const filteredData = useMemo(() => {
         let data = [];
-        if (activeTab === "assignments") {
-            data = assignments;
-        } else if (activeTab === "shipping") {
-            data = shippingOrders;
-        } else if (activeTab === "completed") {
-            data = completedOrders;
-        }
+        if (activeTab === "assignments") data = assignments;
+        else if (activeTab === "shipping") data = shippingOrders;
+        else if (activeTab === "completed") data = completedOrders;
 
         if (searchTerm) {
             data = data.filter(
@@ -300,10 +312,7 @@ const ShipperDashboard = () => {
     }, [assignments, shippingOrders, completedOrders, activeTab, searchTerm]);
 
     const pageCount = Math.ceil(filteredData.length / itemsPerPage);
-    const paginatedData = filteredData.slice(
-        currentPage * itemsPerPage,
-        (currentPage + 1) * itemsPerPage
-    );
+    const paginatedData = filteredData.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
 
     const handlePageChange = ({ selected }) => {
         setCurrentPage(selected);
@@ -313,7 +322,6 @@ const ShipperDashboard = () => {
     return (
         <div className={styles.dashboard}>
             <ToastContainer position="top-right" autoClose={3000} />
-            {/* Header */}
             <header className={styles.header}>
                 <h1 className={styles.headerTitle}>
                     Xin chào, {loadingName ? "Đang tải..." : shipperName || "Shipper"}!
@@ -323,9 +331,7 @@ const ShipperDashboard = () => {
                 </button>
             </header>
 
-            {/* Main Content */}
             <div className={styles.mainContent}>
-                {/* Tabs */}
                 <div className={styles.tabContainer}>
                     {tabs.map((tab) => (
                         <button
@@ -338,7 +344,6 @@ const ShipperDashboard = () => {
                     ))}
                 </div>
 
-                {/* Search and Refresh */}
                 <div className={styles.controls}>
                     <div className={styles.searchContainer}>
                         <FaSearch className={styles.searchIcon} />
@@ -355,7 +360,6 @@ const ShipperDashboard = () => {
                     </button>
                 </div>
 
-                {/* Table */}
                 {activeTab === "assignments" ? (
                     loadingAssignments ? (
                         <div className={styles.spinner}></div>
@@ -393,7 +397,7 @@ const ShipperDashboard = () => {
                                                     {assignment.Status}
                                                 </span>
                                             </td>
-                                            <td>{new Date(assignment.AssignedDate).toLocaleDateString()}</td>
+                                            <td>{formatDate(assignment.CreatedAt)}</td>
                                             <td className={styles.actionButtons}>
                                                 <button
                                                     className={styles.detailButton}
@@ -405,31 +409,26 @@ const ShipperDashboard = () => {
                                                     <>
                                                         <button
                                                             className={styles.acceptButton}
-                                                            onClick={() =>
-                                                                respondToAssignment(assignment.AssignmentID, "Accepted")
-                                                            }
+                                                            onClick={() => respondToAssignment(assignment.AssignmentID, "Accepted")}
                                                         >
                                                             <FaCheckCircle /> Đồng ý
                                                         </button>
                                                         <button
                                                             className={styles.rejectButton}
-                                                            onClick={() =>
-                                                                respondToAssignment(assignment.AssignmentID, "Rejected")
-                                                            }
+                                                            onClick={() => respondToAssignment(assignment.AssignmentID, "Rejected")}
                                                         >
                                                             <FaTimesCircle /> Từ chối
                                                         </button>
                                                     </>
                                                 )}
-                                                {assignment.Status === "Accepted" &&
-                                                    assignment.OrderStatus === "Approved" && (
-                                                        <button
-                                                            className={styles.startShippingButton}
-                                                            onClick={() => startShipping(assignment.OrderID)}
-                                                        >
-                                                            <FaTruck /> Bắt đầu vận chuyển
-                                                        </button>
-                                                    )}
+                                                {assignment.Status === "Accepted" && assignment.OrderStatus === "Approved" && (
+                                                    <button
+                                                        className={styles.startShippingButton}
+                                                        onClick={() => startShipping(assignment.OrderID)}
+                                                    >
+                                                        <FaTruck /> Bắt đầu vận chuyển
+                                                    </button>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}
@@ -459,44 +458,43 @@ const ShipperDashboard = () => {
                                         <th>Người Gửi</th>
                                         <th>Người Nhận</th>
                                         <th>Chi Phí</th>
+                                        <th>Thanh Toán</th>
                                         <th>Ngày Tạo</th>
-                                        <th>Trạng Thái</th>
                                         <th>Hành Động</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {paginatedData.map((order) => (
-                                        <tr key={order.OrderID}>
-                                            <td>{order.OrderID}</td>
-                                            <td>{order.SenderName}</td>
-                                            <td>{order.ReceiverName}</td>
-                                            <td>
-                                                {order.TotalCost != null && !isNaN(order.TotalCost)
-                                                    ? `${order.TotalCost.toLocaleString()} VNĐ`
-                                                    : "N/A"}
-                                            </td>
-                                            <td>{new Date(order.CreatedDate).toLocaleDateString()}</td>
-                                            <td>
-                                                <span className={`${styles.status} ${styles.statusShipping}`}>
-                                                    {order.Status}
-                                                </span>
-                                            </td>
-                                            <td className={styles.actionButtons}>
-                                                <button
-                                                    className={styles.detailButton}
-                                                    onClick={() => fetchOrderDetails(order.OrderID)}
-                                                >
-                                                    Xem chi tiết
-                                                </button>
-                                                <button
-                                                    className={styles.completeButton}
-                                                    onClick={() => completeOrder(order.OrderID)}
-                                                >
-                                                    <FaCheckCircle /> Hoàn thành
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
+                                    {paginatedData.map((order) => {
+                                        const paymentInfo = getPaymentInfo(order);
+                                        return (
+                                            <tr key={order.OrderID}>
+                                                <td>{order.OrderID}</td>
+                                                <td>{order.SenderName}</td>
+                                                <td>{order.ReceiverName}</td>
+                                                <td>
+                                                    {order.TotalCost != null && !isNaN(order.TotalCost)
+                                                        ? `${order.TotalCost.toLocaleString()} VNĐ`
+                                                        : "N/A"}
+                                                </td>
+                                                <td>{paymentInfo.text}</td>
+                                                <td>{formatDate(order.CreatedDate)}</td>
+                                                <td className={styles.actionButtons}>
+                                                    <button
+                                                        className={styles.detailButton}
+                                                        onClick={() => fetchOrderDetails(order.OrderID)}
+                                                    >
+                                                        Xem chi tiết
+                                                    </button>
+                                                    <button
+                                                        className={styles.completeButton}
+                                                        onClick={() => completeOrder(order.OrderID)}
+                                                    >
+                                                        <FaCheckCircle /> Hoàn thành
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                             <ReactPaginate
@@ -523,38 +521,37 @@ const ShipperDashboard = () => {
                                         <th>Người Gửi</th>
                                         <th>Người Nhận</th>
                                         <th>Chi Phí</th>
+                                        <th>Thanh Toán</th>
                                         <th>Ngày Tạo</th>
-                                        <th>Trạng Thái</th>
                                         <th>Hành Động</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {paginatedData.map((order) => (
-                                        <tr key={order.OrderID}>
-                                            <td>{order.OrderID}</td>
-                                            <td>{order.SenderName}</td>
-                                            <td>{order.ReceiverName}</td>
-                                            <td>
-                                                {order.TotalCost != null && !isNaN(order.TotalCost)
-                                                    ? `${order.TotalCost.toLocaleString()} VNĐ`
-                                                    : "N/A"}
-                                            </td>
-                                            <td>{new Date(order.CreatedDate).toLocaleDateString()}</td>
-                                            <td>
-                                                <span className={`${styles.status} ${styles.statusCompleted}`}>
-                                                    {order.Status}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <button
-                                                    className={styles.detailButton}
-                                                    onClick={() => fetchOrderDetails(order.OrderID)}
-                                                >
-                                                    Xem chi tiết
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
+                                    {paginatedData.map((order) => {
+                                        const paymentInfo = getPaymentInfo(order);
+                                        return (
+                                            <tr key={order.OrderID}>
+                                                <td>{order.OrderID}</td>
+                                                <td>{order.SenderName}</td>
+                                                <td>{order.ReceiverName}</td>
+                                                <td>
+                                                    {order.TotalCost != null && !isNaN(order.TotalCost)
+                                                        ? `${order.TotalCost.toLocaleString()} VNĐ`
+                                                        : "N/A"}
+                                                </td>
+                                                <td>{paymentInfo.text}</td>
+                                                <td>{formatDate(order.CreatedDate)}</td>
+                                                <td>
+                                                    <button
+                                                        className={styles.detailButton}
+                                                        onClick={() => fetchOrderDetails(order.OrderID)}
+                                                    >
+                                                        Xem chi tiết
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                             <ReactPaginate
@@ -571,7 +568,6 @@ const ShipperDashboard = () => {
                     )
                 ) : null}
 
-                {/* Modal chi tiết đơn hàng */}
                 {showDetailModal && selectedOrder && (
                     <div className={styles.modalOverlay}>
                         <div className={styles.modal}>
@@ -606,9 +602,8 @@ const ShipperDashboard = () => {
                                             ? `${selectedOrder.TotalCost.toLocaleString()} VNĐ`
                                             : "N/A"}
                                     </p>
-                                    <p><strong>Thanh toán bởi:</strong> {selectedOrder.PaymentBy || "N/A"}</p>
-                                    <p><strong>Trạng thái thanh toán:</strong> {selectedOrder.PaymentStatus || "N/A"}</p>
-                                </div>                               
+                                    <p><strong>Trạng thái:</strong> {getPaymentInfo(selectedOrder).text}</p>
+                                </div>
                             </div>
                             <div className={styles.modalActions}>
                                 {selectedOrder.Status === "Approved" && (
@@ -624,10 +619,10 @@ const ShipperDashboard = () => {
                                 )}
                                 {selectedOrder.Status === "Shipping" && (
                                     <>
-                                        {selectedOrder.PaymentBy === "Receiver" && selectedOrder.PaymentStatus === "Pending" && (
+                                        {getPaymentInfo(selectedOrder).requiresAction && (
                                             <button
                                                 className={styles.paymentButton}
-                                                onClick={() => confirmPayment(selectedOrder.OrderID)}
+                                                onClick={() => confirmReceiverPayment(selectedOrder.OrderID)}
                                             >
                                                 <FaCheckCircle /> Xác nhận thanh toán
                                             </button>

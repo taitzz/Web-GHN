@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Sidebar from "../../components/Sidebar";
-import TopBar from "../../components/TopBar";
 import styles from "../../styles/UserList.module.css"; // Import CSS Module
 import Swal from "sweetalert2"; // Import SweetAlert2
 
@@ -74,7 +73,6 @@ const UserList = () => {
 
     // Xóa người dùng
     const deleteUser = async (userID) => {
-        // Hiển thị thông báo xác nhận xóa người dùng bằng SweetAlert2
         const result = await Swal.fire({
             title: "Xác nhận xóa người dùng",
             text: "Bạn có chắc chắn muốn xóa người dùng này không? Hành động này không thể hoàn tác!",
@@ -85,7 +83,7 @@ const UserList = () => {
             confirmButtonText: "Xóa",
             cancelButtonText: "Hủy",
         });
-
+    
         if (result.isConfirmed) {
             try {
                 const token = localStorage.getItem("adminToken");
@@ -96,7 +94,6 @@ const UserList = () => {
                 });
                 setUsers(users.filter((user) => user.UserID !== userID));
                 console.log("✅ Đã xóa người dùng!");
-                // Hiển thị thông báo thành công bằng SweetAlert2
                 await Swal.fire({
                     title: "Thành công!",
                     text: "Người dùng đã bị xóa!",
@@ -106,10 +103,10 @@ const UserList = () => {
                 });
             } catch (err) {
                 console.error("❌ Lỗi khi xóa người dùng:", err);
-                // Hiển thị thông báo lỗi bằng SweetAlert2
+                const errorMessage = err.response?.data?.message || "Xóa người dùng thất bại!";
                 await Swal.fire({
                     title: "Lỗi!",
-                    text: err.response?.data?.message || "Xóa người dùng thất bại!",
+                    text: errorMessage,
                     icon: "error",
                     confirmButtonColor: "#ff4d4d",
                     confirmButtonText: "Đóng",
@@ -129,7 +126,7 @@ const UserList = () => {
             <div className="app__container">
                 <Sidebar />
                 <div className="main">
-                    <TopBar />
+                 
                     <div className={styles.container}>
                         {/* Hiển thị tổng số người dùng */}
                         <div className={styles.headerContainer}>

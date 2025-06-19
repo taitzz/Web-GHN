@@ -216,52 +216,6 @@ const fetchCoordinates = async (provinceCode, districtCode, wardCode, type) => {
     return R * c;
   };
 
-  // Cập nhật khoảng cách khi thay đổi phường/xã
-  useEffect(() => {
-    const updateDistance = async () => {
-      if (!formData.senderWard || !formData.receiverWard || !formData.senderProvince || !formData.receiverProvince) {
-        console.log('Thiếu thông tin địa chỉ, không thể tính khoảng cách.');
-        setFormData((prev) => ({ ...prev, distance: 0 }));
-        return;
-      }
-  
-      const senderCoords = await fetchCoordinates(
-        formData.senderProvince,
-        formData.senderDistrict,
-        formData.senderWard,
-        'sender'
-      );
-      const receiverCoords = await fetchCoordinates(
-        formData.receiverProvince,
-        formData.receiverDistrict,
-        formData.receiverWard,
-        'receiver'
-      );
-  
-      if (!senderCoords || !receiverCoords) {
-        console.warn('Không thể lấy tọa độ, đặt khoảng cách về 0.');
-        setFormData((prev) => ({ ...prev, distance: 0 }));
-        Swal.fire({
-          icon: 'warning',
-          title: 'Cảnh báo',
-          text: 'Không thể tính khoảng cách do không tìm thấy tọa độ. Vui lòng kiểm tra lại địa chỉ.',
-        });
-        return;
-      }
-  
-      const distance = calculateDistance(
-        senderCoords.lat,
-        senderCoords.lon,
-        receiverCoords.lat,
-        receiverCoords.lon
-      );
-      console.log(`Khoảng cách tính được: ${distance} km`);
-      setFormData((prev) => ({ ...prev, distance: isNaN(distance) ? 0 : distance }));
-    };
-  
-    updateDistance();
-  }, [formData.senderWard, formData.receiverWard, formData.senderProvince, formData.receiverProvince]);
-
   // Xử lý thay đổi giá trị trong form
   const handleChange = async (e, index) => {
     const { name, value } = e.target;

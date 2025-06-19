@@ -1,98 +1,98 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Swal from "sweetalert2"; // Import SweetAlert2
-import styles from "../../styles/DetailsShipper.module.css"; // Import CSS Module
+import Select from "react-select";
+import Swal from "sweetalert2";
+import styles from "../../styles/DetailsShipper.module.css";
 
 const API_URL = "http://localhost:5000/api/shipper";
+const PROVINCES_API_URL = "https://provinces.open-api.vn/api/p/";
 
 const DetailsShipper = () => {
     const [employees, setEmployees] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [loading, setLoading] = useState(false);
+    const [editShipper, setEditShipper] = useState(null);
+    const [provinces, setProvinces] = useState([]);
 
     useEffect(() => {
-        const fetchEmployees = async () => {
-            setLoading(true);
-            try {
-                const res = await axios.get(`${API_URL}/approved-shippers`, {
-                    headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` },
-                });
-                console.log("🚀 API Response:", res.data);
-                // Log chi tiết giá trị IsAvailable của từng shipper
-                res.data.forEach((employee, index) => {
-                    console.log(
-                        `Shipper ${index + 1}: IsAvailable =`,
-                        employee.IsAvailable,
-                        `| Type:`,
-                        typeof employee.IsAvailable
-                    );
-                });
-                setEmployees(res.data);
-            } catch (err) {
-                console.error("❌ Lỗi khi tải dữ liệu:", err);
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchEmployees();
+        fetchProvinces();
     }, []);
 
-    // Chuyển đổi ngày sinh về định dạng dd/mm/yyyy
+    const fetchEmployees = async () => {
+        setLoading(true);
+        try {
+            const res = await axios.get(`${API_URL}/approved-shippers`, {
+                headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` },
+            });
+            setEmployees(res.data);
+        } catch (err) {
+            console.error("❌ Lỗi khi tải dữ liệu:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchProvinces = async () => {
+        try {
+            const response = await axios.get(PROVINCES_API_URL);
+            const provinceOptions = response.data.map((province) => ({
+                value: province.name,
+                label: province.name,
+            }));
+            setProvinces(provinceOptions);
+        } catch (err) {
+            console.error("❌ Lỗi khi tải danh sách tỉnh/thành phố:", err);
+            Swal.fire("Lỗi!", "Không thể tải danh sách tỉnh/thành phố.", "error");
+        }
+    };
+
     const formatDate = (dateString) => {
         const date = new Date(dateString);
-        if (isNaN(date)) {
-            return "Ngày không hợp lệ";
-        }
+        if (isNaN(date)) return "Ngày không hợp lệ";
         const day = String(date.getDate()).padStart(2, "0");
         const month = String(date.getMonth() + 1).padStart(2, "0");
         const year = date.getFullYear();
         return `${day}/${month}/${year}`;
     };
 
-    // Hàm xử lý WorkAreas để hiển thị
     const formatWorkAreas = (workAreas) => {
-        let workAreasDisplay = "Chưa có thông tin";
-        if (workAreas) {
-            try {
-                if (typeof workAreas === "string") {
-                    try {
-                        const parsedWorkAreas = JSON.parse(workAreas);
-                        if (Array.isArray(parsedWorkAreas)) {
-                            workAreasDisplay = parsedWorkAreas.join(", ");
-                        } else {
-                            workAreasDisplay = workAreas;
-                        }
-                    } catch (err) {
-                        workAreasDisplay = workAreas;
-                    }
-                } else if (Array.isArray(workAreas)) {
-                    workAreasDisplay = workAreas.join(", ");
-                } else {
-                    workAreasDisplay = String(workAreas);
-                }
-            } catch (err) {
-                console.error("Lỗi khi xử lý WorkAreas:", err);
-                workAreasDisplay = "Dữ liệu không hợp lệ";
-            }
+        if (!workAreas) return "Chưa có thông tin";
+        if (typeof workAreas === "string") {
+            // Nếu là chuỗi thuần, trả về luôn mà không cần parse
+            return workAreas.trim();
         }
-        return workAreasDisplay;
+        if (Array.isArray(workAreas)) {
+            return workAreas.join(", ");
+        }
+        try {
+            // Nếu là JSON, thử parse
+            const parsedWorkAreas = JSON.parse(workAreas);
+            if (Array.isArray(parsedWorkAreas)) {
+                return parsedWorkAreas.join(", ");
+            }
+            return String(parsedWorkAreas);
+        } catch (err) {
+            return workAreas; // Nếu parse thất bại, trả về nguyên gốc
+        }
     };
 
-    // Lọc nhân viên theo tìm kiếm (theo tên, email, số CCCD hoặc GPLX)
-    const filteredEmployees = employees.filter(
-        (employee) =>
-            employee.FullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            employee.Email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            employee.CCCD.includes(searchTerm) ||
-            employee.DriverLicense.includes(searchTerm)
-    );
+    // Cập nhật logic lọc để bao gồm WorkAreas
+    const filteredEmployees = employees.filter((employee) => {
+        const searchLower = searchTerm.toLowerCase();
+        const workAreasText = formatWorkAreas(employee.WorkAreas).toLowerCase();
 
-    // Xóa nhân viên
+        return (
+            employee.FullName.toLowerCase().includes(searchLower) ||
+            employee.Email.toLowerCase().includes(searchLower) ||
+            employee.CCCD.includes(searchLower) ||
+            employee.DriverLicense.includes(searchLower) ||
+            workAreasText.includes(searchLower)
+        );
+    });
+
     const handleDelete = async (id, isAvailable) => {
-        // Chuyển đổi isAvailable thành số nếu nó là chuỗi
         const isAvailableNumber = Number(isAvailable);
-
-        // Kiểm tra nếu shipper đang giao hàng (IsAvailable = 0)
         if (isAvailableNumber === 0) {
             await Swal.fire({
                 title: "Lỗi!",
@@ -101,13 +101,12 @@ const DetailsShipper = () => {
                 confirmButtonColor: "#ff4d4d",
                 confirmButtonText: "Đóng",
             });
-            return; // Dừng hàm, không thực hiện xóa
+            return;
         }
 
-        // Nếu shipper không đang giao hàng, tiếp tục hiển thị xác nhận xóa
         const result = await Swal.fire({
             title: "Bạn có chắc chắn?",
-            text: "Bạn có muốn xóa nhân viên này không? Hành động này không thể hoàn tác!",
+            text: "Bạn có muốn xóa nhân viên này không?",
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#ff4d4d",
@@ -124,285 +123,127 @@ const DetailsShipper = () => {
                 setEmployees(employees.filter((employee) => employee.ShipperID !== id));
                 Swal.fire("Đã xóa!", "Nhân viên đã được xóa thành công.", "success");
             } catch (err) {
-                console.error("❌ Lỗi khi xóa nhân viên:", err);
                 Swal.fire("Lỗi!", "Không thể xóa nhân viên!", "error");
             }
         }
     };
 
-    // Xem chi tiết nhân viên
+    const handleEdit = (employee) => {
+        let workAreasValue = employee.WorkAreas || "";
+        if (employee.WorkAreas && typeof employee.WorkAreas === "string") {
+            try {
+                const parsedWorkAreas = JSON.parse(employee.WorkAreas);
+                workAreasValue = Array.isArray(parsedWorkAreas) && parsedWorkAreas.length > 0 ? parsedWorkAreas[0] : employee.WorkAreas;
+            } catch {
+                workAreasValue = employee.WorkAreas; // Chuỗi thuần thì giữ nguyên
+            }
+        }
+        setEditShipper({
+            ShipperID: employee.ShipperID,
+            fullName: employee.FullName,
+            email: employee.Email,
+            phoneNumber: employee.PhoneNumber || employee.Phone,
+            birthDate: employee.BirthDate.split("T")[0],
+            permanentAddress: employee.PermanentAddress,
+            currentAddress: employee.CurrentAddress,
+            cccd: employee.CCCD,
+            driverLicense: employee.DriverLicense,
+            workAreas: workAreasValue,
+        });
+    };
+
+    const handleWorkAreasChange = (selectedOption) => {
+        const workAreas = selectedOption ? selectedOption.value : "";
+        setEditShipper({ ...editShipper, workAreas });
+    };
+
+    const handleUpdateShipper = async (e) => {
+        e.preventDefault();
+        try {
+            console.log("Dữ liệu gửi đi:", editShipper); // Log để kiểm tra
+            await axios.put(`${API_URL}/update/${editShipper.ShipperID}`, editShipper, {
+                headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` },
+            });
+            await Swal.fire("Thành công!", "Thông tin shipper đã được cập nhật!", "success");
+            setEditShipper(null);
+            fetchEmployees();
+        } catch (err) {
+            console.error("Lỗi khi cập nhật:", err);
+            Swal.fire("Lỗi!", err.response?.data?.message || "Không thể cập nhật thông tin shipper.", "error");
+        }
+    };
+
     const handleViewDetails = (employee) => {
         const workAreasDisplay = formatWorkAreas(employee.WorkAreas);
-
         Swal.fire({
             title: "Thông tin chi tiết nhân viên",
             html: `
-                <div style="
-                    display: flex;
-                    flex-direction: column;
-                    gap: 10px;
-                    font-family: Arial, sans-serif;
-                ">
-                    <div style="
-                        display: flex;
-                        align-items: flex-start;
-                        padding: 12px 0;
-                        border-bottom: 1px solid #eee;
-                        transition: background-color 0.2s ease;
-                    " onmouseover="this.style.backgroundColor='#f0f0f0'" onmouseout="this.style.backgroundColor='transparent'">
-                        <span style="
-                            font-weight: 600;
-                            color: #333;
-                            width: 180px;
-                            flex-shrink: 0;
-                            font-size: 14px;
-                        ">Họ và Tên:</span>
-                        <span style="
-                            color: #555;
-                            font-size: 14px;
-                            word-break: break-word;
-                            margin-left: 5px;
-                        ">${employee.FullName}</span>
+                <div style="display: flex; flex-direction: column; gap: 10px; font-family: Arial, sans-serif;">
+                    <div style="display: flex; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid #eee;">
+                        <span style="font-weight: 600; color: #333; width: 180px;">Họ và Tên:</span>
+                        <span style="color: #555;">${employee.FullName}</span>
                     </div>
-                    <div style="
-                        display: flex;
-                        align-items: flex-start;
-                        padding: 12px 0;
-                        border-bottom: 1px solid #eee;
-                        transition: background-color 0.2s ease;
-                    " onmouseover="this.style.backgroundColor='#f0f0f0'" onmouseout="this.style.backgroundColor='transparent'">
-                        <span style="
-                            font-weight: 600;
-                            color: #333;
-                            width: 180px;
-                            flex-shrink: 0;
-                            font-size: 14px;
-                        ">Ngày Sinh:</span>
-                        <span style="
-                            color: #555;
-                            font-size: 14px;
-                            word-break: break-word;
-                            margin-left: 5px;
-                        ">${formatDate(employee.BirthDate)}</span>
+                    <div style="display: flex; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid #eee;">
+                        <span style="font-weight: 600; color: #333; width: 180px;">Ngày Sinh:</span>
+                        <span style="color: #555;">${formatDate(employee.BirthDate)}</span>
                     </div>
-                    <div style="
-                        display: flex;
-                        align-items: flex-start;
-                        padding: 12px 0;
-                        border-bottom: 1px solid #eee;
-                        transition: background-color 0.2s ease;
-                    " onmouseover="this.style.backgroundColor='#f0f0f0'" onmouseout="this.style.backgroundColor='transparent'">
-                        <span style="
-                            font-weight: 600;
-                            color: #333;
-                            width: 180px;
-                            flex-shrink: 0;
-                            font-size: 14px;
-                        ">Số CCCD:</span>
-                        <span style="
-                            color: #555;
-                            font-size: 14px;
-                            word-break: break-word;
-                            margin-left: 5px;
-                        ">${employee.CCCD}</span>
+                    <div style="display: flex; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid #eee;">
+                        <span style="font-weight: 600; color: #333; width: 180px;">Số CCCD:</span>
+                        <span style="color: #555;">${employee.CCCD}</span>
                     </div>
-                    <div style="
-                        display: flex;
-                        align-items: flex-start;
-                        padding: 12px 0;
-                        border-bottom: 1px solid #eee;
-                        transition: background-color 0.2s ease;
-                    " onmouseover="this.style.backgroundColor='#f0f0f0'" onmouseout="this.style.backgroundColor='transparent'">
-                        <span style="
-                            font-weight: 600;
-                            color: #333;
-                            width: 180px;
-                            flex-shrink: 0;
-                            font-size: 14px;
-                        ">Số Điện Thoại:</span>
-                        <span style="
-                            color: #555;
-                            font-size: 14px;
-                            word-break: break-word;
-                            margin-left: 5px;
-                        ">${employee.PhoneNumber || employee.Phone}</span>
+                    <div style="display: flex; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid #eee;">
+                        <span style="font-weight: 600; color: #333; width: 180px;">Số Điện Thoại:</span>
+                        <span style="color: #555;">${employee.PhoneNumber || employee.Phone || "Không có"}</span>
                     </div>
-                    <div style="
-                        display: flex;
-                        align-items: flex-start;
-                        padding: 12px 0;
-                        border-bottom: 1px solid #eee;
-                        transition: background-color 0.2s ease;
-                    " onmouseover="this.style.backgroundColor='#f0f0f0'" onmouseout="this.style.backgroundColor='transparent'">
-                        <span style="
-                            font-weight: 600;
-                            color: #333;
-                            width: 180px;
-                            flex-shrink: 0;
-                            font-size: 14px;
-                        ">Email:</span>
-                        <span style="
-                            color: #555;
-                            font-size: 14px;
-                            word-break: break-word;
-                            margin-left: 5px;
-                        ">${employee.Email}</span>
+                    <div style="display: flex; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid #eee;">
+                        <span style="font-weight: 600; color: #333; width: 180px;">Email:</span>
+                        <span style="color: #555;">${employee.Email}</span>
                     </div>
-                    <div style="
-                        display: flex;
-                        align-items: flex-start;
-                        padding: 12px 0;
-                        border-bottom: 1px solid #eee;
-                        transition: background-color 0.2s ease;
-                    " onmouseover="this.style.backgroundColor='#f0f0f0'" onmouseout="this.style.backgroundColor='transparent'">
-                        <span style="
-                            font-weight: 600;
-                            color: #333;
-                            width: 180px;
-                            flex-shrink: 0;
-                            font-size: 14px;
-                        ">Địa Chỉ Thường Trú:</span>
-                        <span style="
-                            color: #555;
-                            font-size: 14px;
-                            word-break: break-word;
-                            margin-left: 5px;
-                        ">${employee.PermanentAddress}</span>
+                    <div style="display: flex; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid #eee;">
+                        <span style="font-weight: 600; color: #333; width: 180px;">Địa Chỉ Thường Trú:</span>
+                        <span style="color: #555;">${employee.PermanentAddress}</span>
                     </div>
-                    <div style="
-                        display: flex;
-                        align-items: flex-start;
-                        padding: 12px 0;
-                        border-bottom: 1px solid #eee;
-                        transition: background-color 0.2s ease;
-                    " onmouseover="this.style.backgroundColor='#f0f0f0'" onmouseout="this.style.backgroundColor='transparent'">
-                        <span style="
-                            font-weight: 600;
-                            color: #333;
-                            width: 180px;
-                            flex-shrink: 0;
-                            font-size: 14px;
-                        ">Địa Chỉ Hiện Tại:</span>
-                        <span style="
-                            color: #555;
-                            font-size: 14px;
-                            word-break: break-word;
-                            margin-left: 5px;
-                        ">${employee.CurrentAddress}</span>
+                    <div style="display: flex; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid #eee;">
+                        <span style="font-weight: 600; color: #333; width: 180px;">Địa Chỉ Hiện Tại:</span>
+                        <span style="color: #555;">${employee.CurrentAddress}</span>
                     </div>
-                    <div style="
-                        display: flex;
-                        align-items: flex-start;
-                        padding: 12px 0;
-                        border-bottom: 1px solid #eee;
-                        transition: background-color 0.2s ease;
-                    " onmouseover="this.style.backgroundColor='#f0f0f0'" onmouseout="this.style.backgroundColor='transparent'">
-                        <span style="
-                            font-weight: 600;
-                            color: #333;
-                            width: 180px;
-                            flex-shrink: 0;
-                            font-size: 14px;
-                        ">Giấy Phép Lái Xe:</span>
-                        <span style="
-                            color: #555;
-                            font-size: 14px;
-                            word-break: break-word;
-                            margin-left: 5px;
-                        ">${employee.DriverLicense}</span>
+                    <div style="display: flex; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid #eee;">
+                        <span style="font-weight: 600; color: #333; width: 180px;">Giấy Phép Lái Xe:</span>
+                        <span style="color: #555;">${employee.DriverLicense}</span>
                     </div>
-                    <div style="
-                        display: flex;
-                        align-items: flex-start;
-                        padding: 12px 0;
-                        border-bottom: 1px solid #eee;
-                        transition: background-color 0.2s ease;
-                    " onmouseover="this.style.backgroundColor='#f0f0f0'" onmouseout="this.style.backgroundColor='transparent'">
-                        <span style="
-                            font-weight: 600;
-                            color: #333;
-                            width: 180px;
-                            flex-shrink: 0;
-                            font-size: 14px;
-                        ">Tên Tài Khoản:</span>
-                        <span style="
-                            color: #555;
-                            font-size: 14px;
-                            word-break: break-word;
-                            margin-left: 5px;
-                        ">${employee.EmployeeID}</span>
+                    <div style="display: flex; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid #eee;">
+                        <span style="font-weight: 600; color: #333; width: 180px;">Cơ Sở Làm Việc:</span>
+                        <span style="color: #555;">${workAreasDisplay}</span>
                     </div>
-                    <div style="
-                        display: flex;
-                        align-items: flex-start;
-                        padding: 12px 0;
-                        border-bottom: 1px solid #eee;
-                        transition: background-color 0.2s ease;
-                    " onmouseover="this.style.backgroundColor='#f0f0f0'" onmouseout="this.style.backgroundColor='transparent'">
-                        <span style="
-                            font-weight: 600;
-                            color: #333;
-                            width: 180px;
-                            flex-shrink: 0;
-                            font-size: 14px;
-                        ">Mật Khẩu:</span>
-                        <span style="
-                            color: #555;
-                            font-size: 14px;
-                            word-break: break-word;
-                            margin-left: 5px;
-                        ">${employee.Password}</span>
+                    <div style="display: flex; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid #eee;">
+                        <span style="font-weight: 600; color: #333; width: 180px;">Tài Khoản:</span>
+                        <span style="color: #555;">${employee.EmployeeID || "Không có"}</span>
                     </div>
-                    <div style="
-                        display: flex;
-                        align-items: flex-start;
-                        padding: 12px 0;
-                        transition: background-color 0.2s ease;
-                    " onmouseover="this.style.backgroundColor='#f0f0f0'" onmouseout="this.style.backgroundColor='transparent'">
-                        <span style="
-                            font-weight: 600;
-                            color: #333;
-                            width: 180px;
-                            flex-shrink: 0;
-                            font-size: 14px;
-                        ">Cơ Sở Làm Việc:</span>
-                        <span style="
-                            color: #555;
-                            font-size: 14px;
-                            word-break: break-word;
-                            margin-left: 5px;
-                        ">${workAreasDisplay}</span>
+                    <div style="display: flex; align-items: flex-start; padding: 12px 0;">
+                        <span style="font-weight: 600; color: #333; width: 180px;">Mật Khẩu:</span>
+                        <span style="color: #555;">${employee.Password || "Không có"}</span>
                     </div>
                 </div>
             `,
             confirmButtonText: "Đóng",
             confirmButtonColor: "#ff6200",
             width: "700px",
-            customClass: {
-                popup: "custom-modal",
-                title: "custom-modal-title",
-                htmlContainer: "custom-modal-content",
-                confirmButton: "custom-modal-button",
-            },
         });
     };
 
     return (
         <div className={styles.container}>
-            {/* Ô tìm kiếm */}
             <div className={styles.searchContainer}>
                 <input
                     type="text"
-                    placeholder="Tìm kiếm nhân viên theo tên, email, CCCD hoặc GPLX"
+                    placeholder="Tìm kiếm theo tên, email, CCCD, GPLX hoặc cơ sở làm việc"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
             </div>
 
             {loading ? (
-                <div className={styles.textCenter}>
-                    <p>Đang tải...</p>
-                </div>
+                <div className={styles.textCenter}><p>Đang tải...</p></div>
             ) : filteredEmployees.length === 0 ? (
                 <p className={styles.textCenter}>Không tìm thấy nhân viên nào.</p>
             ) : (
@@ -411,19 +252,17 @@ const DetailsShipper = () => {
                         <thead>
                             <tr>
                                 <th>STT</th>
-                                <th>Họ Tên</th>
-                                <th>Số ĐT</th>
+                                <th>Họ&Tên</th>
+                                <th>SĐT</th>
                                 <th>Email</th>
                                 <th>Cơ Sở</th>
-                                <th>Trạng Thái</th>
+                                <th>TT</th>
                                 <th>Hành Động</th>
                             </tr>
                         </thead>
                         <tbody>
                             {filteredEmployees.map((employee, index) => {
-                                // Chuyển đổi IsAvailable thành số nếu nó là chuỗi
                                 const isAvailable = Number(employee.IsAvailable);
-
                                 return (
                                     <tr key={employee.ShipperID}>
                                         <td>{index + 1}</td>
@@ -431,33 +270,21 @@ const DetailsShipper = () => {
                                         <td>{employee.PhoneNumber || employee.Phone}</td>
                                         <td>{employee.Email}</td>
                                         <td>{formatWorkAreas(employee.WorkAreas)}</td>
-                                        <td
-                                            className={
-                                                isAvailable === 1
-                                                    ? styles.statusIdle
-                                                    : styles.statusDelivering
-                                            }
-                                        >
-                                            {isAvailable === 1
-                                                ? "Rảnh"
-                                                : isAvailable === 0
-                                                ? "Giao hàng"
-                                                : "Không xác định"}
+                                        <td className={isAvailable === 1 ? styles.statusIdle : styles.statusDelivering}>
+                                            {isAvailable === 1 ? "Rảnh" : "Bận"}
                                         </td>
                                         <td>
-                                            <button
-                                                className={styles.viewButton}
-                                                onClick={() => handleViewDetails(employee)}
-                                            >
+                                            <button className={styles.viewButton} onClick={() => handleViewDetails(employee)}>
                                                 Xem chi tiết
+                                            </button>
+                                            <button className={styles.editButton} onClick={() => handleEdit(employee)}>
+                                                Sửa
                                             </button>
                                             <button
                                                 className={styles.deleteButton}
-                                                onClick={() =>
-                                                    handleDelete(employee.ShipperID, employee.IsAvailable)
-                                                }
+                                                onClick={() => handleDelete(employee.ShipperID, employee.IsAvailable)}
                                             >
-                                                Xóa tài khoản
+                                                Xóa
                                             </button>
                                         </td>
                                     </tr>
@@ -465,6 +292,79 @@ const DetailsShipper = () => {
                             })}
                         </tbody>
                     </table>
+                </div>
+            )}
+
+            {editShipper && (
+                <div className={styles.editForm}>
+                    <h3>Sửa Thông Tin Shipper</h3>
+                    <form onSubmit={handleUpdateShipper}>
+                        <input
+                            type="text"
+                            placeholder="Họ và Tên"
+                            value={editShipper.fullName}
+                            onChange={(e) => setEditShipper({ ...editShipper, fullName: e.target.value })}
+                            required
+                        />
+                        <input
+                            type="email"
+                            placeholder="Email"
+                            value={editShipper.email}
+                            onChange={(e) => setEditShipper({ ...editShipper, email: e.target.value })}
+                            required
+                        />
+                        <input
+                            type="text"
+                            placeholder="Số Điện Thoại"
+                            value={editShipper.phoneNumber}
+                            onChange={(e) => setEditShipper({ ...editShipper, phoneNumber: e.target.value })}
+                            required
+                        />
+                        <input
+                            type="date"
+                            value={editShipper.birthDate}
+                            onChange={(e) => setEditShipper({ ...editShipper, birthDate: e.target.value })}
+                            required
+                        />
+                        <input
+                            type="text"
+                            placeholder="Địa Chỉ Thường Trú"
+                            value={editShipper.permanentAddress}
+                            onChange={(e) => setEditShipper({ ...editShipper, permanentAddress: e.target.value })}
+                            required
+                        />
+                        <input
+                            type="text"
+                            placeholder="Địa Chỉ Hiện Tại"
+                            value={editShipper.currentAddress}
+                            onChange={(e) => setEditShipper({ ...editShipper, currentAddress: e.target.value })}
+                            required
+                        />
+                        <input
+                            type="text"
+                            placeholder="Số CCCD"
+                            value={editShipper.cccd}
+                            onChange={(e) => setEditShipper({ ...editShipper, cccd: e.target.value })}
+                            required
+                        />
+                        <input
+                            type="text"
+                            placeholder="Giấy Phép Lái Xe"
+                            value={editShipper.driverLicense}
+                            onChange={(e) => setEditShipper({ ...editShipper, driverLicense: e.target.value })}
+                            required
+                        />
+                        <Select
+                            options={provinces}
+                            onChange={handleWorkAreasChange}
+                            placeholder="Chọn cơ sở làm việc..."
+                            className={styles.selectWorkAreas}
+                            value={provinces.find((option) => option.value === editShipper.workAreas) || null}
+                            required
+                        />
+                        <button type="submit" className={styles.btnSubmit}>Cập nhật</button>
+                        <button type="button" className={styles.btnCancel} onClick={() => setEditShipper(null)}>Hủy</button>
+                    </form>
                 </div>
             )}
         </div>

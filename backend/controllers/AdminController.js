@@ -117,6 +117,7 @@ class AdminController {
             // Tìm shipper khả dụng ở tỉnh/thành phố của người gửi
             const shipper = await Order.findAvailableShipperByProvince(senderProvince);
             let shipperId = null;
+
             if (shipper) {
                 shipperId = shipper.ShipperID;
 
@@ -128,20 +129,69 @@ class AdminController {
 
                 // Cập nhật trạng thái shipper thành không khả dụng
                 await Shipper.updateShipperAvailability(shipperId, false);
-            }
 
-            // Cập nhật trạng thái đơn hàng thành Approved
-            await Order.updateOrderStatus(orderId, "Approved");
+                // Nếu có shipper, chuyển trạng thái sang Shipping
+                await Order.updateOrderStatus(orderId, "Shipping");
+            } else {
+                // Nếu không có shipper, chỉ chuyển trạng thái sang Approved
+                await Order.updateOrderStatus(orderId, "Approved");
+            }
 
             console.log(`[PATCH /admin/orders/${orderId}/approve] Đã duyệt đơn hàng OrderID: ${orderId}, ShipperID: ${shipperId || "Không có shipper phù hợp"}`);
             res.status(200).json({
-                message: "Duyệt đơn hàng thành công!",
+                message: shipperId
+                    ? "Duyệt đơn hàng và gán shipper thành công!"
+                    : "Duyệt đơn hàng thành công, nhưng không có shipper phù hợp!",
                 shipperAssigned: !!shipperId,
                 shipperId: shipperId,
             });
         } catch (err) {
             console.error(`[PATCH /admin/orders/${req.params.orderId}/approve] Lỗi:`, { message: err.message, stack: err.stack });
             res.status(500).json({ message: "Lỗi server khi duyệt đơn hàng!" });
+        }
+    }
+
+    // Gán shipper cho các đơn hàng Approved chưa có shipper
+    static async assignShipperToApprovedOrders(req, res) {
+        try {
+            const orders = await Order.getApprovedOrdersWithoutShipper();
+            if (!orders || orders.length === 0) {
+                return res.status(200).json({ message: "Không có đơn hàng nào cần gán shipper!" });
+            }
+
+            let assignedCount = 0;
+
+            for (const order of orders) {
+                const senderProvince = order.SenderAddress.split(",").pop().trim();
+                const shipper = await Order.findAvailableShipperByProvince(senderProvince);
+
+                if (shipper) {
+                    const shipperId = shipper.ShipperID;
+
+                    // Gán shipper cho đơn hàng
+                    await Order.assignShipper(order.OrderID, shipperId);
+
+                    // Tạo ShipperAssignment
+                    await Order.createShipperAssignment(order.OrderID, shipperId);
+
+                    // Cập nhật trạng thái shipper
+                    await Shipper.updateShipperAvailability(shipperId, false);
+
+                    // Cập nhật trạng thái đơn hàng thành Shipping
+                    await Order.updateOrderStatus(order.OrderID, "Shipping");
+
+                    assignedCount++;
+                    console.log(`[PATCH /admin/orders/assign-shippers] Đã gán ShipperID: ${shipperId} cho OrderID: ${order.OrderID}`);
+                }
+            }
+
+            res.status(200).json({
+                message: `Đã gán shipper cho ${assignedCount} đơn hàng thành công!`,
+                assignedCount,
+            });
+        } catch (err) {
+            console.error(`[PATCH /admin/orders/assign-shippers] Lỗi:`, { message: err.message, stack: err.stack });
+            res.status(500).json({ message: "Lỗi server khi gán shipper!" });
         }
     }
 
@@ -223,12 +273,12 @@ class AdminController {
             if (isNaN(requestId)) {
                 return res.status(400).json({ message: "RequestID không hợp lệ!" });
             }
-
-            const cancelRequest = await Order.getCancelRequestByOrderId(requestId);
+    
+            const cancelRequest = await Order.getCancelRequestByRequestId(requestId);
             if (!cancelRequest || cancelRequest.Status !== "Pending") {
                 return res.status(400).json({ message: "Yêu cầu hủy không tồn tại hoặc đã được xử lý!" });
             }
-
+    
             await Order.rejectCancelRequest(requestId);
             console.log(`[POST /admin/orders/cancel-requests/${requestId}/reject] Đã từ chối yêu cầu hủy RequestID: ${requestId}`);
             res.status(200).json({ message: "Từ chối yêu cầu hủy thành công!" });

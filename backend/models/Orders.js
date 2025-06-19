@@ -15,7 +15,7 @@ class Order {
                 .request()
                 .input("UserID", sql.Int, userId)
                 .query(`
-                    SELECT OrderID, SenderName, ReceiverName, CreatedDate, Status, PaymentBy, PaymentStatus, CancelReason
+                    SELECT OrderID, SenderName, ReceiverName, CreatedDate, Status, PaymentBy, PaymentStatus, CancelReason , ShipperID
                     FROM Orders
                     WHERE UserID = @UserID
                     ORDER BY CreatedDate DESC
@@ -96,22 +96,26 @@ class Order {
     }
 
     // Kiểm tra trạng thái đơn hàng (dành cho user)
-    static async checkOrderStatus(orderId, userId) {
+    static async checkOrderStatus(orderId, userId = null) {
         try {
             const pool = await poolPromise;
-            const result = await pool
-                .request()
-                .input("OrderID", sql.Int, orderId)
-                .input("UserID", sql.Int, userId)
-                .query(`
-                    SELECT Status
-                    FROM Orders
-                    WHERE OrderID = @OrderID AND UserID = @UserID
-                `);
-            console.log(`[Order.checkOrderStatus] Kiểm tra trạng thái đơn hàng OrderID: ${orderId} cho UserID: ${userId}, Kết quả: ${result.recordset[0] ? result.recordset[0].Status : "Không tìm thấy"}`);
+            let query = `
+                SELECT Status
+                FROM Orders
+                WHERE OrderID = @OrderID
+            `;
+            if (userId) {
+                query += " AND UserID = @UserID";
+            }
+            const request = pool.request().input("OrderID", sql.Int, orderId);
+            if (userId) {
+                request.input("UserID", sql.Int, userId);
+            }
+            const result = await request.query(query);
+            console.log(`[Order.checkOrderStatus] Kiểm tra trạng thái đơn hàng OrderID: ${orderId}${userId ? ` cho UserID: ${userId}` : ""}, Kết quả: ${result.recordset[0] ? result.recordset[0].Status : "Không tìm thấy"}`);
             return result.recordset[0];
         } catch (error) {
-            console.error("❌ Lỗi khi kiểm tra trạng thái đơn hàng (user):", { message: error.message, stack: error.stack });
+            console.error("❌ Lỗi khi kiểm tra trạng thái đơn hàng:", { message: error.message, stack: error.stack });
             throw error;
         }
     }
@@ -197,6 +201,23 @@ class Order {
         }
     }
 
+    // Lấy danh sách đơn hàng Approved chưa có shipper
+    static async getApprovedOrdersWithoutShipper() {
+        try {
+            const pool = await poolPromise;
+            const result = await pool.request().query(`
+                SELECT OrderID, SenderAddress
+                FROM Orders
+                WHERE Status = 'Approved' AND ShipperID IS NULL
+            `);
+            console.log(`[Order.getApprovedOrdersWithoutShipper] Tìm thấy ${result.recordset.length} đơn hàng Approved chưa có shipper`);
+            return result.recordset;
+        } catch (error) {
+            console.error("❌ Lỗi khi lấy danh sách đơn hàng Approved chưa có shipper:", { message: error.message, stack: error.stack });
+            throw error;
+        }
+    }
+
     // Đếm số lượng đơn hàng theo trạng thái (dành cho admin)
     static async getOrderCounts() {
         try {
@@ -249,12 +270,12 @@ class Order {
                     FROM Shipper
                     WHERE IsAvailable = 1 
                     AND Status = 'Approved'
-                    AND REPLACE(WorkAreas, '"', '') = @Province
+                    AND WorkAreas LIKE '%' + @Province + '%'
                 `);
-            console.log(`[Order.findAvailableShipperByProvince] Tìm shipper khả dụng tại ${province}, Kết quả: ${result.recordset[0] ? "Tìm thấy" : "Không tìm thấy"}`);
+            console.log(`[Order.findAvailableShipperByProvince] Tìm shipper tại ${province}: ${result.recordset[0] ? "Tìm thấy" : "Không tìm thấy"}`);
             return result.recordset[0] || null;
         } catch (error) {
-            console.error("❌ Lỗi khi tìm shipper khả dụng:", { message: error.message, stack: error.stack });
+            console.error("❌ Lỗi khi tìm shipper khả dụng:", error);
             throw error;
         }
     }
@@ -305,12 +326,52 @@ class Order {
                 .input("ShipperID", sql.Int, shipperId)
                 .input("Status", sql.NVarChar, "Pending")
                 .query(`
-                    INSERT INTO ShipperAssignment (OrderID, ShipperID, Status , CreatedAt)
+                    INSERT INTO ShipperAssignment (OrderID, ShipperID, Status, CreatedAt)
                     VALUES (@OrderID, @ShipperID, @Status, GETDATE())
                 `);
             console.log(`[Order.createShipperAssignment] Đã tạo bản ghi gán OrderID: ${orderId} cho ShipperID: ${shipperId}`);
         } catch (error) {
             console.error("❌ Lỗi khi tạo bản ghi gán đơn hàng:", { message: error.message, stack: error.stack });
+            throw error;
+        }
+    }
+
+    // Gán shipper cho các đơn hàng chưa có shipper tại một tỉnh
+    static async assignShipperToPendingOrders(province) {
+        try {
+            const pool = await poolPromise;
+
+            // Tìm shipper khả dụng
+            const shipper = await Order.findAvailableShipperByProvince(province);
+            if (!shipper) {
+                console.log(`[Order.assignShipperToPendingOrders] Không có shipper khả dụng tại ${province}`);
+                return;
+            }
+
+            // Tìm và gán shipper cho đơn hàng chưa có shipper ở trạng thái Approved
+            const result = await pool
+                .request()
+                .input("Province", sql.NVarChar, province)
+                .input("ShipperID", sql.Int, shipper.ShipperID)
+                .query(`
+                UPDATE TOP (1) Orders
+                SET ShipperID = @ShipperID
+                WHERE Status = 'Approved'
+                AND ShipperID IS NULL
+                AND SenderAddress LIKE '%' + @Province + '%'
+            `);
+
+            if (result.rowsAffected[0] > 0) {
+                // Tạo bản ghi ShipperAssignment
+                await Order.createShipperAssignment(result.rowsAffected[0].OrderID, shipper.ShipperID);
+                // Cập nhật trạng thái shipper thành không khả dụng
+                await Shipper.updateShipperAvailability(shipper.ShipperID, false);
+                console.log(`[Order.assignShipperToPendingOrders] Đã gán ShipperID ${shipper.ShipperID} cho một đơn hàng tại ${province}`);
+            } else {
+                console.log(`[Order.assignShipperToPendingOrders] Không tìm thấy đơn hàng cần gán tại ${province}`);
+            }
+        } catch (error) {
+            console.error("❌ Lỗi khi gán shipper cho đơn hàng:", { message: error.message, stack: error.stack });
             throw error;
         }
     }
@@ -398,6 +459,24 @@ class Order {
         }
     }
 
+    static async getCancelRequestByRequestId(requestId) {
+        try {
+            const pool = await poolPromise;
+            const result = await pool
+                .request()
+                .input("RequestID", sql.Int, requestId)
+                .query(`
+                    SELECT * FROM CancelRequests
+                    WHERE RequestID = @RequestID
+                `);
+            console.log(`[Order.getCancelRequestByRequestId] Kiểm tra yêu cầu hủy cho RequestID: ${requestId}, Kết quả: ${result.recordset.length > 0 ? "Tìm thấy" : "Không tìm thấy"}`);
+            return result.recordset[0] || null;
+        } catch (error) {
+            console.error("❌ Lỗi khi kiểm tra yêu cầu hủy bằng RequestID:", { message: error.message, stack: error.stack });
+            throw error;
+        }
+    }
+
     // Lấy danh sách yêu cầu hủy đơn hàng (dành cho admin)
     static async getCancelRequests(status = "Pending") {
         try {
@@ -457,7 +536,7 @@ class Order {
     static async rejectCancelRequest(requestId) {
         try {
             const pool = await poolPromise;
-            await pool
+            const result = await pool
                 .request()
                 .input("RequestID", sql.Int, requestId)
                 .query(`
@@ -465,6 +544,9 @@ class Order {
                     SET Status = 'Rejected'
                     WHERE RequestID = @RequestID
                 `);
+            if (result.rowsAffected[0] === 0) {
+                throw new Error(`Không tìm thấy yêu cầu hủy với RequestID: ${requestId}`);
+            }
             console.log(`[Order.rejectCancelRequest] Đã từ chối yêu cầu hủy RequestID: ${requestId}`);
         } catch (error) {
             console.error("❌ Lỗi khi từ chối yêu cầu hủy:", { message: error.message, stack: error.stack });

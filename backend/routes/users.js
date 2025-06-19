@@ -20,7 +20,7 @@ router.get("/list", authenticateToken, isAdmin, UserController.getUsers);
 router.get("/profile", authenticateToken, isUser, UserController.getProfile);
 
 // API bảo vệ: Xóa người dùng
-router.delete("/:id", authenticateToken, isUser, UserController.deleteUser);
+router.delete("/:id", authenticateToken, isAdmin, UserController.deleteUser);
 
 // API: Gửi OTP cho quên mật khẩu
 router.post("/forgot-password", UserController.forgotPassword);
