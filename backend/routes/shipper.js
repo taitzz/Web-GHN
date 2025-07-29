@@ -1,6 +1,6 @@
 const express = require("express");
 const { authenticateToken, isAdmin, isShipper } = require("../middleware/auth");
-const ShipperController = require("../controllers/ShipperController");
+const ShipperController = require("../controllers/shipperController");
 const router = express.Router();
 
 // === Public Routes (Không yêu cầu xác thực) 
