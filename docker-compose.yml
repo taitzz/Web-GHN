@@ -19,7 +19,7 @@ services:
       - DB_HOST=mssql
       - DB_USER=sa
       - DB_PASSWORD=chamhoclen
-      - DB_NAME=StudentDB
+      - DB_NAME=DOAN
     depends_on:
       - mssql
 
