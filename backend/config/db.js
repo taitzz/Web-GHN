@@ -13,6 +13,8 @@ const config = {
     }
 };
 
+console.log(config);
+
 // Kết nối database
 const poolPromise = new sql.ConnectionPool(config)
     .connect()
