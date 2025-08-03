@@ -5,7 +5,6 @@ import Select from "react-select"; // Thư viện react-select
 import styles from "../../styles/ShipperRequests.module.css";
 import Swal from "sweetalert2";
 
-const API_URL = "http://localhost:5000/api/shipper";
 const PROVINCES_API_URL = "https://provinces.open-api.vn/api/p/"; // API lấy danh sách tỉnh/thành phố
 
 const ShipperRequests = () => {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import axiosInstance from "../../api/api";
+import axiosInstance from "../../api";
 import { useNavigate } from "react-router-dom";
 import styles from "../../assets/styles/ForgotPassword.module.css"; 
 import bg from "../../assets/images/shipper_icon.jpg";
