@@ -1,17 +1,21 @@
 version: "3.8"
+
 services:
   admin:
-    build: ./admin
+    image: taivu160205/web-admin:v1.0.0
+    container_name: web-admin
     ports:
       - "3000:80"
 
   frontend:
-    build: ./frontend
+    image: taivu160205/web-frontend:v1.0.0
+    container_name: web-frontend
     ports:
       - "3001:80"
 
   backend:
-    build: ./backend
+    image: taivu160205/web-backend:v1.0.0
+    container_name: web-backend
     ports:
       - "5000:5000"
     environment:
