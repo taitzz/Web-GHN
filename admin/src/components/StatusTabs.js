@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { axiosInstance } from "../../api";
 import styles from "../styles/StatusTabs.module.css";
 import Swal from "sweetalert2";
 
@@ -61,7 +60,10 @@ const StatusTabs = () => {
         try {
             const token = localStorage.getItem("adminToken");
             if (!token) throw new Error("Không tìm thấy token, vui lòng đăng nhập lại!");
-            const response = await axiosInstance.get("/api/admin/orders");
+            const response = await axios.get("http://localhost:5000/api/admin/orders", {
+                headers: { Authorization: `Bearer ${token}` },
+                params: { status },
+            });
             return response.data;
         } catch (error) {
             if (error.response && (error.response.status === 401 || error.response.status === 403)) {

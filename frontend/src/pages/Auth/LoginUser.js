@@ -4,7 +4,7 @@ import styles from "../../assets/styles/LoginUser.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import bg from "../../assets/images/shipper_icon.jpg";
-import axiosInstance from "../../api";
+import axios from "axios";
 import Swal from "sweetalert2"; 
 
 export default function LoginUser() {
@@ -43,14 +43,15 @@ export default function LoginUser() {
 
         if (Object.keys(newErrors).length === 0) {
             try {
-                const response = await axiosInstance.post("/api/users/login", {
+                const response = await axios.post("http://localhost:5000/api/users/login", {
                     username,
                     password,
                 });
 
                 if (response.status === 200) {
                     const { token } = response.data;
-                    localStorage.setItem("token", token);
+                    localStorage.setItem("authToken", token);
+                    
                     // Hiển thị thông báo thành công với SweetAlert2
                     Swal.fire({
                         title: 'Đăng nhập thành công!',

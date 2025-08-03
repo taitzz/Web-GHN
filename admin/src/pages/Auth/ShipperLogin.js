@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ghnLogo from "../../assets/images/ghn.png";
 import shipperImage from "../../assets/images/shipper.jpg";
-import { axiosInstance } from "../../api";
+import axios from "axios";
 import Swal from "sweetalert2"; // Import SweetAlert2
 import styles from "./ShipperLogin.module.css";
 
@@ -17,7 +17,7 @@ export default function ShipperLogin() {
         try {
             setErrorMessage(""); // Xóa thông báo lỗi trước khi thử đăng nhập
 
-            const response = await axiosInstance.post("/shipper/login", {
+            const response = await axios.post("http://localhost:5000/api/shipper/login", {
                 employeeId,
                 password,
             });

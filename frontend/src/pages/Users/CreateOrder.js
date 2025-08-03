@@ -5,7 +5,6 @@ import styles from '../../assets/styles/CreateOrder.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
-import { axiosInstance } from "../../api";
 import { QRCodeCanvas } from "qrcode.react";
 import Swal from 'sweetalert2';
 
@@ -535,10 +534,16 @@ const fetchCoordinates = async (provinceCode, districtCode, wardCode, type) => {
 
         console.log("Dữ liệu gửi lên server:", orderPayload);
 
-      const response = await axiosInstance.post(
-        "/orders/create",
-        orderPayload
-      );
+        const response = await axios.post(
+            "http://localhost:5000/api/orders/create",
+            orderPayload,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            }
+        );
 
         console.log("Kết quả từ server:", response.data);
         Swal.fire({

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { shipperApi } from "../../api";
 import Select from "react-select"; // Thư viện react-select
 import styles from "../../styles/ShipperRequests.module.css";
 import Swal from "sweetalert2";
 
+const API_URL = "http://localhost:5000/api/shipper";
 const PROVINCES_API_URL = "https://provinces.open-api.vn/api/p/"; // API lấy danh sách tỉnh/thành phố
 
 const ShipperRequests = () => {
@@ -35,7 +35,9 @@ const ShipperRequests = () => {
         try {
             setLoading(true);
             setError(null);
-            const res = await shipperApi.getShipperRequests();
+            const res = await axios.get(`${API_URL}/shipper-requests`, {
+                headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` },
+            });
             const mappedRequests = res.data.map((item) => ({
                 ShipperID: item.id || item.ShipperID,
                 FullName: item.fullName || item.FullName,
@@ -84,7 +86,9 @@ const ShipperRequests = () => {
     const handleAddShipper = async (e) => {
         e.preventDefault();
         try {
-            const response = await shipperApi.createAndApprove(newShipper);
+            const response = await axios.post(`${API_URL}/create-and-approve`, newShipper, {
+                headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` },
+            });
             await Swal.fire({
                 title: "Thành công!",
                 text: "Shipper đã được thêm, duyệt và email thông báo đã được gửi!",
@@ -124,7 +128,9 @@ const ShipperRequests = () => {
 
         if (result.isConfirmed) {
             try {
-                const response = await shipperApi.approveShipper(id);
+                const response = await axios.put(`${API_URL}/approve/${id}`, {}, {
+                    headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` },
+                });
                 await Swal.fire("Thành công!", response.data.message || "Shipper đã được duyệt!", "success");
                 setRequests((prev) => prev.filter((request) => request.ShipperID !== id));
             } catch (err) {
@@ -147,7 +153,9 @@ const ShipperRequests = () => {
 
         if (result.isConfirmed) {
             try {
-                await shipperApi.deleteShipper(id);
+                await axios.delete(`${API_URL}/delete/${id}`, {
+                    headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` },
+                });
                 await Swal.fire("Thành công!", "Shipper đã bị xóa!", "success");
                 setRequests((prev) => prev.filter((request) => request.ShipperID !== id));
             } catch (err) {
@@ -158,7 +166,9 @@ const ShipperRequests = () => {
 
     const handleViewDetails = async (id) => {
         try {
-            const response = await shipperApi.getShipperDetails(id);
+            const response = await axios.get(`${API_URL}/shipper-details/${id}`, {
+                headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` },
+            });
             const shipperData = {
                 ShipperID: response.data.id || response.data.ShipperID,
                 FullName: response.data.fullName || response.data.FullName,

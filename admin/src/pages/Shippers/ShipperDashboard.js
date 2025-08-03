@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { shipperApi } from "../../api";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import ReactPaginate from "react-paginate";
@@ -44,7 +44,9 @@ const ShipperDashboard = () => {
             setLoadingName(true);
             const token = localStorage.getItem("shipperToken");
             if (!token) throw new Error("Không tìm thấy token!");
-            const response = await shipperApi.getName();
+            const response = await axios.get("http://localhost:5000/api/shipper/name", {
+                headers: { Authorization: `Bearer ${token}` },
+            });
             setShipperName(response.data.fullName);
         } catch (err) {
             console.error("[fetchShipperName] Lỗi:", err);
@@ -63,7 +65,9 @@ const ShipperDashboard = () => {
             setLoadingAssignments(true);
             const token = localStorage.getItem("shipperToken");
             if (!token) throw new Error("Không tìm thấy token!");
-            const response = await shipperApi.getAssignments();
+            const response = await axios.get("http://localhost:5000/api/shipper/assignments", {
+                headers: { Authorization: `Bearer ${token}` },
+            });
             console.log("[fetchAssignments] Dữ liệu từ API:", response.data);
             setAssignments(response.data);
         } catch (err) {
@@ -83,7 +87,9 @@ const ShipperDashboard = () => {
             setLoadingShippingOrders(true);
             const token = localStorage.getItem("shipperToken");
             if (!token) throw new Error("Không tìm thấy token!");
-            const response = await shipperApi.getShippingOrders();
+            const response = await axios.get("http://localhost:5000/api/shipper/shipping-orders", {
+                headers: { Authorization: `Bearer ${token}` },
+            });
             console.log("[fetchShippingOrders] Dữ liệu từ API:", response.data);
             setShippingOrders(response.data);
         } catch (err) {
@@ -103,7 +109,9 @@ const ShipperDashboard = () => {
             setLoadingCompletedOrders(true);
             const token = localStorage.getItem("shipperToken");
             if (!token) throw new Error("Không tìm thấy token!");
-            const response = await shipperApi.getCompletedOrders();
+            const response = await axios.get("http://localhost:5000/api/shipper/completed-orders", {
+                headers: { Authorization: `Bearer ${token}` },
+            });
             console.log("[fetchCompletedOrders] Dữ liệu từ API:", response.data);
             setCompletedOrders(response.data);
         } catch (err) {
@@ -122,7 +130,9 @@ const ShipperDashboard = () => {
         try {
             const token = localStorage.getItem("shipperToken");
             if (!token) throw new Error("Không tìm thấy token!");
-            const response = await shipperApi.getOrderDetails(orderId);
+            const response = await axios.get(`http://localhost:5000/api/shipper/orders/${orderId}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
             setSelectedOrder(response.data);
             setShowDetailModal(true);
         } catch (err) {
@@ -140,7 +150,11 @@ const ShipperDashboard = () => {
             const token = localStorage.getItem("shipperToken");
             const shipperId = localStorage.getItem("shipperId");
             if (!token || !shipperId) throw new Error("Không tìm thấy token hoặc shipperId!");
-            await shipperApi.respondAssignment({ assignmentId, shipperId, response });
+            await axios.post(
+                "http://localhost:5000/api/shipper/respond-assignment",
+                { assignmentId, shipperId, response },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
             toast.success(response === "Accepted" ? "Đã chấp nhận đơn hàng!" : "Đã từ chối đơn hàng!");
             fetchAssignments();
             fetchShippingOrders();
@@ -159,7 +173,11 @@ const ShipperDashboard = () => {
             const token = localStorage.getItem("shipperToken");
             const shipperId = localStorage.getItem("shipperId");
             if (!token || !shipperId) throw new Error("Không tìm thấy token hoặc shipperId!");
-            await shipperApi.startShipping({ orderId, shipperId });
+            await axios.post(
+                "http://localhost:5000/api/shipper/start鲜hipping",
+                { orderId, shipperId },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
             toast.success("Đã bắt đầu vận chuyển đơn hàng!");
             fetchAssignments();
             fetchShippingOrders();
@@ -178,7 +196,11 @@ const ShipperDashboard = () => {
             const token = localStorage.getItem("shipperToken");
             const shipperId = localStorage.getItem("shipperId");
             if (!token || !shipperId) throw new Error("Không tìm thấy token hoặc shipperId!");
-            await shipperApi.completeOrder({ orderId, shipperId });
+            await axios.post(
+                "http://localhost:5000/api/shipper/complete-order",
+                { orderId, shipperId },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
             toast.success("Đã xác nhận hoàn thành đơn hàng!");
             fetchShippingOrders();
             fetchCompletedOrders();
@@ -197,7 +219,11 @@ const ShipperDashboard = () => {
             const token = localStorage.getItem("shipperToken");
             const shipperId = localStorage.getItem("shipperId");
             if (!token || !shipperId) throw new Error("Không tìm thấy token hoặc shipperId!");
-            await shipperApi.confirmPayment({ orderId, shipperId });
+            await axios.post(
+                "http://localhost:5000/api/shipper/confirm-payment",
+                { orderId, shipperId },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
             toast.success("Đã xác nhận thanh toán từ người nhận!");
             fetchShippingOrders();
             fetchCompletedOrders();

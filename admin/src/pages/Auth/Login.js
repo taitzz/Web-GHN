@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import './Login.css';
 import ghn from '../../assets/images/ghn.png';
 import bg from '../../assets/images/bg.png';
-import { axiosInstance } from '../../api';
+import axios from 'axios';
 import Swal from "sweetalert2"; // Import SweetAlert2
 
 export default function Login() {
@@ -39,7 +39,7 @@ export default function Login() {
                 console.log('Sending request to:', 'http://localhost:5000/api/admin/login');
                 console.log('Request body:', { username, password });
 
-                const response = await axiosInstance.post('/admin/login', { username, password }, {
+                const response = await axios.post('http://localhost:5000/api/admin/login', { username, password }, {
                     timeout: 5000,
                 });
 
