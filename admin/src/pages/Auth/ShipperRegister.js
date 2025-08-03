@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { axiosInstance } from "../../api";
 import axios from "axios";
 import Swal from "sweetalert2"; // Import SweetAlert2
 import ghnLogo from "../../assets/images/ghn.png";
 import styles from "./ShipperRegister.module.css";
 
-const API_URL = "http://localhost:5000/api/shipper";
+const API_URL = "/shipper";
 
 export default function ShipperRegister() {
     const [formData, setFormData] = useState(() => {
@@ -91,7 +92,7 @@ export default function ShipperRegister() {
 
     const checkEmailExists = async (email) => {
         try {
-            const response = await axios.post(`${API_URL}/check-email`, { email });
+            const response = await axiosInstance.post(`${API_URL}/check-email`, { email });
             return response.data.exists;
         } catch (err) {
             console.error("❌ Lỗi khi kiểm tra email:", err);
@@ -153,7 +154,7 @@ export default function ShipperRegister() {
 
         if (Object.keys(newError).length === 0) {
             try {
-                const response = await axios.post(`${API_URL}/register`, formData);
+                const response = await axiosInstance.post(`${API_URL}/register`, formData);
                 Swal.fire({
                     title: 'Thành công!',
                     text: response.data.message,

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { axiosInstance } from "../../api";
 import axios from "axios";
 import Select from "react-select";
 import Swal from "sweetalert2";
 import styles from "../../styles/DetailsShipper.module.css";
 
-const API_URL = "http://localhost:5000/api/shipper";
+const API_URL = "/shipper";
 const PROVINCES_API_URL = "https://provinces.open-api.vn/api/p/";
 
 const DetailsShipper = () => {
@@ -22,7 +23,7 @@ const DetailsShipper = () => {
     const fetchEmployees = async () => {
         setLoading(true);
         try {
-            const res = await axios.get(`${API_URL}/approved-shippers`, {
+            const res = await axiosInstance.get(`${API_URL}/approved-shippers`, {
                 headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` },
             });
             setEmployees(res.data);
@@ -117,7 +118,7 @@ const DetailsShipper = () => {
 
         if (result.isConfirmed) {
             try {
-                await axios.delete(`${API_URL}/delete/${id}`, {
+                await axiosInstance.delete(`${API_URL}/delete/${id}`, {
                     headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` },
                 });
                 setEmployees(employees.filter((employee) => employee.ShipperID !== id));
@@ -161,7 +162,7 @@ const DetailsShipper = () => {
         e.preventDefault();
         try {
             console.log("Dữ liệu gửi đi:", editShipper); // Log để kiểm tra
-            await axios.put(`${API_URL}/update/${editShipper.ShipperID}`, editShipper, {
+            await axiosInstance.put(`${API_URL}/update/${editShipper.ShipperID}`, editShipper, {
                 headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` },
             });
             await Swal.fire("Thành công!", "Thông tin shipper đã được cập nhật!", "success");

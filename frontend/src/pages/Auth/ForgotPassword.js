@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import axiosInstance from "../../api/api";
 import { useNavigate } from "react-router-dom";
 import styles from "../../assets/styles/ForgotPassword.module.css"; 
 import bg from "../../assets/images/shipper_icon.jpg";
@@ -30,7 +31,7 @@ export default function ForgotPassword() {
         }
 
         try {
-            const response = await axios.post("http://localhost:5000/api/users/forgot-password", { username, email });
+            const response = axiosInstance.post("/users/forgot-password", { username, email });
             if (response.status === 200) {
                 setIsOtpSent(true);
                 setError("");
@@ -70,7 +71,7 @@ export default function ForgotPassword() {
         }
 
         try {
-            const response = await axios.post("http://localhost:5000/api/users/reset-password", { username, otp, newPassword });
+            const response = await axiosInstance.post("/users/reset-password", { username, otp, newPassword });
             if (response.status === 200) {
                 setSuccessMessage("Mật khẩu đã được thay đổi thành công!");
                 setError("");

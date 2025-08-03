@@ -4,6 +4,7 @@ import styles from "../../assets/styles/RegisterUser.module.css";
 import ghn from "../../assets/images/ghn.png";
 import bg from "../../assets/images/bg.png";
 import axios from "axios";
+import axiosInstance from "../../api";
 import Swal from "sweetalert2"; // Import SweetAlert2
 
 export default function RegisterUser() {
@@ -95,7 +96,8 @@ export default function RegisterUser() {
 
   const handleRegister = async () => {
     try {
-      const usernameResponse = await axios.post("http://localhost:5000/api/users/check-username", { username: formData.username });
+      const usernameResponse = await axiosInstance.post("/api/users/check-username", { username: formData.username });
+
       if (usernameResponse.data.exists) {
         setErrors({ ...errors, username: "Tên tài khoản đã tồn tại" });
         return;
@@ -106,7 +108,7 @@ export default function RegisterUser() {
         return;
       }
 
-      const response = await axios.post("http://localhost:5000/api/users/register", formData);
+      const response = await axiosInstance.post("/api/users/register", formData);
       console.log("Đăng ký thành công:", response.data);
 
       // Hiển thị thông báo thành công với SweetAlert2

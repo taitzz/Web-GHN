@@ -3,6 +3,7 @@ import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import styles from "../../assets/styles/Notifications.module.css";
 import axios from "axios";
+import { axiosInstance } from "../../api";
 import Swal from "sweetalert2";
 
 // Hàm định dạng ngày giờ từ chuỗi ISO
@@ -26,14 +27,12 @@ const Notifications = () => {
 
     const fetchOrders = async () => {
         try {
-            const token = localStorage.getItem("authToken");
+            const token = localStorage.getItem("token");
             if (!token) {
                 console.error("Không có token!");
                 return [];
             }
-            const response = await axios.get("http://localhost:5000/api/orders", {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            const response = await axiosInstance.get("/orders");
             const data = Array.isArray(response.data) ? response.data : [];
             console.log("Dữ liệu từ API /api/orders:", data);
 
@@ -59,10 +58,8 @@ const Notifications = () => {
 
     const fetchOrderDetails = async (orderId) => {
         try {
-            const token = localStorage.getItem("authToken");
-            const response = await axios.get(`http://localhost:5000/api/orders/${orderId}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            const token = localStorage.getItem("token");
+            const response = await axiosInstance.get(`/orders/${orderId}`);
             setSelectedOrder(response.data);
         } catch (err) {
             console.error("Lỗi lấy chi tiết đơn hàng:", err);
@@ -122,9 +119,8 @@ const Notifications = () => {
         if (!confirmCancel.isConfirmed) return;
 
         try {
-            const token = localStorage.getItem("authToken");
-            await axios.delete(`http://localhost:5000/api/orders/${orderId}`, {
-                headers: { Authorization: `Bearer ${token}` },
+            const token = localStorage.getItem("token");
+            await axiosInstance.delete(`/orders/${orderId}`, {
                 data: cancelData,
             });
 
@@ -178,10 +174,8 @@ const Notifications = () => {
 
     const fetchShipperDetails = async (shipperId) => {
         try {
-            const token = localStorage.getItem("authToken");
-            const response = await axios.get(`http://localhost:5000/api/shipper/shipper-details/${shipperId}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            const token = localStorage.getItem("token");
+            const response = await axiosInstance.get(`/shipper/shipper-details/${shipperId}`);
             console.log(`Thông tin shipper từ API (ShipperID: ${shipperId}):`, response.data);
             return response.data;
         } catch (err) {

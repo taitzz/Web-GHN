@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import Sidebar from "../../components/Sidebar";
-import styles from "../../styles/UserList.module.css"; // Import CSS Module
-import Swal from "sweetalert2"; // Import SweetAlert2
-
-const API_URL = "http://localhost:5000/api/users";
+import styles from "../../styles/UserList.module.css";
+import Swal from "sweetalert2";
+import { userApi } from "../../api"; // ✅ Import API từ file api.js
 
 const UserList = () => {
     const [users, setUsers] = useState([]);
@@ -19,7 +17,6 @@ const UserList = () => {
             try {
                 const token = localStorage.getItem("adminToken");
                 if (!token) {
-                    // Hiển thị thông báo lỗi bằng SweetAlert2
                     await Swal.fire({
                         title: "Lỗi!",
                         text: "Bạn chưa đăng nhập! Vui lòng đăng nhập để tiếp tục.",
@@ -30,17 +27,11 @@ const UserList = () => {
                     return;
                 }
 
-                const res = await axios.get(`${API_URL}/list`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                console.log("🚀 API Response:", res.data);
-                setUsers(res.data);
+                const data = await userApi.getAll(token); // ✅ Sử dụng hàm từ api.js
+                console.log("🚀 API Response:", data);
+                setUsers(data);
             } catch (err) {
                 console.error("❌ Lỗi khi tải dữ liệu:", err);
-                // Hiển thị thông báo lỗi bằng SweetAlert2
                 await Swal.fire({
                     title: "Lỗi!",
                     text: err.response?.data?.message || "Không thể tải danh sách người dùng!",
@@ -55,7 +46,6 @@ const UserList = () => {
         fetchUsers();
     }, []);
 
-    // Chuyển đổi ngày sinh về định dạng dd/mm/yyyy
     const formatDate = (dateString) => {
         if (!dateString) return "Không có thông tin";
         const date = new Date(dateString);
@@ -63,7 +53,6 @@ const UserList = () => {
         return `${String(date.getDate()).padStart(2, "0")}/${String(date.getMonth() + 1).padStart(2, "0")}/${date.getFullYear()}`;
     };
 
-    // Lọc người dùng theo tìm kiếm
     const filteredUsers = users.filter(
         (user) =>
             (user.FullName?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
@@ -71,7 +60,6 @@ const UserList = () => {
             (user.Phone || "").includes(searchTerm)
     );
 
-    // Xóa người dùng
     const deleteUser = async (userID) => {
         const result = await Swal.fire({
             title: "Xác nhận xóa người dùng",
@@ -83,15 +71,11 @@ const UserList = () => {
             confirmButtonText: "Xóa",
             cancelButtonText: "Hủy",
         });
-    
+
         if (result.isConfirmed) {
             try {
                 const token = localStorage.getItem("adminToken");
-                await axios.delete(`${API_URL}/${userID}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
+                await userApi.delete(userID, token); // ✅ Dùng API từ file api.js
                 setUsers(users.filter((user) => user.UserID !== userID));
                 console.log("✅ Đã xóa người dùng!");
                 await Swal.fire({
@@ -115,7 +99,6 @@ const UserList = () => {
         }
     };
 
-    // Phân trang
     const indexOfLastUser = currentPage * usersPerPage;
     const indexOfFirstUser = indexOfLastUser - usersPerPage;
     const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
@@ -126,14 +109,11 @@ const UserList = () => {
             <div className="app__container">
                 <Sidebar />
                 <div className="main">
-                 
                     <div className={styles.container}>
-                        {/* Hiển thị tổng số người dùng */}
                         <div className={styles.headerContainer}>
                             <p className={styles.totalUsers}>Tổng số người dùng: {filteredUsers.length}</p>
                         </div>
 
-                        {/* Ô tìm kiếm */}
                         <div className={styles.searchContainer}>
                             <input
                                 type="text"
@@ -144,13 +124,9 @@ const UserList = () => {
                         </div>
 
                         {loading ? (
-                            <p className={`${styles.textCenter} ${styles.textGray500}`}>
-                                Đang tải...
-                            </p>
+                            <p className={`${styles.textCenter} ${styles.textGray500}`}>Đang tải...</p>
                         ) : filteredUsers.length === 0 ? (
-                            <p className={`${styles.textCenter} ${styles.textGray500}`}>
-                                Không tìm thấy người dùng nào.
-                            </p>
+                            <p className={`${styles.textCenter} ${styles.textGray500}`}>Không tìm thấy người dùng nào.</p>
                         ) : (
                             <>
                                 <div className={styles.tableContainer}>
@@ -178,11 +154,8 @@ const UserList = () => {
                                                     <td>{user.Address || "Không có thông tin"}</td>
                                                     <td>{user.Username || "Không có thông tin"}</td>
                                                     <td>
-                                                        <button
-                                                            className={styles.deleteBtn}
-                                                            onClick={() => deleteUser(user.UserID)}
-                                                        >
-                                                            Xóa 
+                                                        <button className={styles.deleteBtn} onClick={() => deleteUser(user.UserID)}>
+                                                            Xóa
                                                         </button>
                                                     </td>
                                                 </tr>
@@ -191,7 +164,6 @@ const UserList = () => {
                                     </table>
                                 </div>
 
-                                {/* Phân trang */}
                                 {totalPages > 1 && (
                                     <div className={styles.pagination}>
                                         <button
@@ -200,9 +172,7 @@ const UserList = () => {
                                         >
                                             Trước
                                         </button>
-                                        <span>
-                                            Trang {currentPage} / {totalPages}
-                                        </span>
+                                        <span>Trang {currentPage} / {totalPages}</span>
                                         <button
                                             onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                                             disabled={currentPage === totalPages}
