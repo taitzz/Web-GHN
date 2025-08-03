@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { shipperApi } from "../../api/api";
+import { shipperApi } from "../../api";
 import Select from "react-select"; // Thư viện react-select
 import styles from "../../styles/ShipperRequests.module.css";
 import Swal from "sweetalert2";
