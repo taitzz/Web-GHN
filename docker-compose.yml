@@ -38,6 +38,64 @@ services:
     volumes:
       - mssql-data:/var/opt/mssql
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    depends_on:
+      - backend
+      - node-exporter
+      - mssql-exporter
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3002:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+
+  mssql-exporter:
+    image: awaragi/prometheus-mssql-exporter:latest
+    container_name: mssql-exporter
+    ports:
+      - "4000:4000"
+    environment:
+      - MSSQL_HOST=sqlserver
+      - MSSQL_PORT=1433
+      - MSSQL_USER=sa
+      - MSSQL_PASSWORD=chamhoclen
+      - MSSQL_DATABASE=DOAN
+    depends_on:
+      - mssql
+
 volumes:
   mssql-data:
-
+  prometheus-data:
+  grafana-data:
