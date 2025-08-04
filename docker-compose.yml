@@ -2,19 +2,22 @@ version: "3.8"
 
 services:
   admin:
-    image: taivu160205/web-admin:v1.0.0
+    image: huyentrang14/web-admin:v1.0.0
+    platform: linux/amd64
     container_name: web-admin
     ports:
       - "3000:80"
 
   frontend:
-    image: taivu160205/web-frontend:v1.0.0
+    image: huyentrang14/web-frontend:v1.0.0
+    platform: linux/amd64
     container_name: web-frontend
     ports:
       - "3001:80"
 
   backend:
-    image: taivu160205/web-backend:v1.0.0
+    image: huyentrang14/web-backend:v1.0.0
+    platform: linux/amd64
     container_name: web-backend
     ports:
       - "5000:5000"
@@ -29,6 +32,7 @@ services:
 
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
+    platform: linux/amd64
     container_name: sqlserver
     ports:
       - "1433:1433"
@@ -40,6 +44,7 @@ services:
 
   prometheus:
     image: prom/prometheus:latest
+    platform: linux/amd64
     container_name: prometheus
     ports:
       - "9090:9090"
@@ -56,6 +61,7 @@ services:
 
   grafana:
     image: grafana/grafana:latest
+    platform: linux/amd64
     container_name: grafana
     ports:
       - "3002:3000"
@@ -69,20 +75,23 @@ services:
 
   node-exporter:
     image: prom/node-exporter:latest
+    platform: linux/amd64
     container_name: node-exporter
     ports:
       - "9100:9100"
-    volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/rootfs:ro
+    # ❗ Lưu ý: MacOS không có /proc, /sys, /rootfs như Linux => Chạy được nhưng không thu thập hết thông tin
     command:
       - '--path.procfs=/host/proc'
       - '--path.sysfs=/host/sys'
       - '--path.rootfs=/rootfs'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
 
   mssql-exporter:
     image: awaragi/prometheus-mssql-exporter:latest
+    platform: linux/amd64
     container_name: mssql-exporter
     ports:
       - "4000:4000"
