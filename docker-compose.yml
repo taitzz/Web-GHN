@@ -39,15 +39,10 @@ services:
     ports:
       - "1433:1433"
     environment:
-      - MSSQL_SA_PASSWORD=chamhoclen
-      - ACCEPT_EULA=Y
+      SA_PASSWORD: "chamhoclen"
+      ACCEPT_EULA: "Y"
     volumes:
       - mssql-data:/var/opt/mssql
-    healthcheck:
-      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "chamhoclen", "-Q", "SELECT 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
     networks:
       - app-network
 
@@ -101,19 +96,18 @@ services:
       - app-network
 
   mssql-exporter:
-    image: awaragi/prometheus-mssql-exporter:0.5.2
+    image: awaragi/prometheus-mssql-exporter:latest
     container_name: mssql-exporter
     ports:
       - "4000:4000"
     environment:
-      - SERVER=sqlserver
-      - PORT=1433
-      - USERNAME=sa
-      - PASSWORD=chamhoclen
-      - DATABASE=DOAN
+      - MSSQL_HOST=sqlserver
+      - MSSQL_PORT=1433
+      - MSSQL_USER=sa
+      - MSSQL_PASSWORD=chamhoclen
+      - MSSQL_DATABASE=DOAN
     depends_on:
-      mssql:
-        condition: service_healthy
+      - mssql
     networks:
       - app-network
 
@@ -130,8 +124,7 @@ services:
       - sonarqube-data:/opt/sonarqube/data
       - sonarqube-logs:/opt/sonarqube/logs
     depends_on:
-      mssql:
-        condition: service_healthy
+      - mssql
     networks:
       - app-network
 
