@@ -39,8 +39,8 @@ services:
     ports:
       - "1433:1433"
     environment:
-      SA_PASSWORD: "chamhoclen"
-      ACCEPT_EULA: "Y"
+      - MSSQL_SA_PASSWORD=chamhoclen
+      - ACCEPT_EULA=Y
     volumes:
       - mssql-data:/var/opt/mssql
     healthcheck:
@@ -101,7 +101,7 @@ services:
       - app-network
 
   mssql-exporter:
-    image: awaragi/prometheus-mssql-exporter:latest
+    image: awaragi/prometheus-mssql-exporter:0.5.2
     container_name: mssql-exporter
     ports:
       - "4000:4000"
